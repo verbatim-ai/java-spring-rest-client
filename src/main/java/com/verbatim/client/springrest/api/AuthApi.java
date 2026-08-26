@@ -30,7 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class AuthApi extends BaseApi {
 
     public AuthApi() {
@@ -43,13 +43,13 @@ public class AuthApi extends BaseApi {
 
     /**
      * Create an access token
-     * Generate a new short-lived opaque access token for the caller&#39;s organization. The token can be used as the &#x60;X-Access-Token&#x60; header on &#x60;/v1/&#x60; API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit privileges over all the domains. To limit access, defined a list of scope, where each must be compliant with the regex (config|auth|session|doc|corpus|post|usage):(create|read|update|delete)
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * Generate a new short-lived opaque access token for the caller&#39;s organization. The token can be used as the &#x60;X-Access-Token&#x60; header on &#x60;/v1/&#x60; API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit privileges over all the domains. To limit access, defined a list of scope, where each must be compliant with the regex (config|auth|session|doc|corpus|post|usage|agent):(create|read|update|delete)
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Access token created.
      * @param accessTokenCreateRequest  (required)
      * @return AccessTokenCreateResponse
@@ -61,13 +61,13 @@ public class AuthApi extends BaseApi {
 
     /**
      * Create an access token
-     * Generate a new short-lived opaque access token for the caller&#39;s organization. The token can be used as the &#x60;X-Access-Token&#x60; header on &#x60;/v1/&#x60; API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit privileges over all the domains. To limit access, defined a list of scope, where each must be compliant with the regex (config|auth|session|doc|corpus|post|usage):(create|read|update|delete)
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * Generate a new short-lived opaque access token for the caller&#39;s organization. The token can be used as the &#x60;X-Access-Token&#x60; header on &#x60;/v1/&#x60; API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit privileges over all the domains. To limit access, defined a list of scope, where each must be compliant with the regex (config|auth|session|doc|corpus|post|usage|agent):(create|read|update|delete)
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Access token created.
      * @param accessTokenCreateRequest  (required)
      * @return ResponseEntity&lt;AccessTokenCreateResponse&gt;
@@ -104,12 +104,12 @@ public class AuthApi extends BaseApi {
     /**
      * Revoke an access token
      * Permanently delete an access token. Any in-flight request using this token will fail immediately after revocation.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Token revoked.
      * @param token access token to revoke. (required)
      * @return AckResponse
@@ -122,12 +122,12 @@ public class AuthApi extends BaseApi {
     /**
      * Revoke an access token
      * Permanently delete an access token. Any in-flight request using this token will fail immediately after revocation.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Token revoked.
      * @param token access token to revoke. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -165,12 +165,12 @@ public class AuthApi extends BaseApi {
     /**
      * Who am I
      * Return the identity of the caller as resolved from the Bearer token: organization, user id, email and display name.  Typical use cases:  - Bootstrap a UI session after sign-in. - Verify that a token is still valid and which user it belongs to. 
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Identity of the authenticated user.
      * @return WhoAmI
      * @throws RestClientException if an error occurs while attempting to invoke the API
@@ -182,12 +182,12 @@ public class AuthApi extends BaseApi {
     /**
      * Who am I
      * Return the identity of the caller as resolved from the Bearer token: organization, user id, email and display name.  Typical use cases:  - Bootstrap a UI session after sign-in. - Verify that a token is still valid and which user it belongs to. 
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Identity of the authenticated user.
      * @return ResponseEntity&lt;WhoAmI&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API

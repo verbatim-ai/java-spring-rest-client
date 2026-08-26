@@ -21,6 +21,7 @@ Presigned URL granting direct client GET access to a single rendered preview ima
 |---- | -----|
 | SMALL | &quot;SMALL&quot; |
 | MEDIUM | &quot;MEDIUM&quot; |
+| LARGE | &quot;LARGE&quot; |
 
 
 

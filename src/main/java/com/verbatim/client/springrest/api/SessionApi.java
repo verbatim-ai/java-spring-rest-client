@@ -33,7 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class SessionApi extends BaseApi {
 
     public SessionApi() {
@@ -47,12 +47,12 @@ public class SessionApi extends BaseApi {
     /**
      * Create a session
      * Open a new conversation session against one or more corpora. The session is attached to the user carried by the caller&#39;s JWT. The model, system prompt, temperature and thinking flag are locked at creation time and apply to every post in the session.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session created.
      * @param sessionCreateRequest  (required)
      * @return SessionCreateResponse
@@ -65,12 +65,12 @@ public class SessionApi extends BaseApi {
     /**
      * Create a session
      * Open a new conversation session against one or more corpora. The session is attached to the user carried by the caller&#39;s JWT. The model, system prompt, temperature and thinking flag are locked at creation time and apply to every post in the session.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session created.
      * @param sessionCreateRequest  (required)
      * @return ResponseEntity&lt;SessionCreateResponse&gt;
@@ -107,12 +107,12 @@ public class SessionApi extends BaseApi {
     /**
      * Delete a session
      * Soft-delete a session. **Cascades** to every post in the session (also soft-deleted). Documents and embeddings are **not** affected.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session and posts deleted.
      * @param sessionId ID of the session to delete. (required)
      * @return AckResponse
@@ -125,12 +125,12 @@ public class SessionApi extends BaseApi {
     /**
      * Delete a session
      * Soft-delete a session. **Cascades** to every post in the session (also soft-deleted). Documents and embeddings are **not** affected.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session and posts deleted.
      * @param sessionId ID of the session to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -168,12 +168,12 @@ public class SessionApi extends BaseApi {
     /**
      * Get a session
      * Fetch a session&#39;s metadata (user, corpora, model, system prompt, parameters). Use &#x60;GET /v1/post&#x60; to retrieve its posts.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session found.
      * @param sessionId ID of the session. (required)
      * @return Session
@@ -186,12 +186,12 @@ public class SessionApi extends BaseApi {
     /**
      * Get a session
      * Fetch a session&#39;s metadata (user, corpora, model, system prompt, parameters). Use &#x60;GET /v1/post&#x60; to retrieve its posts.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session found.
      * @param sessionId ID of the session. (required)
      * @return ResponseEntity&lt;Session&gt;
@@ -229,12 +229,12 @@ public class SessionApi extends BaseApi {
     /**
      * List sessions attached to a corpus
      * Paginate the sessions opened against a corpus, newest first. The corpus must belong to the caller&#39;s organization.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param corpusId ID of the corpus. (required)
      * @param pageSize Number of items per page. (optional, default to 25)
@@ -242,19 +242,19 @@ public class SessionApi extends BaseApi {
      * @return SessionListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public SessionListResponse list1(UUID corpusId, Integer pageSize, Integer pageIndex) throws RestClientException {
-        return list1WithHttpInfo(corpusId, pageSize, pageIndex).getBody();
+    public SessionListResponse list2(UUID corpusId, Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list2WithHttpInfo(corpusId, pageSize, pageIndex).getBody();
     }
 
     /**
      * List sessions attached to a corpus
      * Paginate the sessions opened against a corpus, newest first. The corpus must belong to the caller&#39;s organization.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param corpusId ID of the corpus. (required)
      * @param pageSize Number of items per page. (optional, default to 25)
@@ -262,12 +262,12 @@ public class SessionApi extends BaseApi {
      * @return ResponseEntity&lt;SessionListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<SessionListResponse> list1WithHttpInfo(UUID corpusId, Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<SessionListResponse> list2WithHttpInfo(UUID corpusId, Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling list1");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling list2");
         }
         
 
@@ -296,12 +296,12 @@ public class SessionApi extends BaseApi {
     /**
      * List sessions matching a metadata fragment
      * Paginate sessions whose metadata JSONB *contains* the provided fragment (PostgreSQL &#x60;@&gt;&#x60; operator). Results are scoped to the caller&#39;s organization. Filtering on a single key/value pair: pass &#x60;key&#x60; and &#x60;value&#x60;. For richer filtering (nested JSON, multiple keys) pass a raw JSON object as &#x60;json&#x60;.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param key Metadata key to filter on. Pair with &#x60;value&#x60;. (optional)
      * @param value Metadata value matching &#x60;key&#x60;. (optional)
@@ -318,12 +318,12 @@ public class SessionApi extends BaseApi {
     /**
      * List sessions matching a metadata fragment
      * Paginate sessions whose metadata JSONB *contains* the provided fragment (PostgreSQL &#x60;@&gt;&#x60; operator). Results are scoped to the caller&#39;s organization. Filtering on a single key/value pair: pass &#x60;key&#x60; and &#x60;value&#x60;. For richer filtering (nested JSON, multiple keys) pass a raw JSON object as &#x60;json&#x60;.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param key Metadata key to filter on. Pair with &#x60;value&#x60;. (optional)
      * @param value Metadata value matching &#x60;key&#x60;. (optional)
@@ -364,12 +364,12 @@ public class SessionApi extends BaseApi {
     /**
      * List every session in the caller&#39;s organization
      * Paginate every session attached to at least one corpus of the caller&#39;s organization, newest first. The organization is resolved from the JWT, no parameter is needed.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -383,12 +383,12 @@ public class SessionApi extends BaseApi {
     /**
      * List every session in the caller&#39;s organization
      * Paginate every session attached to at least one corpus of the caller&#39;s organization, newest first. The organization is resolved from the JWT, no parameter is needed.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -423,12 +423,12 @@ public class SessionApi extends BaseApi {
     /**
      * List sessions owned by a user
      * Paginate the sessions opened by a given user identifier, newest first. Results are scoped to the caller&#39;s organization at the SQL level: only sessions attached to at least one corpus of the caller&#39;s org are returned, so a user identifier shared across tenants never leaks rows. Pass &#x60;corpusId&#x60; to further restrict results to sessions bound to that specific corpus.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param userId Identifier of the user (free-form string). (required)
      * @param corpusId Optional corpus filter. When provided, only sessions bound to this corpus are returned. (optional)
@@ -444,12 +444,12 @@ public class SessionApi extends BaseApi {
     /**
      * List sessions owned by a user
      * Paginate the sessions opened by a given user identifier, newest first. Results are scoped to the caller&#39;s organization at the SQL level: only sessions attached to at least one corpus of the caller&#39;s org are returned, so a user identifier shared across tenants never leaks rows. Pass &#x60;corpusId&#x60; to further restrict results to sessions bound to that specific corpus.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of sessions.
      * @param userId Identifier of the user (free-form string). (required)
      * @param corpusId Optional corpus filter. When provided, only sessions bound to this corpus are returned. (optional)
@@ -493,12 +493,12 @@ public class SessionApi extends BaseApi {
     /**
      * Update a session
      * Patch one or more session attributes. Only the fields provided in the request body are updated; omitted fields keep their current value. Returns the full updated session.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session updated.
      * @param sessionId ID of the session to update. (required)
      * @param sessionUpdateRequest  (required)
@@ -512,12 +512,12 @@ public class SessionApi extends BaseApi {
     /**
      * Update a session
      * Patch one or more session attributes. Only the fields provided in the request body are updated; omitted fields keep their current value. Returns the full updated session.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Session updated.
      * @param sessionId ID of the session to update. (required)
      * @param sessionUpdateRequest  (required)

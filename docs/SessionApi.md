@@ -7,7 +7,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | [**create**](SessionApi.md#create) | **POST** /v1/session/ | Create a session |
 | [**delete**](SessionApi.md#delete) | **DELETE** /v1/session/{sessionId} | Delete a session |
 | [**get**](SessionApi.md#get) | **GET** /v1/session/{sessionId} | Get a session |
-| [**list1**](SessionApi.md#list1) | **GET** /v1/session/byCorpus | List sessions attached to a corpus |
+| [**list2**](SessionApi.md#list2) | **GET** /v1/session/byCorpus | List sessions attached to a corpus |
 | [**listByMetadata**](SessionApi.md#listByMetadata) | **GET** /v1/session/byMetadata | List sessions matching a metadata fragment |
 | [**listByOrganization**](SessionApi.md#listByOrganization) | **GET** /v1/session/byOrganization | List every session in the caller&#39;s organization |
 | [**listByUser**](SessionApi.md#listByUser) | **GET** /v1/session/byUser | List sessions owned by a user |
@@ -89,12 +89,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Session created. |  -  |
 
 
@@ -172,12 +172,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Session and posts deleted. |  -  |
 
 
@@ -255,18 +255,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Session found. |  -  |
 
 
-## list1
+## list2
 
-> SessionListResponse list1(corpusId, pageSize, pageIndex)
+> SessionListResponse list2(corpusId, pageSize, pageIndex)
 
 List sessions attached to a corpus
 
@@ -303,10 +303,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            SessionListResponse result = apiInstance.list1(corpusId, pageSize, pageIndex);
+            SessionListResponse result = apiInstance.list2(corpusId, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling SessionApi#list1");
+            System.err.println("Exception when calling SessionApi#list2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -342,12 +342,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Page of sessions. |  -  |
 
 
@@ -433,12 +433,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Page of sessions. |  -  |
 
 
@@ -518,12 +518,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Page of sessions. |  -  |
 
 
@@ -607,12 +607,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Page of sessions. |  -  |
 
 
@@ -692,11 +692,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Session updated. |  -  |
 

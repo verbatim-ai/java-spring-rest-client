@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -21,7 +21,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -41,15 +44,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   Document.JSON_PROPERTY_PROVIDER,
   Document.JSON_PROPERTY_LANG,
   Document.JSON_PROPERTY_METADATA,
+  Document.JSON_PROPERTY_TAGS,
+  Document.JSON_PROPERTY_CHUNK,
   Document.JSON_PROPERTY_DOC_CREATE,
   Document.JSON_PROPERTY_DOC_UPDATE,
   Document.JSON_PROPERTY_CREATED_AT,
   Document.JSON_PROPERTY_UPDATED_AT,
   Document.JSON_PROPERTY_SIZE,
   Document.JSON_PROPERTY_TOKENS,
-  Document.JSON_PROPERTY_NB_WORDS
+  Document.JSON_PROPERTY_NB_WORDS,
+  Document.JSON_PROPERTY_NB_PAGES
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class Document {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
@@ -132,6 +138,14 @@ public class Document {
   @javax.annotation.Nullable
   private Map<String, Object> metadata = new HashMap<>();
 
+  public static final String JSON_PROPERTY_TAGS = "tags";
+  @javax.annotation.Nullable
+  private List<String> tags = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_CHUNK = "chunk";
+  @javax.annotation.Nullable
+  private Map<String, Object> chunk = new HashMap<>();
+
   public static final String JSON_PROPERTY_DOC_CREATE = "docCreate";
   @javax.annotation.Nullable
   private OffsetDateTime docCreate;
@@ -159,6 +173,10 @@ public class Document {
   public static final String JSON_PROPERTY_NB_WORDS = "nbWords";
   @javax.annotation.Nullable
   private Integer nbWords;
+
+  public static final String JSON_PROPERTY_NB_PAGES = "nbPages";
+  @javax.annotation.Nullable
+  private Integer nbPages;
 
   public Document() {
   }
@@ -421,6 +439,72 @@ public class Document {
     this.metadata = metadata;
   }
 
+  public Document tags(@javax.annotation.Nullable List<String> tags) {
+    
+    this.tags = tags;
+    return this;
+  }
+
+  public Document addTagsItem(String tagsItem) {
+    if (this.tags == null) {
+      this.tags = new ArrayList<>();
+    }
+    this.tags.add(tagsItem);
+    return this;
+  }
+
+  /**
+   * Free-form labels used to classify the document. Filter on them with &#x60;GET /v1/doc/?tags&#x3D;…&#x60;. Null when the document carries no tag.
+   * @return tags
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_TAGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public List<String> getTags() {
+    return tags;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TAGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTags(@javax.annotation.Nullable List<String> tags) {
+    this.tags = tags;
+  }
+
+  public Document chunk(@javax.annotation.Nullable Map<String, Object> chunk) {
+    
+    this.chunk = chunk;
+    return this;
+  }
+
+  public Document putChunkItem(String key, Object chunkItem) {
+    if (this.chunk == null) {
+      this.chunk = new HashMap<>();
+    }
+    this.chunk.put(key, chunkItem);
+    return this;
+  }
+
+  /**
+   * Chunking configuration used when ingesting this document — an Unstructured chunking option set (&#x60;strategy&#x60;, &#x60;max_characters&#x60;, &#x60;overlap&#x60;, …). Null means the platform default was used (&#x60;by_title&#x60;, &#x60;max_characters: 10000&#x60;, &#x60;combine_text_under_n_chars: 1000&#x60;). See &#x60;DocumentInitRequest.chunk&#x60; for the full key reference.
+   * @return chunk
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CHUNK, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Map<String, Object> getChunk() {
+    return chunk;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CHUNK, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  public void setChunk(@javax.annotation.Nullable Map<String, Object> chunk) {
+    this.chunk = chunk;
+  }
+
   public Document docCreate(@javax.annotation.Nullable OffsetDateTime docCreate) {
     
     this.docCreate = docCreate;
@@ -596,6 +680,31 @@ public class Document {
     this.nbWords = nbWords;
   }
 
+  public Document nbPages(@javax.annotation.Nullable Integer nbPages) {
+    
+    this.nbPages = nbPages;
+    return this;
+  }
+
+  /**
+   * Number of pages of the source document. &#x60;0&#x60; means *not counted yet* — the rendering pipeline reports it during ingestion, so it stays &#x60;0&#x60; until then (and for formats that have no pages). Use it to bound the &#x60;pages&#x60; indices of &#x60;GET /v1/doc/{id}/preview-urls&#x60;, whose valid range is &#x60;0..nbPages-1&#x60;.
+   * @return nbPages
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_NB_PAGES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Integer getNbPages() {
+    return nbPages;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_NB_PAGES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setNbPages(@javax.annotation.Nullable Integer nbPages) {
+    this.nbPages = nbPages;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -616,18 +725,21 @@ public class Document {
         Objects.equals(this.provider, document.provider) &&
         Objects.equals(this.lang, document.lang) &&
         Objects.equals(this.metadata, document.metadata) &&
+        Objects.equals(this.tags, document.tags) &&
+        Objects.equals(this.chunk, document.chunk) &&
         Objects.equals(this.docCreate, document.docCreate) &&
         Objects.equals(this.docUpdate, document.docUpdate) &&
         Objects.equals(this.createdAt, document.createdAt) &&
         Objects.equals(this.updatedAt, document.updatedAt) &&
         Objects.equals(this.size, document.size) &&
         Objects.equals(this.tokens, document.tokens) &&
-        Objects.equals(this.nbWords, document.nbWords);
+        Objects.equals(this.nbWords, document.nbWords) &&
+        Objects.equals(this.nbPages, document.nbPages);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, corpusId, userId, filename, contentType, status, path, provider, lang, metadata, docCreate, docUpdate, createdAt, updatedAt, size, tokens, nbWords);
+    return Objects.hash(id, corpusId, userId, filename, contentType, status, path, provider, lang, metadata, tags, chunk, docCreate, docUpdate, createdAt, updatedAt, size, tokens, nbWords, nbPages);
   }
 
   @Override
@@ -644,6 +756,8 @@ public class Document {
     sb.append("    provider: ").append(toIndentedString(provider)).append("\n");
     sb.append("    lang: ").append(toIndentedString(lang)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
+    sb.append("    chunk: ").append(toIndentedString(chunk)).append("\n");
     sb.append("    docCreate: ").append(toIndentedString(docCreate)).append("\n");
     sb.append("    docUpdate: ").append(toIndentedString(docUpdate)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
@@ -651,6 +765,7 @@ public class Document {
     sb.append("    size: ").append(toIndentedString(size)).append("\n");
     sb.append("    tokens: ").append(toIndentedString(tokens)).append("\n");
     sb.append("    nbWords: ").append(toIndentedString(nbWords)).append("\n");
+    sb.append("    nbPages: ").append(toIndentedString(nbPages)).append("\n");
     sb.append("}");
     return sb.toString();
   }

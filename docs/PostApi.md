@@ -5,10 +5,10 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**attachment**](PostApi.md#attachment) | **GET** /v1/post/attachment/{postId} | Attachments from a post |
-| [**delete3**](PostApi.md#delete3) | **DELETE** /v1/post/{postId} | Delete a post |
+| [**delete4**](PostApi.md#delete4) | **DELETE** /v1/post/{postId} | Delete a post |
 | [**downloadUrl**](PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL |
-| [**get3**](PostApi.md#get3) | **GET** /v1/post/{postId} | Get a post |
-| [**list2**](PostApi.md#list2) | **GET** /v1/post/ | List posts |
+| [**get4**](PostApi.md#get4) | **GET** /v1/post/{postId} | Get a post |
+| [**list3**](PostApi.md#list3) | **GET** /v1/post/ | List posts |
 | [**previewUrls**](PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs |
 | [**query**](PostApi.md#query) | **GET** /v1/post/q | Send a query |
 
@@ -88,18 +88,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Attachments found. |  -  |
 
 
-## delete3
+## delete4
 
-> AckResponse delete3(postId)
+> AckResponse delete4(postId)
 
 Delete a post
 
@@ -134,10 +134,10 @@ public class Example {
         PostApi apiInstance = new PostApi(defaultClient);
         UUID postId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the post to delete.
         try {
-            AckResponse result = apiInstance.delete3(postId);
+            AckResponse result = apiInstance.delete4(postId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#delete3");
+            System.err.println("Exception when calling PostApi#delete4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -171,12 +171,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Post deleted. |  -  |
 
 
@@ -254,18 +254,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Presigned URL issued. |  -  |
 
 
-## get3
+## get4
 
-> Post get3(postId)
+> Post get4(postId)
 
 Get a post
 
@@ -300,10 +300,10 @@ public class Example {
         PostApi apiInstance = new PostApi(defaultClient);
         UUID postId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the post.
         try {
-            Post result = apiInstance.get3(postId);
+            Post result = apiInstance.get4(postId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#get3");
+            System.err.println("Exception when calling PostApi#get4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -337,18 +337,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Post found. |  -  |
 
 
-## list2
+## list3
 
-> PostListResponse list2(sessionId, pageSize, pageIndex)
+> PostListResponse list3(sessionId, pageSize, pageIndex)
 
 List posts
 
@@ -385,10 +385,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            PostListResponse result = apiInstance.list2(sessionId, pageSize, pageIndex);
+            PostListResponse result = apiInstance.list3(sessionId, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#list2");
+            System.err.println("Exception when calling PostApi#list3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -424,12 +424,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Page of posts. |  -  |
 
 
@@ -439,7 +439,7 @@ public class Example {
 
 Get presigned preview URLs
 
-Return time-limited presigned URLs for the rendered preview images of the document. One entry is issued per (page, size): by default the first 4 pages × {SMALL, MEDIUM}, so up to 8 entries per call.  Pass &#x60;pages&#x60; to restrict the response to specific page indices (e.g. &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;). When omitted, pages 0–3 are used. Duplicate values are preserved as supplied.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn&#39;t been generated yet; clients SHOULD fall back per-tile. 
+Return time-limited presigned URLs for the rendered preview images of the document.  &#x60;pages&#x60; is **required** and selects the zero-based page indices to issue URLs for: at least one, at most 10 per request — &#x60;400&#x60; otherwise. Repeat the parameter for several values (&#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;) or send them comma-separated (&#x60;pages&#x3D;0,2&#x60;). Duplicates are preserved as supplied and count towards the limit. Paginate over a long document with several calls rather than asking for every page at once.  Every index must address a page of *that* document: negatives are rejected, and so is anything at or past its page count once that count is known (&#x60;nbPages&#x60; from &#x60;GET /v1/doc/{id}&#x60;, &#x60;0&#x60; while the rendering pipeline has not reported it).  One entry is issued per (page, size) over {SMALL, MEDIUM}, so a call returns &#x60;2 × pages&#x60; entries — at most 20.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn&#39;t been generated yet; clients SHOULD fall back per-tile. 
 
 ### Example
 
@@ -469,7 +469,7 @@ public class Example {
 
         PostApi apiInstance = new PostApi(defaultClient);
         UUID docId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document.
-        List<Integer> pages = Arrays.asList(); // List<Integer> | Page indices to include. When omitted, pages 0–3 are returned. Repeat for multiple values: `pages=0&pages=2`.
+        List<Integer> pages = Arrays.asList(); // List<Integer> | Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document's page range. Repeat for multiple values: `pages=0&pages=2`.
         try {
             DocumentPreviewUrls result = apiInstance.previewUrls(docId, pages);
             System.out.println(result);
@@ -490,7 +490,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **docId** | **UUID**| ID of the document. | |
-| **pages** | [**List&lt;Integer&gt;**](Integer.md)| Page indices to include. When omitted, pages 0–3 are returned. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;. | [optional] |
+| **pages** | [**List&lt;Integer&gt;**](Integer.md)| Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;. | |
 
 ### Return type
 
@@ -509,22 +509,22 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
-| **400** | The request is malformed or contains invalid parameters. |  -  |
+| **400** | &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Presigned preview URLs issued. |  -  |
 
 
 ## query
 
-> PostItemResponse query(sessionId, body, lang)
+> PostItemResponse query(sessionId, body, lang, agentId)
 
 Send a query
 
-Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with &#x60;owner &#x3D; USER&#x60;. 2. Vectorize the query and run a cosine-similarity search against the session&#39;s corpora. 3. Feed the top chunks to the session&#39;s LLM as context. 4. Persist the answer as a post with &#x60;owner &#x3D; SYSTEM&#x60;, with attachments pointing to the chunks used.  The response contains both the user post (&#x60;query&#x60;) and the system post (&#x60;answer&#x60;). 
+Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with &#x60;owner &#x3D; USER&#x60;. 2. Vectorize the query and run a cosine-similarity search against the session&#39;s corpora. 3. Feed the top chunks to the session&#39;s LLM as context. 4. Persist the answer as a post with &#x60;owner &#x3D; SYSTEM&#x60;, with attachments pointing to the chunks used.  The response contains both the user post (&#x60;query&#x60;) and the system post (&#x60;answer&#x60;).  ### Choosing an agent  How much of that pipeline runs, and how, is decided by an **agent** — retrieval width, whether the chunks are re-ranked, the system instruction, how much of the conversation is replayed, and which model answers. See &#x60;GET /v1/agent/&#x60;.  Omit &#x60;agentId&#x60; and the query runs on the platform default agent, which is what every query did before agents existed. Pass one to run this single query under a different setup:  &#x60;&#x60;&#x60; GET /v1/post/q?sessionId&#x3D;$SESSION_ID&amp;body&#x3D;What+is+the+refund+policy%3F&amp;agentId&#x3D;$AGENT_ID &#x60;&#x60;&#x60;  The choice is **per query, not per session** — the next query on the same session is independent, so a client can escalate one question to a wider, slower agent without changing the conversation it belongs to.  The agent is then recorded on the answer as &#x60;agentId&#x60;, and only on the answer: the user&#39;s question is not something an agent produced. A missing &#x60;agentId&#x60; on an answer therefore means \&quot;ran on the default agent\&quot;, not \&quot;unknown\&quot;. Deleting an agent does not rewrite the answers it produced, so this still names an agent you have since deleted — resolving that id through &#x60;GET /v1/agent/{agentId}&#x60; answers &#x60;404&#x60;, which is the honest reading.  An &#x60;agentId&#x60; your organization cannot see — someone else&#39;s, or one that never existed — answers &#x60;404&#x60; and no post is written. 
 
 ### Example
 
@@ -556,8 +556,9 @@ public class Example {
         UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session to post the query into.
         String body = "What is the main topic of the corpus?"; // String | User message to send to the LLM.
         String lang = "fr"; // String | ISO-639 language code used by the LLM. Defaults to `en`.
+        UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | Agent to run this query under. Omit to use the platform default agent. Must be one of the agents `GET /v1/agent/` lists for your organization.
         try {
-            PostItemResponse result = apiInstance.query(sessionId, body, lang);
+            PostItemResponse result = apiInstance.query(sessionId, body, lang, agentId);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling PostApi#query");
@@ -578,6 +579,7 @@ public class Example {
 | **sessionId** | **UUID**| ID of the session to post the query into. | |
 | **body** | **String**| User message to send to the LLM. | |
 | **lang** | **String**| ISO-639 language code used by the LLM. Defaults to &#x60;en&#x60;. | [optional] |
+| **agentId** | **UUID**| Agent to run this query under. Omit to use the platform default agent. Must be one of the agents &#x60;GET /v1/agent/&#x60; lists for your organization. | [optional] |
 
 ### Return type
 
@@ -596,11 +598,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
 | **200** | Query processed and answer returned. |  -  |
 

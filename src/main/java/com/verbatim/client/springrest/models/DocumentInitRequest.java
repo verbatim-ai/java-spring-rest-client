@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -21,7 +21,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -40,9 +43,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   DocumentInitRequest.JSON_PROPERTY_USER_ID,
   DocumentInitRequest.JSON_PROPERTY_DOC_CREATE,
   DocumentInitRequest.JSON_PROPERTY_DOC_UPDATE,
-  DocumentInitRequest.JSON_PROPERTY_METADATA
+  DocumentInitRequest.JSON_PROPERTY_METADATA,
+  DocumentInitRequest.JSON_PROPERTY_TAGS,
+  DocumentInitRequest.JSON_PROPERTY_CHUNK
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class DocumentInitRequest {
   public static final String JSON_PROPERTY_CORPUS_ID = "corpusId";
   @javax.annotation.Nonnull
@@ -79,6 +84,14 @@ public class DocumentInitRequest {
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @javax.annotation.Nullable
   private Map<String, Object> metadata = new HashMap<>();
+
+  public static final String JSON_PROPERTY_TAGS = "tags";
+  @javax.annotation.Nullable
+  private List<String> tags = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_CHUNK = "chunk";
+  @javax.annotation.Nullable
+  private Map<String, Object> chunk = new HashMap<>();
 
   public DocumentInitRequest() {
   }
@@ -316,6 +329,72 @@ public class DocumentInitRequest {
     this.metadata = metadata;
   }
 
+  public DocumentInitRequest tags(@javax.annotation.Nullable List<String> tags) {
+    
+    this.tags = tags;
+    return this;
+  }
+
+  public DocumentInitRequest addTagsItem(String tagsItem) {
+    if (this.tags == null) {
+      this.tags = new ArrayList<>();
+    }
+    this.tags.add(tagsItem);
+    return this;
+  }
+
+  /**
+   * Free-form labels used to classify the document, so it can later be retrieved with &#x60;GET /v1/doc/?tags&#x3D;…&#x60;. Blanks are dropped and duplicates collapsed; at most 32 tags of 64 characters each.
+   * @return tags
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_TAGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public List<String> getTags() {
+    return tags;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TAGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTags(@javax.annotation.Nullable List<String> tags) {
+    this.tags = tags;
+  }
+
+  public DocumentInitRequest chunk(@javax.annotation.Nullable Map<String, Object> chunk) {
+    
+    this.chunk = chunk;
+    return this;
+  }
+
+  public DocumentInitRequest putChunkItem(String key, Object chunkItem) {
+    if (this.chunk == null) {
+      this.chunk = new HashMap<>();
+    }
+    this.chunk.put(key, chunkItem);
+    return this;
+  }
+
+  /**
+   * Per-document chunking configuration applied during ingestion. Omit it to use the platform default (&#x60;by_title&#x60; with &#x60;max_characters: 10000&#x60; and &#x60;combine_text_under_n_chars: 1000&#x60;).  Keys map **one-to-one onto the Unstructured chunking options** (&lt;https://docs.unstructured.io/open-source/core-functionality/chunking&gt;), so the names and semantics below are theirs, not ours. Everything is optional — send only what you want to change; the ingestion pipeline fills the rest from its defaults.  &#x60;strategy&#x60; — &#x60;by_title&#x60; (default) or &#x60;basic&#x60;. &#x60;by_title&#x60; starts a new chunk at each section heading, keeping a chunk within a single section; &#x60;basic&#x60; ignores structure and fills each chunk to the limit. Use &#x60;by_title&#x60; for structured documents (reports, contracts, manuals) and &#x60;basic&#x60; for flat prose or transcripts.  | Key | Type | Default | Strategy | Meaning | |---|---|---|---|---| | &#x60;strategy&#x60; | string | &#x60;by_title&#x60; | — | &#x60;by_title&#x60; or &#x60;basic&#x60; | | &#x60;max_characters&#x60; | int | &#x60;10000&#x60; | both | Hard cap. No chunk ever exceeds it; an element larger than this is text-split. | | &#x60;new_after_n_chars&#x60; | int | &#x60;max_characters&#x60; | both | Soft cap. A chunk past this size is not extended further, but is not split either. Set it below &#x60;max_characters&#x60; for more even chunks. | | &#x60;overlap&#x60; | int | &#x60;0&#x60; | both | Characters carried over from the end of the previous chunk as a prefix. Applied **only** to chunks produced by text-splitting an oversized element. | | &#x60;overlap_all&#x60; | bool | &#x60;false&#x60; | both | Apply &#x60;overlap&#x60; between all chunks, not just text-split ones. Improves recall across boundaries at the cost of duplicated text in your embeddings. | | &#x60;combine_text_under_n_chars&#x60; | int | &#x60;max_characters&#x60; | &#x60;by_title&#x60; | Combine consecutive small sections until the chunk reaches this size. &#x60;0&#x60; disables combining, so every section becomes its own chunk. | | &#x60;multipage_sections&#x60; | bool | &#x60;true&#x60; | &#x60;by_title&#x60; | Allow a section to span a page break. Set &#x60;false&#x60; to force a new chunk at each page. |  Keys are **not validated** here — the object is stored verbatim and handed to the chunker, so an unknown or malformed key surfaces as a failed ingestion (&#x60;status: FAILED&#x60;) rather than a &#x60;400&#x60; on this call. That is deliberate: it lets new Unstructured options be used the day they ship, with no change to this API.  Sizes are in characters, not tokens. Larger chunks give the LLM more context per citation but retrieve less precisely; &#x60;max_characters&#x60; between 2000 and 10000 is the usual working range. 
+   * @return chunk
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CHUNK, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Map<String, Object> getChunk() {
+    return chunk;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CHUNK, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  public void setChunk(@javax.annotation.Nullable Map<String, Object> chunk) {
+    this.chunk = chunk;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -334,12 +413,14 @@ public class DocumentInitRequest {
         Objects.equals(this.userId, documentInitRequest.userId) &&
         Objects.equals(this.docCreate, documentInitRequest.docCreate) &&
         Objects.equals(this.docUpdate, documentInitRequest.docUpdate) &&
-        Objects.equals(this.metadata, documentInitRequest.metadata);
+        Objects.equals(this.metadata, documentInitRequest.metadata) &&
+        Objects.equals(this.tags, documentInitRequest.tags) &&
+        Objects.equals(this.chunk, documentInitRequest.chunk);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(corpusId, filename, contentType, lang, provider, userId, docCreate, docUpdate, metadata);
+    return Objects.hash(corpusId, filename, contentType, lang, provider, userId, docCreate, docUpdate, metadata, tags, chunk);
   }
 
   @Override
@@ -355,6 +436,8 @@ public class DocumentInitRequest {
     sb.append("    docCreate: ").append(toIndentedString(docCreate)).append("\n");
     sb.append("    docUpdate: ").append(toIndentedString(docUpdate)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
+    sb.append("    chunk: ").append(toIndentedString(chunk)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -4,19 +4,18 @@ Verbatim AI — GenAI Backend API
 
 - API version: v1
 
-- Generator version: 7.24.0
+- Generator version: 7.25.0
 
-Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.
+
 
 ## Concepts
-
+API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains:
 - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM.
 - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…).
 - **Session** — a conversation thread bound to one or more corpora.
 - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).
 
 ## Authentication
-
 Two authentication methods are accepted on endpoints:
 
 | Method | Header | Allowed HTTP methods | Use case |
@@ -24,12 +23,15 @@ Two authentication methods are accepted on endpoints:
 | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT |
 | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |
 
-## Conventions
+## API status
+Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.
 
+## Conventions
 - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`).
 - **IDs** — all resource identifiers are UUIDv4 strings.
 - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`).
 - **Errors** — non-2xx responses return a JSON body matching the `Error` schema.
+---
 
 
   For more information, please visit [https://www.verbatim-ai.com/contact/](https://www.verbatim-ai.com/contact/)
@@ -109,9 +111,9 @@ Please follow the [installation](#installation) instruction and execute the foll
 import com.verbatim.client.springrest.invoker.*;
 import com.verbatim.client.springrest.invoker.auth.*;
 import com.verbatim.client.springrest.models.*;
-import com.verbatim.client.springrest.api.AuthApi;
+import com.verbatim.client.springrest.api.AgentApi;
 
-public class AuthApiExample {
+public class AgentApiExample {
 
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
@@ -121,13 +123,19 @@ public class AuthApiExample {
         HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
         JWT.setBearerToken("BEARER TOKEN");
 
-        AuthApi apiInstance = new AuthApi(defaultClient);
-        AccessTokenCreateRequest accessTokenCreateRequest = new AccessTokenCreateRequest(); // AccessTokenCreateRequest | 
+        // Configure API key authorization: AccessToken
+        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
+        AccessToken.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //AccessToken.setApiKeyPrefix("Token");
+
+        AgentApi apiInstance = new AgentApi(defaultClient);
+        AgentCreateRequest agentCreateRequest = new AgentCreateRequest(); // AgentCreateRequest | 
         try {
-            AccessTokenCreateResponse result = apiInstance.create2(accessTokenCreateRequest);
+            Agent result = apiInstance.create3(agentCreateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AuthApi#create2");
+            System.err.println("Exception when calling AgentApi#create3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -144,10 +152,15 @@ All URIs are relative to *https://api.verbatim-ai.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AgentApi* | [**create3**](docs/AgentApi.md#create3) | **POST** /v1/agent/ | Create an agent
+*AgentApi* | [**delete3**](docs/AgentApi.md#delete3) | **DELETE** /v1/agent/{agentId} | Delete an agent
+*AgentApi* | [**get3**](docs/AgentApi.md#get3) | **GET** /v1/agent/{agentId} | Get an agent
+*AgentApi* | [**list1**](docs/AgentApi.md#list1) | **GET** /v1/agent/ | List agents
+*AgentApi* | [**update3**](docs/AgentApi.md#update3) | **PATCH** /v1/agent/{agentId} | Update an agent
 *AuthApi* | [**create2**](docs/AuthApi.md#create2) | **POST** /v1/auth/access-token | Create an access token
 *AuthApi* | [**revoke**](docs/AuthApi.md#revoke) | **DELETE** /v1/auth/access-token/{token} | Revoke an access token
 *AuthApi* | [**whoami**](docs/AuthApi.md#whoami) | **GET** /v1/auth/whoami | Who am I
-*ConfigurationApi* | [**list4**](docs/ConfigurationApi.md#list4) | **GET** /v1/config/model | List supported LLM models
+*ConfigurationApi* | [**list5**](docs/ConfigurationApi.md#list5) | **GET** /v1/config/model | List supported LLM models
 *CorpusApi* | [**callList**](docs/CorpusApi.md#callList) | **GET** /v1/corpus/ | List corpora
 *CorpusApi* | [**create1**](docs/CorpusApi.md#create1) | **POST** /v1/corpus/ | Create a corpus
 *CorpusApi* | [**delete2**](docs/CorpusApi.md#delete2) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus
@@ -158,24 +171,25 @@ Class | Method | HTTP request | Description
 *DocumentApi* | [**downloadUrl1**](docs/DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL
 *DocumentApi* | [**get1**](docs/DocumentApi.md#get1) | **GET** /v1/doc/{id} | Get a document
 *DocumentApi* | [**initUpload**](docs/DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload
-*DocumentApi* | [**list3**](docs/DocumentApi.md#list3) | **GET** /v1/doc/ | List documents
+*DocumentApi* | [**list4**](docs/DocumentApi.md#list4) | **GET** /v1/doc/ | List documents
 *DocumentApi* | [**listSupportedDocuments**](docs/DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types
 *DocumentApi* | [**previewUrls1**](docs/DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs
 *DocumentApi* | [**reinitUpload**](docs/DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload
+*DocumentApi* | [**search**](docs/DocumentApi.md#search) | **GET** /v1/doc/q | Search documents
 *DocumentApi* | [**status**](docs/DocumentApi.md#status) | **GET** /v1/doc/{id}/status | Get a document&#39;s status
 *DocumentApi* | [**summary**](docs/DocumentApi.md#summary) | **GET** /v1/doc/{id}/summary | Get a document summary
 *DocumentApi* | [**update1**](docs/DocumentApi.md#update1) | **PATCH** /v1/doc/{id} | Update a document
 *PostApi* | [**attachment**](docs/PostApi.md#attachment) | **GET** /v1/post/attachment/{postId} | Attachments from a post
-*PostApi* | [**delete3**](docs/PostApi.md#delete3) | **DELETE** /v1/post/{postId} | Delete a post
+*PostApi* | [**delete4**](docs/PostApi.md#delete4) | **DELETE** /v1/post/{postId} | Delete a post
 *PostApi* | [**downloadUrl**](docs/PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL
-*PostApi* | [**get3**](docs/PostApi.md#get3) | **GET** /v1/post/{postId} | Get a post
-*PostApi* | [**list2**](docs/PostApi.md#list2) | **GET** /v1/post/ | List posts
+*PostApi* | [**get4**](docs/PostApi.md#get4) | **GET** /v1/post/{postId} | Get a post
+*PostApi* | [**list3**](docs/PostApi.md#list3) | **GET** /v1/post/ | List posts
 *PostApi* | [**previewUrls**](docs/PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs
 *PostApi* | [**query**](docs/PostApi.md#query) | **GET** /v1/post/q | Send a query
 *SessionApi* | [**create**](docs/SessionApi.md#create) | **POST** /v1/session/ | Create a session
 *SessionApi* | [**delete**](docs/SessionApi.md#delete) | **DELETE** /v1/session/{sessionId} | Delete a session
 *SessionApi* | [**get**](docs/SessionApi.md#get) | **GET** /v1/session/{sessionId} | Get a session
-*SessionApi* | [**list1**](docs/SessionApi.md#list1) | **GET** /v1/session/byCorpus | List sessions attached to a corpus
+*SessionApi* | [**list2**](docs/SessionApi.md#list2) | **GET** /v1/session/byCorpus | List sessions attached to a corpus
 *SessionApi* | [**listByMetadata**](docs/SessionApi.md#listByMetadata) | **GET** /v1/session/byMetadata | List sessions matching a metadata fragment
 *SessionApi* | [**listByOrganization**](docs/SessionApi.md#listByOrganization) | **GET** /v1/session/byOrganization | List every session in the caller&#39;s organization
 *SessionApi* | [**listByUser**](docs/SessionApi.md#listByUser) | **GET** /v1/session/byUser | List sessions owned by a user
@@ -190,6 +204,10 @@ Class | Method | HTTP request | Description
  - [AccessTokenCreateRequest](docs/AccessTokenCreateRequest.md)
  - [AccessTokenCreateResponse](docs/AccessTokenCreateResponse.md)
  - [AckResponse](docs/AckResponse.md)
+ - [Agent](docs/Agent.md)
+ - [AgentCreateRequest](docs/AgentCreateRequest.md)
+ - [AgentListResponse](docs/AgentListResponse.md)
+ - [AgentUpdateRequest](docs/AgentUpdateRequest.md)
  - [Attachment](docs/Attachment.md)
  - [Corpus](docs/Corpus.md)
  - [CorpusCreateRequest](docs/CorpusCreateRequest.md)
@@ -205,6 +223,7 @@ Class | Method | HTTP request | Description
  - [DocumentListResponse](docs/DocumentListResponse.md)
  - [DocumentPreviewUrl](docs/DocumentPreviewUrl.md)
  - [DocumentPreviewUrls](docs/DocumentPreviewUrls.md)
+ - [DocumentSearchResponse](docs/DocumentSearchResponse.md)
  - [DocumentStatus](docs/DocumentStatus.md)
  - [DocumentUpdateRequest](docs/DocumentUpdateRequest.md)
  - [Error](docs/Error.md)
@@ -219,7 +238,9 @@ Class | Method | HTTP request | Description
  - [SessionListResponse](docs/SessionListResponse.md)
  - [SessionUpdateRequest](docs/SessionUpdateRequest.md)
  - [Usage](docs/Usage.md)
+ - [UsageBucket](docs/UsageBucket.md)
  - [UsageCount](docs/UsageCount.md)
+ - [UsageDelta](docs/UsageDelta.md)
  - [UsageTokens](docs/UsageTokens.md)
  - [WhoAmI](docs/WhoAmI.md)
 

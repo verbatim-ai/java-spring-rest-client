@@ -34,7 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class CorpusApi extends BaseApi {
 
     public CorpusApi() {
@@ -48,12 +48,12 @@ public class CorpusApi extends BaseApi {
     /**
      * List corpora
      * Paginate corpora belonging to an organization.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of corpora.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -67,12 +67,12 @@ public class CorpusApi extends BaseApi {
     /**
      * List corpora
      * Paginate corpora belonging to an organization.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Page of corpora.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -107,12 +107,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Create a corpus
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus created.
      * @param corpusCreateRequest  (required)
      * @return CorpusCreateResponse
@@ -125,12 +125,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Create a corpus
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus created.
      * @param corpusCreateRequest  (required)
      * @return ResponseEntity&lt;CorpusCreateResponse&gt;
@@ -167,12 +167,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Delete a corpus
      * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus and dependencies deleted.
      * @param corpusId ID of the corpus to delete. (required)
      * @return AckResponse
@@ -185,12 +185,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Delete a corpus
      * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus and dependencies deleted.
      * @param corpusId ID of the corpus to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -228,12 +228,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Get a corpus
      * Fetch a corpus by its identifier.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus found.
      * @param corpusId ID of the corpus. (required)
      * @return CorpusItemResponse
@@ -246,12 +246,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Get a corpus
      * Fetch a corpus by its identifier.
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus found.
      * @param corpusId ID of the corpus. (required)
      * @return ResponseEntity&lt;CorpusItemResponse&gt;
@@ -289,12 +289,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Update a corpus
      * Patch the name, description or metadata of an existing corpus. Only the fields present in the request body are updated; omitted fields keep their current value.  &#x60;metadata&#x60; **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  Changing models does **not** re-process already-ingested documents. 
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus updated.
      * @param corpusId ID of the corpus to update. (required)
      * @param corpusUpdateRequest  (required)
@@ -308,12 +308,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Update a corpus
      * Patch the name, description or metadata of an existing corpus. Only the fields present in the request body are updated; omitted fields keep their current value.  &#x60;metadata&#x60; **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  Changing models does **not** re-process already-ingested documents. 
-     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>200</b> - Corpus updated.
      * @param corpusId ID of the corpus to update. (required)
      * @param corpusUpdateRequest  (required)

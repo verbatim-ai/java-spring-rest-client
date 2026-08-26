@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -44,9 +44,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   Post.JSON_PROPERTY_METADATA,
   Post.JSON_PROPERTY_CREATED_AT,
   Post.JSON_PROPERTY_ATTACHMENTS,
-  Post.JSON_PROPERTY_ATTACHMENT
+  Post.JSON_PROPERTY_ATTACHMENT,
+  Post.JSON_PROPERTY_AGENT_ID
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class Post {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
@@ -122,6 +123,10 @@ public class Post {
   public static final String JSON_PROPERTY_ATTACHMENT = "attachment";
   @javax.annotation.Nullable
   private Integer attachment;
+
+  public static final String JSON_PROPERTY_AGENT_ID = "agentId";
+  @javax.annotation.Nullable
+  private String agentId;
 
   public Post() {
   }
@@ -394,6 +399,31 @@ public class Post {
     this.attachment = attachment;
   }
 
+  public Post agentId(@javax.annotation.Nullable String agentId) {
+    
+    this.agentId = agentId;
+    return this;
+  }
+
+  /**
+   * Agent this answer was produced under, when the query named one explicitly (&#x60;GET /v1/post/q?agentId&#x3D;…&#x60;). Absent when the query ran on the platform default agent, which is the usual case — so a missing &#x60;agentId&#x60; means \&quot;default\&quot;, not \&quot;unknown\&quot;. Only system answers carry it; the user&#39;s question never does. Deleting an agent does not rewrite the answers it produced, so this still identifies an agent you have since deleted — resolving it through &#x60;GET /v1/agent/{agentId}&#x60; then answers &#x60;404&#x60;.
+   * @return agentId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_AGENT_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getAgentId() {
+    return agentId;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_AGENT_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAgentId(@javax.annotation.Nullable String agentId) {
+    this.agentId = agentId;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -413,12 +443,13 @@ public class Post {
         Objects.equals(this.metadata, post.metadata) &&
         Objects.equals(this.createdAt, post.createdAt) &&
         Objects.equals(this.attachments, post.attachments) &&
-        Objects.equals(this.attachment, post.attachment);
+        Objects.equals(this.attachment, post.attachment) &&
+        Objects.equals(this.agentId, post.agentId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, sessionId, body, owner, token, lang, metadata, createdAt, attachments, attachment);
+    return Objects.hash(id, sessionId, body, owner, token, lang, metadata, createdAt, attachments, attachment, agentId);
   }
 
   @Override
@@ -435,6 +466,7 @@ public class Post {
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("    attachments: ").append(toIndentedString(attachments)).append("\n");
     sb.append("    attachment: ").append(toIndentedString(attachment)).append("\n");
+    sb.append("    agentId: ").append(toIndentedString(agentId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

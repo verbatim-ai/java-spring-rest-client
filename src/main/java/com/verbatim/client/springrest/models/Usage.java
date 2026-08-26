@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -20,9 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.verbatim.client.springrest.models.UsageBucket;
 import com.verbatim.client.springrest.models.UsageCount;
 import com.verbatim.client.springrest.models.UsageTokens;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -32,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Aggregated usage metrics over a rolling timeframe. Returned by &#x60;GET /v1/usage/all&#x60; (organization scope) and &#x60;GET /v1/usage/corpus/{corpusId}&#x60; (corpus scope).
+ * Aggregated usage metrics over a timeframe, with a per-bucket time series. Returned by &#x60;GET /v1/usage/all&#x60; (organization scope), &#x60;GET /v1/usage/user/{userId}&#x60; (user scope) and &#x60;GET /v1/usage/corpus/{corpusId}&#x60; (corpus scope).
  */
 @JsonPropertyOrder({
   Usage.JSON_PROPERTY_TIMEFRAME,
@@ -46,12 +50,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   Usage.JSON_PROPERTY_SESSIONS,
   Usage.JSON_PROPERTY_POSTS,
   Usage.JSON_PROPERTY_STORAGE,
+  Usage.JSON_PROPERTY_SERIES,
   Usage.JSON_PROPERTY_TIMESTAMP
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class Usage {
   /**
-   * Rolling window the metrics are aggregated over.
+   * Bucket size the metrics are aggregated by. &#x60;Day&#x60; yields 30 buckets, &#x60;Week&#x60; 12, &#x60;Month&#x60; 12 and &#x60;Year&#x60; 5.
    */
   public enum TimeframeEnum {
     DAY(String.valueOf("Day")),
@@ -133,6 +138,10 @@ public class Usage {
   @javax.annotation.Nonnull
   private UsageCount storage;
 
+  public static final String JSON_PROPERTY_SERIES = "series";
+  @javax.annotation.Nonnull
+  private List<UsageBucket> series = new ArrayList<>();
+
   public static final String JSON_PROPERTY_TIMESTAMP = "timestamp";
   @javax.annotation.Nonnull
   private OffsetDateTime timestamp;
@@ -147,7 +156,7 @@ public class Usage {
   }
 
   /**
-   * Rolling window the metrics are aggregated over.
+   * Bucket size the metrics are aggregated by. &#x60;Day&#x60; yields 30 buckets, &#x60;Week&#x60; 12, &#x60;Month&#x60; 12 and &#x60;Year&#x60; 5.
    * @return timeframe
    */
   @javax.annotation.Nonnull
@@ -172,7 +181,7 @@ public class Usage {
   }
 
   /**
-   * Inclusive start of the rolling window (ISO-8601, UTC).
+   * Inclusive start of the range (ISO-8601, UTC). Start of the oldest bucket, aligned to a calendar boundary.
    * @return from
    */
   @javax.annotation.Nonnull
@@ -197,7 +206,7 @@ public class Usage {
   }
 
   /**
-   * Exclusive end of the rolling window (ISO-8601, UTC). Equal to &#x60;timestamp&#x60;.
+   * Exclusive end of the range (ISO-8601, UTC). End of the newest **completed** bucket, i.e. the instant the bucket in progress starts at — never in the future, and always earlier than &#x60;timestamp&#x60;.
    * @return to
    */
   @javax.annotation.Nonnull
@@ -313,7 +322,7 @@ public class Usage {
   }
 
   /**
-   * Token usage. At organization scope, sum of &#x60;post.token&#x60; + &#x60;document.token&#x60;. At corpus scope, sum of &#x60;post.token&#x60; only (vectorization tokens are billed at organization level).
+   * Token usage. At organization and user scope, sum of &#x60;post.token&#x60; + &#x60;document.token&#x60;. At corpus scope, sum of &#x60;post.token&#x60; only (vectorization tokens are billed at organization level).
    * @return tokens
    */
   @javax.annotation.Nonnull
@@ -338,7 +347,7 @@ public class Usage {
   }
 
   /**
-   * Corpus counts. Populated at organization scope only; &#x60;null&#x60; at corpus scope.
+   * Corpus counts. Populated at organization scope only; &#x60;null&#x60; at corpus and user scopes.
    * @return corpora
    */
   @javax.annotation.Nonnull
@@ -431,6 +440,39 @@ public class Usage {
     this.storage = storage;
   }
 
+  public Usage series(@javax.annotation.Nonnull List<UsageBucket> series) {
+    
+    this.series = series;
+    return this;
+  }
+
+  public Usage addSeriesItem(UsageBucket seriesItem) {
+    if (this.series == null) {
+      this.series = new ArrayList<>();
+    }
+    this.series.add(seriesItem);
+    return this;
+  }
+
+  /**
+   * Per-bucket breakdown over &#x60;[from, to)&#x60;, oldest first — 30 daily, 12 weekly, 12 monthly or 5 yearly entries depending on &#x60;timeframe&#x60;. Contiguous and gapless: a bucket with no activity is present with zeros, and the last entry is the newest **completed** bucket — the one in progress is not reported. The buckets sum to the top-level &#x60;created&#x60;/&#x60;removed&#x60;/&#x60;inPeriod&#x60;.
+   * @return series
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_SERIES, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public List<UsageBucket> getSeries() {
+    return series;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_SERIES, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setSeries(@javax.annotation.Nonnull List<UsageBucket> series) {
+    this.series = series;
+  }
+
   public Usage timestamp(@javax.annotation.Nonnull OffsetDateTime timestamp) {
     
     this.timestamp = timestamp;
@@ -438,7 +480,7 @@ public class Usage {
   }
 
   /**
-   * Server-side timestamp the metrics were computed at (ISO-8601, UTC). Equal to &#x60;to&#x60;.
+   * Server-side timestamp the metrics were computed at (ISO-8601, UTC). Falls inside the bucket in progress, which the report excludes — so it is later than &#x60;to&#x60;.
    * @return timestamp
    */
   @javax.annotation.Nonnull
@@ -477,6 +519,7 @@ public class Usage {
         Objects.equals(this.sessions, usage.sessions) &&
         Objects.equals(this.posts, usage.posts) &&
         Objects.equals(this.storage, usage.storage) &&
+        Objects.equals(this.series, usage.series) &&
         Objects.equals(this.timestamp, usage.timestamp);
   }
 
@@ -486,7 +529,7 @@ public class Usage {
 
   @Override
   public int hashCode() {
-    return Objects.hash(timeframe, from, to, organizationId, hashCodeNullable(corpusId), hashCodeNullable(userId), tokens, corpora, sessions, posts, storage, timestamp);
+    return Objects.hash(timeframe, from, to, organizationId, hashCodeNullable(corpusId), hashCodeNullable(userId), tokens, corpora, sessions, posts, storage, series, timestamp);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -511,6 +554,7 @@ public class Usage {
     sb.append("    sessions: ").append(toIndentedString(sessions)).append("\n");
     sb.append("    posts: ").append(toIndentedString(posts)).append("\n");
     sb.append("    storage: ").append(toIndentedString(storage)).append("\n");
+    sb.append("    series: ").append(toIndentedString(series)).append("\n");
     sb.append("    timestamp: ").append(toIndentedString(timestamp)).append("\n");
     sb.append("}");
     return sb.toString();
