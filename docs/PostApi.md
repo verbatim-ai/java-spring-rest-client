@@ -4,20 +4,19 @@ All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**attachment1**](PostApi.md#attachment1) | **GET** /v1/post/attachment/{postId} | Attachments from a post |
-| [**callList**](PostApi.md#callList) | **GET** /v1/post/ | List posts |
-| [**delete5**](PostApi.md#delete5) | **DELETE** /v1/post/{postId} | Delete a post |
+| [**attachment**](PostApi.md#attachment) | **GET** /v1/post/attachment/{postId} | Attachments from a post |
+| [**delete4**](PostApi.md#delete4) | **DELETE** /v1/post/{postId} | Delete a post |
 | [**downloadUrl**](PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL |
-| [**get5**](PostApi.md#get5) | **GET** /v1/post/{postId} | Get a post |
+| [**get4**](PostApi.md#get4) | **GET** /v1/post/{postId} | Get a post |
+| [**list3**](PostApi.md#list3) | **GET** /v1/post/ | List posts |
 | [**previewUrls**](PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs |
-| [**query1**](PostApi.md#query1) | **GET** /v1/post/q | Send a query |
-| [**queryPostLegacy**](PostApi.md#queryPostLegacy) | **POST** /v1/post/ | DEPRECATED. use GET /v1/post/q instead. Send a query |
+| [**query**](PostApi.md#query) | **GET** /v1/post/q | Send a query |
 
 
 
-## attachment1
+## attachment
 
-> PostAttachmentResponse attachment1(postId)
+> PostAttachmentResponse attachment(postId)
 
 Attachments from a post
 
@@ -52,10 +51,10 @@ public class Example {
         PostApi apiInstance = new PostApi(defaultClient);
         UUID postId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the post.
         try {
-            PostAttachmentResponse result = apiInstance.attachment1(postId);
+            PostAttachmentResponse result = apiInstance.attachment(postId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#attachment1");
+            System.err.println("Exception when calling PostApi#attachment");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -89,105 +88,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Attachments found. |  -  |
 
 
-## callList
+## delete4
 
-> PostListResponse callList(sessionId, pageSize, pageIndex)
-
-List posts
-
-Paginate every post (user queries and system answers) in a session, newest first.
-
-### Example
-
-```java
-// Import classes:
-import com.verbatim.client.springrest.invoker.ApiClient;
-import com.verbatim.client.springrest.invoker.ApiException;
-import com.verbatim.client.springrest.invoker.Configuration;
-import com.verbatim.client.springrest.invoker.auth.*;
-import com.verbatim.client.springrest.invoker.models.*;
-import com.verbatim.client.springrest.api.PostApi;
-
-public class Example {
-    public static void main(String[] args) {
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
-        
-        // Configure HTTP bearer authorization: JWT
-        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
-        JWT.setBearerToken("BEARER TOKEN");
-
-        // Configure API key authorization: AccessToken
-        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
-        AccessToken.setApiKey("YOUR API KEY");
-        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-        //AccessToken.setApiKeyPrefix("Token");
-
-        PostApi apiInstance = new PostApi(defaultClient);
-        UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session.
-        Integer pageSize = 25; // Integer | Number of items per page.
-        Integer pageIndex = 0; // Integer | Zero-based page index.
-        try {
-            PostListResponse result = apiInstance.callList(sessionId, pageSize, pageIndex);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#callList");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
-        }
-    }
-}
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **sessionId** | **UUID**| ID of the session. | |
-| **pageSize** | **Integer**| Number of items per page. | [optional] [default to 25] |
-| **pageIndex** | **Integer**| Zero-based page index. | [optional] [default to 0] |
-
-### Return type
-
-[**PostListResponse**](PostListResponse.md)
-
-### Authorization
-
-[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
-| **403** | Not authorized. Access not granted for this request |  -  |
-| **404** | The resource referenced by the request does not exist. |  -  |
-| **400** | The request is malformed or contains invalid parameters. |  -  |
-| **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
-| **200** | Page of posts. |  -  |
-
-
-## delete5
-
-> AckResponse delete5(postId)
+> AckResponse delete4(postId)
 
 Delete a post
 
@@ -222,10 +134,10 @@ public class Example {
         PostApi apiInstance = new PostApi(defaultClient);
         UUID postId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the post to delete.
         try {
-            AckResponse result = apiInstance.delete5(postId);
+            AckResponse result = apiInstance.delete4(postId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#delete5");
+            System.err.println("Exception when calling PostApi#delete4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -259,12 +171,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Post deleted. |  -  |
 
 
@@ -342,18 +254,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Presigned URL issued. |  -  |
 
 
-## get5
+## get4
 
-> Post get5(postId)
+> Post get4(postId)
 
 Get a post
 
@@ -388,10 +300,10 @@ public class Example {
         PostApi apiInstance = new PostApi(defaultClient);
         UUID postId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the post.
         try {
-            Post result = apiInstance.get5(postId);
+            Post result = apiInstance.get4(postId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#get5");
+            System.err.println("Exception when calling PostApi#get4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -425,13 +337,100 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Post found. |  -  |
+
+
+## list3
+
+> PostListResponse list3(sessionId, pageSize, pageIndex)
+
+List posts
+
+Paginate every post (user queries and system answers) in a session, newest first.
+
+### Example
+
+```java
+// Import classes:
+import com.verbatim.client.springrest.invoker.ApiClient;
+import com.verbatim.client.springrest.invoker.ApiException;
+import com.verbatim.client.springrest.invoker.Configuration;
+import com.verbatim.client.springrest.invoker.auth.*;
+import com.verbatim.client.springrest.invoker.models.*;
+import com.verbatim.client.springrest.api.PostApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost:8080");
+        
+        // Configure HTTP bearer authorization: JWT
+        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
+        JWT.setBearerToken("BEARER TOKEN");
+
+        // Configure API key authorization: AccessToken
+        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
+        AccessToken.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //AccessToken.setApiKeyPrefix("Token");
+
+        PostApi apiInstance = new PostApi(defaultClient);
+        UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session.
+        Integer pageSize = 25; // Integer | Number of items per page.
+        Integer pageIndex = 0; // Integer | Zero-based page index.
+        try {
+            PostListResponse result = apiInstance.list3(sessionId, pageSize, pageIndex);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling PostApi#list3");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **sessionId** | **UUID**| ID of the session. | |
+| **pageSize** | **Integer**| Number of items per page. | [optional] [default to 25] |
+| **pageIndex** | **Integer**| Zero-based page index. | [optional] [default to 0] |
+
+### Return type
+
+[**PostListResponse**](PostListResponse.md)
+
+### Authorization
+
+[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
+| **403** | Not authorized. Access not granted for this request |  -  |
+| **404** | The resource referenced by the request does not exist. |  -  |
+| **400** | The request is malformed or contains invalid parameters. |  -  |
+| **409** | The request conflicts with the current state of the resource. |  -  |
+| **200** | Page of posts. |  -  |
 
 
 ## previewUrls
@@ -510,18 +509,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Presigned preview URLs issued. |  -  |
 
 
-## query1
+## query
 
-> PostItemResponse query1(sessionId, body, lang, agentId)
+> PostItemResponse query(sessionId, body, lang, agentId)
 
 Send a query
 
@@ -559,10 +558,10 @@ public class Example {
         String lang = "fr"; // String | ISO-639 language code used by the LLM. Defaults to `en`.
         UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | Agent to run this query under. Omit to use the platform default agent. Must be one of the agents `GET /v1/agent/` lists for your organization.
         try {
-            PostItemResponse result = apiInstance.query1(sessionId, body, lang, agentId);
+            PostItemResponse result = apiInstance.query(sessionId, body, lang, agentId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#query1");
+            System.err.println("Exception when calling PostApi#query");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -599,100 +598,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
-| **200** | Query processed and answer returned. |  -  |
-
-
-## queryPostLegacy
-
-> PostItemResponse queryPostLegacy(sessionId, body, lang, agentId)
-
-DEPRECATED. use GET /v1/post/q instead. Send a query
-
-DEPRECATED. use GET /v1/post instead. Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with &#x60;owner &#x3D; USER&#x60;. 2. Vectorize the query and run a cosine-similarity search against the session&#39;s corpora. 3. Feed the top chunks to the session&#39;s LLM as context. 4. Persist the answer as a post with &#x60;owner &#x3D; SYSTEM&#x60;, with attachments pointing to the chunks used.  The response contains both the user post (&#x60;query&#x60;) and the system post (&#x60;answer&#x60;). 
-
-### Example
-
-```java
-// Import classes:
-import com.verbatim.client.springrest.invoker.ApiClient;
-import com.verbatim.client.springrest.invoker.ApiException;
-import com.verbatim.client.springrest.invoker.Configuration;
-import com.verbatim.client.springrest.invoker.auth.*;
-import com.verbatim.client.springrest.invoker.models.*;
-import com.verbatim.client.springrest.api.PostApi;
-
-public class Example {
-    public static void main(String[] args) {
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
-        
-        // Configure HTTP bearer authorization: JWT
-        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
-        JWT.setBearerToken("BEARER TOKEN");
-
-        // Configure API key authorization: AccessToken
-        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
-        AccessToken.setApiKey("YOUR API KEY");
-        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-        //AccessToken.setApiKeyPrefix("Token");
-
-        PostApi apiInstance = new PostApi(defaultClient);
-        UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session to post the query into.
-        String body = "What is the main topic of the corpus?"; // String | User message to send to the LLM.
-        String lang = "fr"; // String | ISO-639 language code used by the LLM. Defaults to `en`.
-        UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | Agent to run this query under. Omit to use the platform default agent. Must be one of the agents `GET /v1/agent/` lists for your organization.
-        try {
-            PostItemResponse result = apiInstance.queryPostLegacy(sessionId, body, lang, agentId);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#queryPostLegacy");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
-        }
-    }
-}
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **sessionId** | **UUID**| ID of the session to post the query into. | |
-| **body** | **String**| User message to send to the LLM. | |
-| **lang** | **String**| ISO-639 language code used by the LLM. Defaults to &#x60;en&#x60;. | [optional] |
-| **agentId** | **UUID**| Agent to run this query under. Omit to use the platform default agent. Must be one of the agents &#x60;GET /v1/agent/&#x60; lists for your organization. | [optional] |
-
-### Return type
-
-[**PostItemResponse**](PostItemResponse.md)
-
-### Authorization
-
-[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
-| **403** | Not authorized. Access not granted for this request |  -  |
-| **404** | The resource referenced by the request does not exist. |  -  |
-| **400** | The request is malformed or contains invalid parameters. |  -  |
-| **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Query processed and answer returned. |  -  |
 

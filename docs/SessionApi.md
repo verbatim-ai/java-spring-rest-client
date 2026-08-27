@@ -5,13 +5,13 @@ All URIs are relative to *http://localhost:8080*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**create**](SessionApi.md#create) | **POST** /v1/session/ | Create a session |
-| [**delete2**](SessionApi.md#delete2) | **DELETE** /v1/session/{sessionId} | Delete a session |
-| [**get2**](SessionApi.md#get2) | **GET** /v1/session/{sessionId} | Get a session |
-| [**list4**](SessionApi.md#list4) | **GET** /v1/session/byCorpus | List sessions attached to a corpus |
+| [**delete**](SessionApi.md#delete) | **DELETE** /v1/session/{sessionId} | Delete a session |
+| [**get**](SessionApi.md#get) | **GET** /v1/session/{sessionId} | Get a session |
+| [**list2**](SessionApi.md#list2) | **GET** /v1/session/byCorpus | List sessions attached to a corpus |
 | [**listByMetadata**](SessionApi.md#listByMetadata) | **GET** /v1/session/byMetadata | List sessions matching a metadata fragment |
 | [**listByOrganization**](SessionApi.md#listByOrganization) | **GET** /v1/session/byOrganization | List every session in the caller&#39;s organization |
 | [**listByUser**](SessionApi.md#listByUser) | **GET** /v1/session/byUser | List sessions owned by a user |
-| [**update2**](SessionApi.md#update2) | **PATCH** /v1/session/{sessionId} | Update a session |
+| [**update**](SessionApi.md#update) | **PATCH** /v1/session/{sessionId} | Update a session |
 
 
 
@@ -89,18 +89,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Session created. |  -  |
 
 
-## delete2
+## delete
 
-> AckResponse delete2(sessionId)
+> AckResponse delete(sessionId)
 
 Delete a session
 
@@ -135,10 +135,10 @@ public class Example {
         SessionApi apiInstance = new SessionApi(defaultClient);
         UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session to delete.
         try {
-            AckResponse result = apiInstance.delete2(sessionId);
+            AckResponse result = apiInstance.delete(sessionId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling SessionApi#delete2");
+            System.err.println("Exception when calling SessionApi#delete");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -172,18 +172,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Session and posts deleted. |  -  |
 
 
-## get2
+## get
 
-> Session get2(sessionId)
+> Session get(sessionId)
 
 Get a session
 
@@ -218,10 +218,10 @@ public class Example {
         SessionApi apiInstance = new SessionApi(defaultClient);
         UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session.
         try {
-            Session result = apiInstance.get2(sessionId);
+            Session result = apiInstance.get(sessionId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling SessionApi#get2");
+            System.err.println("Exception when calling SessionApi#get");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -255,18 +255,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Session found. |  -  |
 
 
-## list4
+## list2
 
-> SessionListResponse list4(corpusId, pageSize, pageIndex)
+> SessionListResponse list2(corpusId, pageSize, pageIndex)
 
 List sessions attached to a corpus
 
@@ -303,10 +303,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            SessionListResponse result = apiInstance.list4(corpusId, pageSize, pageIndex);
+            SessionListResponse result = apiInstance.list2(corpusId, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling SessionApi#list4");
+            System.err.println("Exception when calling SessionApi#list2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -342,12 +342,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Page of sessions. |  -  |
 
 
@@ -433,12 +433,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Page of sessions. |  -  |
 
 
@@ -518,12 +518,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Page of sessions. |  -  |
 
 
@@ -607,18 +607,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Page of sessions. |  -  |
 
 
-## update2
+## update
 
-> Session update2(sessionId, sessionUpdateRequest)
+> Session update(sessionId, sessionUpdateRequest)
 
 Update a session
 
@@ -654,10 +654,10 @@ public class Example {
         UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session to update.
         SessionUpdateRequest sessionUpdateRequest = new SessionUpdateRequest(); // SessionUpdateRequest | 
         try {
-            Session result = apiInstance.update2(sessionId, sessionUpdateRequest);
+            Session result = apiInstance.update(sessionId, sessionUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling SessionApi#update2");
+            System.err.println("Exception when calling SessionApi#update");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -692,11 +692,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Session updated. |  -  |
 

@@ -84,12 +84,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Organization usage report. The example&#39;s &#x60;series&#x60; is trimmed to three buckets for readability; a real &#x60;Day&#x60; report carries 30. |  -  |
 
 
@@ -169,12 +169,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Corpus usage report. The example&#39;s &#x60;series&#x60; is trimmed to two buckets for readability; a real &#x60;Week&#x60; report carries 12. |  -  |
 
 
@@ -254,11 +254,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | User usage report. The example&#39;s &#x60;series&#x60; is trimmed to two buckets for readability; a real &#x60;Month&#x60; report carries 12. |  -  |
 

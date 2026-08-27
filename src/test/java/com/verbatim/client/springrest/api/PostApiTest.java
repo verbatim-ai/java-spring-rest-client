@@ -51,29 +51,10 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void attachment1Test() {
+    void attachmentTest() {
         UUID postId = null;
 
-        PostAttachmentResponse response = api.attachment1(postId);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * List posts
-     *
-     * Paginate every post (user queries and system answers) in a session, newest first.
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void callListTest() {
-        UUID sessionId = null;
-        Integer pageSize = null;
-        Integer pageIndex = null;
-
-        PostListResponse response = api.callList(sessionId, pageSize, pageIndex);
+        PostAttachmentResponse response = api.attachment(postId);
 
         // TODO: test validations
     }
@@ -87,10 +68,10 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void delete5Test() {
+    void delete4Test() {
         UUID postId = null;
 
-        AckResponse response = api.delete5(postId);
+        AckResponse response = api.delete4(postId);
 
         // TODO: test validations
     }
@@ -121,10 +102,29 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void get5Test() {
+    void get4Test() {
         UUID postId = null;
 
-        Post response = api.get5(postId);
+        Post response = api.get4(postId);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * List posts
+     *
+     * Paginate every post (user queries and system answers) in a session, newest first.
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void list3Test() {
+        UUID sessionId = null;
+        Integer pageSize = null;
+        Integer pageIndex = null;
+
+        PostListResponse response = api.list3(sessionId, pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -156,33 +156,13 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void query1Test() {
+    void queryTest() {
         UUID sessionId = null;
         String body = null;
         String lang = null;
         UUID agentId = null;
 
-        PostItemResponse response = api.query1(sessionId, body, lang, agentId);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * DEPRECATED. use GET /v1/post/q instead. Send a query
-     *
-     * DEPRECATED. use GET /v1/post instead. Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with &#x60;owner &#x3D; USER&#x60;. 2. Vectorize the query and run a cosine-similarity search against the session&#39;s corpora. 3. Feed the top chunks to the session&#39;s LLM as context. 4. Persist the answer as a post with &#x60;owner &#x3D; SYSTEM&#x60;, with attachments pointing to the chunks used.  The response contains both the user post (&#x60;query&#x60;) and the system post (&#x60;answer&#x60;). 
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void queryPostLegacyTest() {
-        UUID sessionId = null;
-        String body = null;
-        String lang = null;
-        UUID agentId = null;
-
-        PostItemResponse response = api.queryPostLegacy(sessionId, body, lang, agentId);
+        PostItemResponse response = api.query(sessionId, body, lang, agentId);
 
         // TODO: test validations
     }

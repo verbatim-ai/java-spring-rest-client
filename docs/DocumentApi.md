@@ -5,18 +5,18 @@ All URIs are relative to *http://localhost:8080*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**commitUpload**](DocumentApi.md#commitUpload) | **POST** /v1/doc/{id}/commit | Commit a previously initialized upload |
-| [**delete3**](DocumentApi.md#delete3) | **DELETE** /v1/doc/{id} | Delete a document |
+| [**delete1**](DocumentApi.md#delete1) | **DELETE** /v1/doc/{id} | Delete a document |
 | [**downloadUrl1**](DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL |
-| [**get3**](DocumentApi.md#get3) | **GET** /v1/doc/{id} | Get a document |
+| [**get1**](DocumentApi.md#get1) | **GET** /v1/doc/{id} | Get a document |
 | [**initUpload**](DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload |
-| [**list5**](DocumentApi.md#list5) | **GET** /v1/doc/ | List documents |
+| [**list4**](DocumentApi.md#list4) | **GET** /v1/doc/ | List documents |
 | [**listSupportedDocuments**](DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types |
 | [**previewUrls1**](DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs |
 | [**reinitUpload**](DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload |
 | [**search**](DocumentApi.md#search) | **GET** /v1/doc/q | Search documents |
 | [**status**](DocumentApi.md#status) | **GET** /v1/doc/{id}/status | Get a document&#39;s status |
 | [**summary**](DocumentApi.md#summary) | **GET** /v1/doc/{id}/summary | Get a document summary |
-| [**update3**](DocumentApi.md#update3) | **PATCH** /v1/doc/{id} | Update a document |
+| [**update1**](DocumentApi.md#update1) | **PATCH** /v1/doc/{id} | Update a document |
 
 
 
@@ -94,18 +94,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **202** | Ingestion queued. Document moved to PROCESSING. |  -  |
 
 
-## delete3
+## delete1
 
-> AckResponse delete3(id)
+> AckResponse delete1(id)
 
 Delete a document
 
@@ -140,10 +140,10 @@ public class Example {
         DocumentApi apiInstance = new DocumentApi(defaultClient);
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document to delete.
         try {
-            AckResponse result = apiInstance.delete3(id);
+            AckResponse result = apiInstance.delete1(id);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#delete3");
+            System.err.println("Exception when calling DocumentApi#delete1");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -177,12 +177,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Document and dependencies deleted. |  -  |
 
 
@@ -260,18 +260,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Presigned URL issued. |  -  |
 
 
-## get3
+## get1
 
-> Document get3(id)
+> Document get1(id)
 
 Get a document
 
@@ -306,10 +306,10 @@ public class Example {
         DocumentApi apiInstance = new DocumentApi(defaultClient);
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document.
         try {
-            Document result = apiInstance.get3(id);
+            Document result = apiInstance.get1(id);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#get3");
+            System.err.println("Exception when calling DocumentApi#get1");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -343,12 +343,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Document found. |  -  |
 
 
@@ -426,18 +426,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Document created in AWAITING_UPLOAD status. PUT the file to &#x60;uploadUrl&#x60;. |  -  |
 
 
-## list5
+## list4
 
-> DocumentListResponse list5(corpusId, status, tags, pageSize, pageIndex)
+> DocumentListResponse list4(corpusId, status, tags, pageSize, pageIndex)
 
 List documents
 
@@ -476,10 +476,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page, 1-100.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            DocumentListResponse result = apiInstance.list5(corpusId, status, tags, pageSize, pageIndex);
+            DocumentListResponse result = apiInstance.list4(corpusId, status, tags, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#list5");
+            System.err.println("Exception when calling DocumentApi#list4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -517,12 +517,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Page of documents. |  -  |
 
 
@@ -596,12 +596,12 @@ This endpoint does not need any parameter.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | List of accepted MIME types. |  -  |
 
 
@@ -681,12 +681,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Presigned preview URLs issued. |  -  |
 
 
@@ -764,12 +764,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | The document&#39;s content type is no longer accepted — see &#x60;GET /v1/doc/accept&#x60;. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | Document is not in &#x60;READY&#x60; or &#x60;FAILED&#x60; status — nothing to replace, or an ingestion is in flight. |  -  |
-| **415** | The document&#39;s content type is no longer accepted — see &#x60;GET /v1/doc/accept&#x60;. |  -  |
 | **200** | Document reset to AWAITING_UPLOAD status. PUT the new file to &#x60;uploadUrl&#x60;. |  -  |
 
 
@@ -877,12 +877,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | A filter or paging parameter is out of bounds, or the date window is empty. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Page of matching documents. |  -  |
 
 
@@ -960,12 +960,12 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Status returned. |  -  |
 
 
@@ -1043,18 +1043,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Summary returned (may be empty). |  -  |
 
 
-## update3
+## update1
 
-> Document update3(id, documentUpdateRequest)
+> Document update1(id, documentUpdateRequest)
 
 Update a document
 
@@ -1090,10 +1090,10 @@ public class Example {
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document to update.
         DocumentUpdateRequest documentUpdateRequest = new DocumentUpdateRequest(); // DocumentUpdateRequest | 
         try {
-            Document result = apiInstance.update3(id, documentUpdateRequest);
+            Document result = apiInstance.update1(id, documentUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#update3");
+            System.err.println("Exception when calling DocumentApi#update1");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -1128,11 +1128,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | &#x60;filename&#x60; is blank or longer than 256 characters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Document updated. |  -  |
 

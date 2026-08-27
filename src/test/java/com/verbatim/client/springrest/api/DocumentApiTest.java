@@ -72,10 +72,10 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void delete3Test() {
+    void delete1Test() {
         UUID id = null;
 
-        AckResponse response = api.delete3(id);
+        AckResponse response = api.delete1(id);
 
         // TODO: test validations
     }
@@ -106,10 +106,10 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void get3Test() {
+    void get1Test() {
         UUID id = null;
 
-        Document response = api.get3(id);
+        Document response = api.get1(id);
 
         // TODO: test validations
     }
@@ -140,14 +140,14 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void list5Test() {
+    void list4Test() {
         UUID corpusId = null;
         String status = null;
         List<String> tags = null;
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        DocumentListResponse response = api.list5(corpusId, status, tags, pageSize, pageIndex);
+        DocumentListResponse response = api.list4(corpusId, status, tags, pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -278,11 +278,11 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void update3Test() {
+    void update1Test() {
         UUID id = null;
         DocumentUpdateRequest documentUpdateRequest = null;
 
-        Document response = api.update3(id, documentUpdateRequest);
+        Document response = api.update1(id, documentUpdateRequest);
 
         // TODO: test validations
     }

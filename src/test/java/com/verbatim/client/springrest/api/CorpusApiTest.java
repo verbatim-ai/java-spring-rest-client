@@ -43,6 +43,24 @@ class CorpusApiTest {
 
     
     /**
+     * List corpora
+     *
+     * Paginate corpora belonging to an organization.
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void callListTest() {
+        Integer pageSize = null;
+        Integer pageIndex = null;
+
+        CorpusListResponse response = api.callList(pageSize, pageIndex);
+
+        // TODO: test validations
+    }
+    
+    /**
      * Create a corpus
      *
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
@@ -68,10 +86,10 @@ class CorpusApiTest {
      *          if the Api call fails
      */
     @Test
-    void deleteTest() {
+    void delete2Test() {
         UUID corpusId = null;
 
-        AckResponse response = api.delete(corpusId);
+        AckResponse response = api.delete2(corpusId);
 
         // TODO: test validations
     }
@@ -85,28 +103,10 @@ class CorpusApiTest {
      *          if the Api call fails
      */
     @Test
-    void getTest() {
+    void get2Test() {
         UUID corpusId = null;
 
-        CorpusItemResponse response = api.get(corpusId);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * List corpora
-     *
-     * Paginate corpora belonging to an organization.
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void list1Test() {
-        Integer pageSize = null;
-        Integer pageIndex = null;
-
-        CorpusListResponse response = api.list1(pageSize, pageIndex);
+        CorpusItemResponse response = api.get2(corpusId);
 
         // TODO: test validations
     }
@@ -120,29 +120,11 @@ class CorpusApiTest {
      *          if the Api call fails
      */
     @Test
-    void updateTest() {
+    void update2Test() {
         UUID corpusId = null;
         CorpusUpdateRequest corpusUpdateRequest = null;
 
-        CorpusUpdateResponse response = api.update(corpusId, corpusUpdateRequest);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * Update a corpus (deprecated)
-     *
-     * **Deprecated — use &#x60;PATCH /v1/corpus/{corpusId}&#x60; instead.**  Kept for backward compatibility and strictly equivalent to the &#x60;PATCH&#x60; operation: despite the &#x60;PUT&#x60; verb, omitted fields are **not** reset, they keep their current value. That partial-update semantic is what &#x60;PATCH&#x60; expresses correctly, hence the move. This operation will be removed in a future release. 
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void updateLegacyTest() {
-        UUID corpusId = null;
-        CorpusUpdateRequest corpusUpdateRequest = null;
-
-        CorpusUpdateResponse response = api.updateLegacy(corpusId, corpusUpdateRequest);
+        CorpusUpdateResponse response = api.update2(corpusId, corpusUpdateRequest);
 
         // TODO: test validations
     }

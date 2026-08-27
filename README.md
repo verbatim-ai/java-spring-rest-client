@@ -153,84 +153,50 @@ All URIs are relative to *http://localhost:8080*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *AgentApi* | [**create3**](docs/AgentApi.md#create3) | **POST** /v1/agent/ | Create an agent
-*AgentApi* | [**delete4**](docs/AgentApi.md#delete4) | **DELETE** /v1/agent/{agentId} | Delete an agent
-*AgentApi* | [**get4**](docs/AgentApi.md#get4) | **GET** /v1/agent/{agentId} | Get an agent
-*AgentApi* | [**list2**](docs/AgentApi.md#list2) | **GET** /v1/agent/ | List agents
-*AgentApi* | [**update4**](docs/AgentApi.md#update4) | **PATCH** /v1/agent/{agentId} | Update an agent
+*AgentApi* | [**delete3**](docs/AgentApi.md#delete3) | **DELETE** /v1/agent/{agentId} | Delete an agent
+*AgentApi* | [**get3**](docs/AgentApi.md#get3) | **GET** /v1/agent/{agentId} | Get an agent
+*AgentApi* | [**list1**](docs/AgentApi.md#list1) | **GET** /v1/agent/ | List agents
+*AgentApi* | [**update3**](docs/AgentApi.md#update3) | **PATCH** /v1/agent/{agentId} | Update an agent
 *AuthApi* | [**create2**](docs/AuthApi.md#create2) | **POST** /v1/auth/access-token | Create an access token
 *AuthApi* | [**revoke**](docs/AuthApi.md#revoke) | **DELETE** /v1/auth/access-token/{token} | Revoke an access token
 *AuthApi* | [**whoami**](docs/AuthApi.md#whoami) | **GET** /v1/auth/whoami | Who am I
-*ConfigurationApi* | [**list6**](docs/ConfigurationApi.md#list6) | **GET** /v1/config/model | List supported LLM models
+*ConfigurationApi* | [**list5**](docs/ConfigurationApi.md#list5) | **GET** /v1/config/model | List supported LLM models
+*CorpusApi* | [**callList**](docs/CorpusApi.md#callList) | **GET** /v1/corpus/ | List corpora
 *CorpusApi* | [**create1**](docs/CorpusApi.md#create1) | **POST** /v1/corpus/ | Create a corpus
-*CorpusApi* | [**delete**](docs/CorpusApi.md#delete) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus
-*CorpusApi* | [**get**](docs/CorpusApi.md#get) | **GET** /v1/corpus/{corpusId} | Get a corpus
-*CorpusApi* | [**list1**](docs/CorpusApi.md#list1) | **GET** /v1/corpus/ | List corpora
-*CorpusApi* | [**update**](docs/CorpusApi.md#update) | **PATCH** /v1/corpus/{corpusId} | Update a corpus
-*CorpusApi* | [**updateLegacy**](docs/CorpusApi.md#updateLegacy) | **PUT** /v1/corpus/{corpusId} | Update a corpus (deprecated)
+*CorpusApi* | [**delete2**](docs/CorpusApi.md#delete2) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus
+*CorpusApi* | [**get2**](docs/CorpusApi.md#get2) | **GET** /v1/corpus/{corpusId} | Get a corpus
+*CorpusApi* | [**update2**](docs/CorpusApi.md#update2) | **PATCH** /v1/corpus/{corpusId} | Update a corpus
 *DocumentApi* | [**commitUpload**](docs/DocumentApi.md#commitUpload) | **POST** /v1/doc/{id}/commit | Commit a previously initialized upload
-*DocumentApi* | [**delete3**](docs/DocumentApi.md#delete3) | **DELETE** /v1/doc/{id} | Delete a document
+*DocumentApi* | [**delete1**](docs/DocumentApi.md#delete1) | **DELETE** /v1/doc/{id} | Delete a document
 *DocumentApi* | [**downloadUrl1**](docs/DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL
-*DocumentApi* | [**get3**](docs/DocumentApi.md#get3) | **GET** /v1/doc/{id} | Get a document
+*DocumentApi* | [**get1**](docs/DocumentApi.md#get1) | **GET** /v1/doc/{id} | Get a document
 *DocumentApi* | [**initUpload**](docs/DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload
-*DocumentApi* | [**list5**](docs/DocumentApi.md#list5) | **GET** /v1/doc/ | List documents
+*DocumentApi* | [**list4**](docs/DocumentApi.md#list4) | **GET** /v1/doc/ | List documents
 *DocumentApi* | [**listSupportedDocuments**](docs/DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types
 *DocumentApi* | [**previewUrls1**](docs/DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs
 *DocumentApi* | [**reinitUpload**](docs/DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload
 *DocumentApi* | [**search**](docs/DocumentApi.md#search) | **GET** /v1/doc/q | Search documents
 *DocumentApi* | [**status**](docs/DocumentApi.md#status) | **GET** /v1/doc/{id}/status | Get a document&#39;s status
 *DocumentApi* | [**summary**](docs/DocumentApi.md#summary) | **GET** /v1/doc/{id}/summary | Get a document summary
-*DocumentApi* | [**update3**](docs/DocumentApi.md#update3) | **PATCH** /v1/doc/{id} | Update a document
-*FlywayApi* | [**getMigrationInfo**](docs/FlywayApi.md#getMigrationInfo) | **GET** /_/v1/flyway/info | 
-*KeyApi* | [**activate**](docs/KeyApi.md#activate) | **PUT** /_/v1/key/{keyId}/activate | Activate a key
-*KeyApi* | [**create4**](docs/KeyApi.md#create4) | **POST** /_/v1/key/ | Register a new key slot
-*KeyApi* | [**deactivate**](docs/KeyApi.md#deactivate) | **PUT** /_/v1/key/{keyId}/deactivate | Deactivate a key
-*KeyApi* | [**delete1**](docs/KeyApi.md#delete1) | **DELETE** /_/v1/key/{keyId} | Delete a key
-*KeyApi* | [**get1**](docs/KeyApi.md#get1) | **GET** /_/v1/key/{keyId} | Get a key
-*KeyApi* | [**list3**](docs/KeyApi.md#list3) | **GET** /_/v1/key/ | List keys
-*KeyApi* | [**publish**](docs/KeyApi.md#publish) | **POST** /_/v1/key/{keyId}/publish | Publish PEM content for a key
-*KeyApi* | [**update1**](docs/KeyApi.md#update1) | **PUT** /_/v1/key/{keyId} | Update a key
-*PostApi* | [**attachment1**](docs/PostApi.md#attachment1) | **GET** /v1/post/attachment/{postId} | Attachments from a post
-*PostApi* | [**callList**](docs/PostApi.md#callList) | **GET** /v1/post/ | List posts
-*PostApi* | [**delete5**](docs/PostApi.md#delete5) | **DELETE** /v1/post/{postId} | Delete a post
+*DocumentApi* | [**update1**](docs/DocumentApi.md#update1) | **PATCH** /v1/doc/{id} | Update a document
+*PostApi* | [**attachment**](docs/PostApi.md#attachment) | **GET** /v1/post/attachment/{postId} | Attachments from a post
+*PostApi* | [**delete4**](docs/PostApi.md#delete4) | **DELETE** /v1/post/{postId} | Delete a post
 *PostApi* | [**downloadUrl**](docs/PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL
-*PostApi* | [**get5**](docs/PostApi.md#get5) | **GET** /v1/post/{postId} | Get a post
+*PostApi* | [**get4**](docs/PostApi.md#get4) | **GET** /v1/post/{postId} | Get a post
+*PostApi* | [**list3**](docs/PostApi.md#list3) | **GET** /v1/post/ | List posts
 *PostApi* | [**previewUrls**](docs/PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs
-*PostApi* | [**query1**](docs/PostApi.md#query1) | **GET** /v1/post/q | Send a query
-*PostApi* | [**queryPostLegacy**](docs/PostApi.md#queryPostLegacy) | **POST** /v1/post/ | DEPRECATED. use GET /v1/post/q instead. Send a query
-*PrivateApi* | [**activate**](docs/PrivateApi.md#activate) | **PUT** /_/v1/key/{keyId}/activate | Activate a key
-*PrivateApi* | [**create4**](docs/PrivateApi.md#create4) | **POST** /_/v1/key/ | Register a new key slot
-*PrivateApi* | [**deactivate**](docs/PrivateApi.md#deactivate) | **PUT** /_/v1/key/{keyId}/deactivate | Deactivate a key
-*PrivateApi* | [**delete1**](docs/PrivateApi.md#delete1) | **DELETE** /_/v1/key/{keyId} | Delete a key
-*PrivateApi* | [**get1**](docs/PrivateApi.md#get1) | **GET** /_/v1/key/{keyId} | Get a key
-*PrivateApi* | [**getMigrationInfo**](docs/PrivateApi.md#getMigrationInfo) | **GET** /_/v1/flyway/info | 
-*PrivateApi* | [**list3**](docs/PrivateApi.md#list3) | **GET** /_/v1/key/ | List keys
-*PrivateApi* | [**onboard**](docs/PrivateApi.md#onboard) | **PUT** /_/v1/user/onboard | Onboard the authenticated user
-*PrivateApi* | [**publish**](docs/PrivateApi.md#publish) | **POST** /_/v1/key/{keyId}/publish | Publish PEM content for a key
-*PrivateApi* | [**update1**](docs/PrivateApi.md#update1) | **PUT** /_/v1/key/{keyId} | Update a key
-*PublicApi* | [**assertEmail**](docs/PublicApi.md#assertEmail) | **GET** /pub/v1/user/assert/email/{email} | Assert an email free from registration
-*PublicApi* | [**check**](docs/PublicApi.md#check) | **GET** /pub/check | Deep health check
-*PublicApi* | [**checkVerificationCode**](docs/PublicApi.md#checkVerificationCode) | **GET** /pub/v1/user/assert/code/{email}/{code} | Assert email verification code
-*PublicApi* | [**ping**](docs/PublicApi.md#ping) | **GET** /pub/ping | Basic ping
+*PostApi* | [**query**](docs/PostApi.md#query) | **GET** /v1/post/q | Send a query
 *SessionApi* | [**create**](docs/SessionApi.md#create) | **POST** /v1/session/ | Create a session
-*SessionApi* | [**delete2**](docs/SessionApi.md#delete2) | **DELETE** /v1/session/{sessionId} | Delete a session
-*SessionApi* | [**get2**](docs/SessionApi.md#get2) | **GET** /v1/session/{sessionId} | Get a session
-*SessionApi* | [**list4**](docs/SessionApi.md#list4) | **GET** /v1/session/byCorpus | List sessions attached to a corpus
+*SessionApi* | [**delete**](docs/SessionApi.md#delete) | **DELETE** /v1/session/{sessionId} | Delete a session
+*SessionApi* | [**get**](docs/SessionApi.md#get) | **GET** /v1/session/{sessionId} | Get a session
+*SessionApi* | [**list2**](docs/SessionApi.md#list2) | **GET** /v1/session/byCorpus | List sessions attached to a corpus
 *SessionApi* | [**listByMetadata**](docs/SessionApi.md#listByMetadata) | **GET** /v1/session/byMetadata | List sessions matching a metadata fragment
 *SessionApi* | [**listByOrganization**](docs/SessionApi.md#listByOrganization) | **GET** /v1/session/byOrganization | List every session in the caller&#39;s organization
 *SessionApi* | [**listByUser**](docs/SessionApi.md#listByUser) | **GET** /v1/session/byUser | List sessions owned by a user
-*SessionApi* | [**update2**](docs/SessionApi.md#update2) | **PATCH** /v1/session/{sessionId} | Update a session
+*SessionApi* | [**update**](docs/SessionApi.md#update) | **PATCH** /v1/session/{sessionId} | Update a session
 *UsageApi* | [**usage**](docs/UsageApi.md#usage) | **GET** /v1/usage/all | Organization usage
 *UsageApi* | [**usageByCorpus**](docs/UsageApi.md#usageByCorpus) | **GET** /v1/usage/corpus/{corpusId} | Corpus usage
 *UsageApi* | [**usageByUser**](docs/UsageApi.md#usageByUser) | **GET** /v1/usage/user/{userId} | User usage
-*UserApi* | [**assertEmail**](docs/UserApi.md#assertEmail) | **GET** /pub/v1/user/assert/email/{email} | Assert an email free from registration
-*UserApi* | [**checkVerificationCode**](docs/UserApi.md#checkVerificationCode) | **GET** /pub/v1/user/assert/code/{email}/{code} | Assert email verification code
-*UserApi* | [**onboard**](docs/UserApi.md#onboard) | **PUT** /_/v1/user/onboard | Onboard the authenticated user
-*WidgetApi* | [**attachment**](docs/WidgetApi.md#attachment) | **GET** /v1/webhook/widget/attachment/{postId} | Get source attachments of a post
-*WidgetApi* | [**getSession**](docs/WidgetApi.md#getSession) | **GET** /webhook/v1/widget/{lang} | 
-*WidgetApi* | [**init**](docs/WidgetApi.md#init) | **GET** /v1/webhook/widget/init | Init a session
-*WidgetApi* | [**postMessage**](docs/WidgetApi.md#postMessage) | **POST** /webhook/v1/widget/{lang} | 
-*WidgetApi* | [**posts**](docs/WidgetApi.md#posts) | **GET** /v1/webhook/widget/ | List posts in a session
-*WidgetApi* | [**query**](docs/WidgetApi.md#query) | **GET** /v1/webhook/widget/q | Post a query in a session
 
 
 ## Documentation for Models
@@ -243,8 +209,6 @@ Class | Method | HTTP request | Description
  - [AgentListResponse](docs/AgentListResponse.md)
  - [AgentUpdateRequest](docs/AgentUpdateRequest.md)
  - [Attachment](docs/Attachment.md)
- - [CheckItem](docs/CheckItem.md)
- - [CheckResponse](docs/CheckResponse.md)
  - [Corpus](docs/Corpus.md)
  - [CorpusCreateRequest](docs/CorpusCreateRequest.md)
  - [CorpusCreateResponse](docs/CorpusCreateResponse.md)
@@ -263,13 +227,6 @@ Class | Method | HTTP request | Description
  - [DocumentStatus](docs/DocumentStatus.md)
  - [DocumentUpdateRequest](docs/DocumentUpdateRequest.md)
  - [Error](docs/Error.md)
- - [Key](docs/Key.md)
- - [KeyCreateRequest](docs/KeyCreateRequest.md)
- - [KeyCreateResponse](docs/KeyCreateResponse.md)
- - [KeyItemResponse](docs/KeyItemResponse.md)
- - [KeyListResponse](docs/KeyListResponse.md)
- - [KeyUpdateRequest](docs/KeyUpdateRequest.md)
- - [KeyUpdateResponse](docs/KeyUpdateResponse.md)
  - [ModelListResponse](docs/ModelListResponse.md)
  - [Post](docs/Post.md)
  - [PostAttachmentResponse](docs/PostAttachmentResponse.md)
@@ -279,28 +236,13 @@ Class | Method | HTTP request | Description
  - [SessionCreateRequest](docs/SessionCreateRequest.md)
  - [SessionCreateResponse](docs/SessionCreateResponse.md)
  - [SessionListResponse](docs/SessionListResponse.md)
- - [SessionMessage](docs/SessionMessage.md)
  - [SessionUpdateRequest](docs/SessionUpdateRequest.md)
  - [Usage](docs/Usage.md)
  - [UsageBucket](docs/UsageBucket.md)
  - [UsageCount](docs/UsageCount.md)
  - [UsageDelta](docs/UsageDelta.md)
  - [UsageTokens](docs/UsageTokens.md)
- - [UserOnboardResponse](docs/UserOnboardResponse.md)
  - [WhoAmI](docs/WhoAmI.md)
- - [WidgetAttachment](docs/WidgetAttachment.md)
- - [WidgetAttachmentPage](docs/WidgetAttachmentPage.md)
- - [WidgetAttachmentResponse](docs/WidgetAttachmentResponse.md)
- - [WidgetMessageResponse](docs/WidgetMessageResponse.md)
- - [WidgetMessageResponseItem](docs/WidgetMessageResponseItem.md)
- - [WidgetPost](docs/WidgetPost.md)
- - [WidgetPostsResponse](docs/WidgetPostsResponse.md)
- - [WidgetQueryResponse](docs/WidgetQueryResponse.md)
- - [WidgetSessionRequest](docs/WidgetSessionRequest.md)
- - [WidgetSessionRequestBody](docs/WidgetSessionRequestBody.md)
- - [WidgetSessionResponse](docs/WidgetSessionResponse.md)
- - [WidgetSessionResponseItem](docs/WidgetSessionResponseItem.md)
- - [WidgetSessionResponseLegacy](docs/WidgetSessionResponseLegacy.md)
 
 
 <a id="documentation-for-authorization"></a>

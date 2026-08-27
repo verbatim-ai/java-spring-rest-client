@@ -4,13 +4,97 @@ All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**callList**](CorpusApi.md#callList) | **GET** /v1/corpus/ | List corpora |
 | [**create1**](CorpusApi.md#create1) | **POST** /v1/corpus/ | Create a corpus |
-| [**delete**](CorpusApi.md#delete) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus |
-| [**get**](CorpusApi.md#get) | **GET** /v1/corpus/{corpusId} | Get a corpus |
-| [**list1**](CorpusApi.md#list1) | **GET** /v1/corpus/ | List corpora |
-| [**update**](CorpusApi.md#update) | **PATCH** /v1/corpus/{corpusId} | Update a corpus |
-| [**updateLegacy**](CorpusApi.md#updateLegacy) | **PUT** /v1/corpus/{corpusId} | Update a corpus (deprecated) |
+| [**delete2**](CorpusApi.md#delete2) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus |
+| [**get2**](CorpusApi.md#get2) | **GET** /v1/corpus/{corpusId} | Get a corpus |
+| [**update2**](CorpusApi.md#update2) | **PATCH** /v1/corpus/{corpusId} | Update a corpus |
 
+
+
+## callList
+
+> CorpusListResponse callList(pageSize, pageIndex)
+
+List corpora
+
+Paginate corpora belonging to an organization.
+
+### Example
+
+```java
+// Import classes:
+import com.verbatim.client.springrest.invoker.ApiClient;
+import com.verbatim.client.springrest.invoker.ApiException;
+import com.verbatim.client.springrest.invoker.Configuration;
+import com.verbatim.client.springrest.invoker.auth.*;
+import com.verbatim.client.springrest.invoker.models.*;
+import com.verbatim.client.springrest.api.CorpusApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost:8080");
+        
+        // Configure HTTP bearer authorization: JWT
+        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
+        JWT.setBearerToken("BEARER TOKEN");
+
+        // Configure API key authorization: AccessToken
+        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
+        AccessToken.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //AccessToken.setApiKeyPrefix("Token");
+
+        CorpusApi apiInstance = new CorpusApi(defaultClient);
+        Integer pageSize = 25; // Integer | Number of items per page.
+        Integer pageIndex = 0; // Integer | Zero-based page index.
+        try {
+            CorpusListResponse result = apiInstance.callList(pageSize, pageIndex);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling CorpusApi#callList");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **pageSize** | **Integer**| Number of items per page. | [optional] [default to 25] |
+| **pageIndex** | **Integer**| Zero-based page index. | [optional] [default to 0] |
+
+### Return type
+
+[**CorpusListResponse**](CorpusListResponse.md)
+
+### Authorization
+
+[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
+| **403** | Not authorized. Access not granted for this request |  -  |
+| **404** | The resource referenced by the request does not exist. |  -  |
+| **400** | The request is malformed or contains invalid parameters. |  -  |
+| **409** | The request conflicts with the current state of the resource. |  -  |
+| **200** | Page of corpora. |  -  |
 
 
 ## create1
@@ -87,18 +171,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Corpus created. |  -  |
 
 
-## delete
+## delete2
 
-> AckResponse delete(corpusId)
+> AckResponse delete2(corpusId)
 
 Delete a corpus
 
@@ -133,10 +217,10 @@ public class Example {
         CorpusApi apiInstance = new CorpusApi(defaultClient);
         UUID corpusId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the corpus to delete.
         try {
-            AckResponse result = apiInstance.delete(corpusId);
+            AckResponse result = apiInstance.delete2(corpusId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#delete");
+            System.err.println("Exception when calling CorpusApi#delete2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -170,18 +254,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Corpus and dependencies deleted. |  -  |
 
 
-## get
+## get2
 
-> CorpusItemResponse get(corpusId)
+> CorpusItemResponse get2(corpusId)
 
 Get a corpus
 
@@ -216,10 +300,10 @@ public class Example {
         CorpusApi apiInstance = new CorpusApi(defaultClient);
         UUID corpusId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the corpus.
         try {
-            CorpusItemResponse result = apiInstance.get(corpusId);
+            CorpusItemResponse result = apiInstance.get2(corpusId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#get");
+            System.err.println("Exception when calling CorpusApi#get2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -253,103 +337,18 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Corpus found. |  -  |
 
 
-## list1
+## update2
 
-> CorpusListResponse list1(pageSize, pageIndex)
-
-List corpora
-
-Paginate corpora belonging to an organization.
-
-### Example
-
-```java
-// Import classes:
-import com.verbatim.client.springrest.invoker.ApiClient;
-import com.verbatim.client.springrest.invoker.ApiException;
-import com.verbatim.client.springrest.invoker.Configuration;
-import com.verbatim.client.springrest.invoker.auth.*;
-import com.verbatim.client.springrest.invoker.models.*;
-import com.verbatim.client.springrest.api.CorpusApi;
-
-public class Example {
-    public static void main(String[] args) {
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
-        
-        // Configure HTTP bearer authorization: JWT
-        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
-        JWT.setBearerToken("BEARER TOKEN");
-
-        // Configure API key authorization: AccessToken
-        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
-        AccessToken.setApiKey("YOUR API KEY");
-        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-        //AccessToken.setApiKeyPrefix("Token");
-
-        CorpusApi apiInstance = new CorpusApi(defaultClient);
-        Integer pageSize = 25; // Integer | Number of items per page.
-        Integer pageIndex = 0; // Integer | Zero-based page index.
-        try {
-            CorpusListResponse result = apiInstance.list1(pageSize, pageIndex);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#list1");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
-        }
-    }
-}
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **pageSize** | **Integer**| Number of items per page. | [optional] [default to 25] |
-| **pageIndex** | **Integer**| Zero-based page index. | [optional] [default to 0] |
-
-### Return type
-
-[**CorpusListResponse**](CorpusListResponse.md)
-
-### Authorization
-
-[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
-| **403** | Not authorized. Access not granted for this request |  -  |
-| **404** | The resource referenced by the request does not exist. |  -  |
-| **400** | The request is malformed or contains invalid parameters. |  -  |
-| **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
-| **200** | Page of corpora. |  -  |
-
-
-## update
-
-> CorpusUpdateResponse update(corpusId, corpusUpdateRequest)
+> CorpusUpdateResponse update2(corpusId, corpusUpdateRequest)
 
 Update a corpus
 
@@ -385,10 +384,10 @@ public class Example {
         UUID corpusId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the corpus to update.
         CorpusUpdateRequest corpusUpdateRequest = new CorpusUpdateRequest(); // CorpusUpdateRequest | 
         try {
-            CorpusUpdateResponse result = apiInstance.update(corpusId, corpusUpdateRequest);
+            CorpusUpdateResponse result = apiInstance.update2(corpusId, corpusUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#update");
+            System.err.println("Exception when calling CorpusApi#update2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -423,96 +422,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
-| **200** | Corpus updated. |  -  |
-
-
-## updateLegacy
-
-> CorpusUpdateResponse updateLegacy(corpusId, corpusUpdateRequest)
-
-Update a corpus (deprecated)
-
-**Deprecated — use &#x60;PATCH /v1/corpus/{corpusId}&#x60; instead.**  Kept for backward compatibility and strictly equivalent to the &#x60;PATCH&#x60; operation: despite the &#x60;PUT&#x60; verb, omitted fields are **not** reset, they keep their current value. That partial-update semantic is what &#x60;PATCH&#x60; expresses correctly, hence the move. This operation will be removed in a future release. 
-
-### Example
-
-```java
-// Import classes:
-import com.verbatim.client.springrest.invoker.ApiClient;
-import com.verbatim.client.springrest.invoker.ApiException;
-import com.verbatim.client.springrest.invoker.Configuration;
-import com.verbatim.client.springrest.invoker.auth.*;
-import com.verbatim.client.springrest.invoker.models.*;
-import com.verbatim.client.springrest.api.CorpusApi;
-
-public class Example {
-    public static void main(String[] args) {
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
-        
-        // Configure HTTP bearer authorization: JWT
-        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
-        JWT.setBearerToken("BEARER TOKEN");
-
-        // Configure API key authorization: AccessToken
-        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
-        AccessToken.setApiKey("YOUR API KEY");
-        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-        //AccessToken.setApiKeyPrefix("Token");
-
-        CorpusApi apiInstance = new CorpusApi(defaultClient);
-        UUID corpusId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the corpus to update.
-        CorpusUpdateRequest corpusUpdateRequest = new CorpusUpdateRequest(); // CorpusUpdateRequest | 
-        try {
-            CorpusUpdateResponse result = apiInstance.updateLegacy(corpusId, corpusUpdateRequest);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#updateLegacy");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
-        }
-    }
-}
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **corpusId** | **UUID**| ID of the corpus to update. | |
-| **corpusUpdateRequest** | [**CorpusUpdateRequest**](CorpusUpdateRequest.md)|  | |
-
-### Return type
-
-[**CorpusUpdateResponse**](CorpusUpdateResponse.md)
-
-### Authorization
-
-[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
-
-### HTTP request headers
-
-- **Content-Type**: application/json
-- **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **500** | Internal error. Check body to get more info |  -  |
-| **403** | Not authorized. Access not granted for this request |  -  |
-| **404** | The resource referenced by the request does not exist. |  -  |
-| **400** | The request is malformed or contains invalid parameters. |  -  |
-| **409** | The request conflicts with the current state of the resource. |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **200** | Corpus updated. |  -  |
 
