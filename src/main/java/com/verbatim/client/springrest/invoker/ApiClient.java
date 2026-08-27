@@ -98,7 +98,7 @@ public class ApiClient extends JavaTimeFormatter {
 
     protected long waitTimeMillis = 10;
 
-    protected String basePath = "http://localhost:8080";
+    protected String basePath = "https://api.verbatim-ai.com";
 
     protected RestTemplate restTemplate;
 

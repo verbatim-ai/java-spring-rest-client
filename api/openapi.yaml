@@ -41,12 +41,10 @@ info:
     href: https://www.verbatim-ai.com/
     altText: Verbatim AI
 servers:
-- description: Local
-  url: http://localhost:8080
-- description: Staging
-  url: https://staging-api.verbatim-ai.com
 - description: Production
   url: https://api.verbatim-ai.com
+- description: Staging
+  url: https://staging-api.verbatim-ai.com
 tags:
 - description: Configuration services
   name: Configuration

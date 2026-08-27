@@ -1,6 +1,6 @@
 # CorpusApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://api.verbatim-ai.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -34,7 +34,7 @@ import com.verbatim.client.springrest.api.CorpusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
         
         // Configure HTTP bearer authorization: JWT
         HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
@@ -119,7 +119,7 @@ import com.verbatim.client.springrest.api.CorpusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
         
         // Configure HTTP bearer authorization: JWT
         HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
@@ -202,7 +202,7 @@ import com.verbatim.client.springrest.api.CorpusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
         
         // Configure HTTP bearer authorization: JWT
         HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
@@ -285,7 +285,7 @@ import com.verbatim.client.springrest.api.CorpusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
         
         // Configure HTTP bearer authorization: JWT
         HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
@@ -368,7 +368,7 @@ import com.verbatim.client.springrest.api.CorpusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("http://localhost:8080");
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
         
         // Configure HTTP bearer authorization: JWT
         HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
