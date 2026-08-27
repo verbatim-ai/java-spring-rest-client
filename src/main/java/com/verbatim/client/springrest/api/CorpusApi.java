@@ -46,73 +46,14 @@ public class CorpusApi extends BaseApi {
     }
 
     /**
-     * List corpora
-     * Paginate corpora belonging to an organization.
-     * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
-     * <p><b>400</b> - The request is malformed or contains invalid parameters.
-     * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
-     * <p><b>200</b> - Page of corpora.
-     * @param pageSize Number of items per page. (optional, default to 25)
-     * @param pageIndex Zero-based page index. (optional, default to 0)
-     * @return CorpusListResponse
-     * @throws RestClientException if an error occurs while attempting to invoke the API
-     */
-    public CorpusListResponse callList(Integer pageSize, Integer pageIndex) throws RestClientException {
-        return callListWithHttpInfo(pageSize, pageIndex).getBody();
-    }
-
-    /**
-     * List corpora
-     * Paginate corpora belonging to an organization.
-     * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
-     * <p><b>400</b> - The request is malformed or contains invalid parameters.
-     * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
-     * <p><b>200</b> - Page of corpora.
-     * @param pageSize Number of items per page. (optional, default to 25)
-     * @param pageIndex Zero-based page index. (optional, default to 0)
-     * @return ResponseEntity&lt;CorpusListResponse&gt;
-     * @throws RestClientException if an error occurs while attempting to invoke the API
-     */
-    public ResponseEntity<CorpusListResponse> callListWithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
-        Object localVarPostBody = null;
-        
-
-        final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<String, String>();
-        final HttpHeaders localVarHeaderParams = new HttpHeaders();
-        final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<String, String>();
-        final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<String, Object>();
-
-        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageSize", pageSize));
-        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageIndex", pageIndex));
-        
-
-        final String[] localVarAccepts = { 
-            "application/json"
-         };
-        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-        final String[] localVarContentTypes = {  };
-        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-
-        String[] localVarAuthNames = new String[] { "JWT", "AccessToken" };
-
-        ParameterizedTypeReference<CorpusListResponse> localReturnType = new ParameterizedTypeReference<CorpusListResponse>() {};
-        return apiClient.invokeAPI("/v1/corpus/", HttpMethod.GET, Collections.<String, Object>emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
-    }
-    /**
      * Create a corpus
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus created.
      * @param corpusCreateRequest  (required)
      * @return CorpusCreateResponse
@@ -125,12 +66,12 @@ public class CorpusApi extends BaseApi {
     /**
      * Create a corpus
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus created.
      * @param corpusCreateRequest  (required)
      * @return ResponseEntity&lt;CorpusCreateResponse&gt;
@@ -167,41 +108,41 @@ public class CorpusApi extends BaseApi {
     /**
      * Delete a corpus
      * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus and dependencies deleted.
      * @param corpusId ID of the corpus to delete. (required)
      * @return AckResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AckResponse delete2(UUID corpusId) throws RestClientException {
-        return delete2WithHttpInfo(corpusId).getBody();
+    public AckResponse delete(UUID corpusId) throws RestClientException {
+        return deleteWithHttpInfo(corpusId).getBody();
     }
 
     /**
      * Delete a corpus
      * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus and dependencies deleted.
      * @param corpusId ID of the corpus to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AckResponse> delete2WithHttpInfo(UUID corpusId) throws RestClientException {
+    public ResponseEntity<AckResponse> deleteWithHttpInfo(UUID corpusId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling delete2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling delete");
         }
         
         // create path and map variables
@@ -228,41 +169,41 @@ public class CorpusApi extends BaseApi {
     /**
      * Get a corpus
      * Fetch a corpus by its identifier.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus found.
      * @param corpusId ID of the corpus. (required)
      * @return CorpusItemResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public CorpusItemResponse get2(UUID corpusId) throws RestClientException {
-        return get2WithHttpInfo(corpusId).getBody();
+    public CorpusItemResponse get(UUID corpusId) throws RestClientException {
+        return getWithHttpInfo(corpusId).getBody();
     }
 
     /**
      * Get a corpus
      * Fetch a corpus by its identifier.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus found.
      * @param corpusId ID of the corpus. (required)
      * @return ResponseEntity&lt;CorpusItemResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<CorpusItemResponse> get2WithHttpInfo(UUID corpusId) throws RestClientException {
+    public ResponseEntity<CorpusItemResponse> getWithHttpInfo(UUID corpusId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling get2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling get");
         }
         
         // create path and map variables
@@ -287,50 +228,109 @@ public class CorpusApi extends BaseApi {
         return apiClient.invokeAPI("/v1/corpus/{corpusId}", HttpMethod.GET, uriVariables, localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
     }
     /**
-     * Update a corpus
-     * Patch the name, description or metadata of an existing corpus. Only the fields present in the request body are updated; omitted fields keep their current value.  &#x60;metadata&#x60; **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  Changing models does **not** re-process already-ingested documents. 
+     * List corpora
+     * Paginate corpora belonging to an organization.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>200</b> - Page of corpora.
+     * @param pageSize Number of items per page. (optional, default to 25)
+     * @param pageIndex Zero-based page index. (optional, default to 0)
+     * @return CorpusListResponse
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public CorpusListResponse list1(Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list1WithHttpInfo(pageSize, pageIndex).getBody();
+    }
+
+    /**
+     * List corpora
+     * Paginate corpora belonging to an organization.
      * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>200</b> - Page of corpora.
+     * @param pageSize Number of items per page. (optional, default to 25)
+     * @param pageIndex Zero-based page index. (optional, default to 0)
+     * @return ResponseEntity&lt;CorpusListResponse&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<CorpusListResponse> list1WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
+        Object localVarPostBody = null;
+        
+
+        final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<String, String>();
+        final HttpHeaders localVarHeaderParams = new HttpHeaders();
+        final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<String, String>();
+        final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<String, Object>();
+
+        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageSize", pageSize));
+        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageIndex", pageIndex));
+        
+
+        final String[] localVarAccepts = { 
+            "application/json"
+         };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = {  };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+
+        String[] localVarAuthNames = new String[] { "JWT", "AccessToken" };
+
+        ParameterizedTypeReference<CorpusListResponse> localReturnType = new ParameterizedTypeReference<CorpusListResponse>() {};
+        return apiClient.invokeAPI("/v1/corpus/", HttpMethod.GET, Collections.<String, Object>emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
+    }
+    /**
+     * Update a corpus
+     * Patch the name, description or metadata of an existing corpus. Only the fields present in the request body are updated; omitted fields keep their current value.  &#x60;metadata&#x60; **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  Changing models does **not** re-process already-ingested documents. 
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus updated.
      * @param corpusId ID of the corpus to update. (required)
      * @param corpusUpdateRequest  (required)
      * @return CorpusUpdateResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public CorpusUpdateResponse update2(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
-        return update2WithHttpInfo(corpusId, corpusUpdateRequest).getBody();
+    public CorpusUpdateResponse update(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
+        return updateWithHttpInfo(corpusId, corpusUpdateRequest).getBody();
     }
 
     /**
      * Update a corpus
      * Patch the name, description or metadata of an existing corpus. Only the fields present in the request body are updated; omitted fields keep their current value.  &#x60;metadata&#x60; **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  Changing models does **not** re-process already-ingested documents. 
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Corpus updated.
      * @param corpusId ID of the corpus to update. (required)
      * @param corpusUpdateRequest  (required)
      * @return ResponseEntity&lt;CorpusUpdateResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<CorpusUpdateResponse> update2WithHttpInfo(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
+    public ResponseEntity<CorpusUpdateResponse> updateWithHttpInfo(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
         Object localVarPostBody = corpusUpdateRequest;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling update2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling update");
         }
         
         // verify the required parameter 'corpusUpdateRequest' is set
         if (corpusUpdateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusUpdateRequest' when calling update2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusUpdateRequest' when calling update");
         }
         
         // create path and map variables
@@ -355,6 +355,80 @@ public class CorpusApi extends BaseApi {
 
         ParameterizedTypeReference<CorpusUpdateResponse> localReturnType = new ParameterizedTypeReference<CorpusUpdateResponse>() {};
         return apiClient.invokeAPI("/v1/corpus/{corpusId}", HttpMethod.PATCH, uriVariables, localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
+    }
+    /**
+     * Update a corpus (deprecated)
+     * **Deprecated — use &#x60;PATCH /v1/corpus/{corpusId}&#x60; instead.**  Kept for backward compatibility and strictly equivalent to the &#x60;PATCH&#x60; operation: despite the &#x60;PUT&#x60; verb, omitted fields are **not** reset, they keep their current value. That partial-update semantic is what &#x60;PATCH&#x60; expresses correctly, hence the move. This operation will be removed in a future release. 
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>200</b> - Corpus updated.
+     * @param corpusId ID of the corpus to update. (required)
+     * @param corpusUpdateRequest  (required)
+     * @return CorpusUpdateResponse
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     * @deprecated
+     */
+    @Deprecated
+    public CorpusUpdateResponse updateLegacy(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
+        return updateLegacyWithHttpInfo(corpusId, corpusUpdateRequest).getBody();
+    }
+
+    /**
+     * Update a corpus (deprecated)
+     * **Deprecated — use &#x60;PATCH /v1/corpus/{corpusId}&#x60; instead.**  Kept for backward compatibility and strictly equivalent to the &#x60;PATCH&#x60; operation: despite the &#x60;PUT&#x60; verb, omitted fields are **not** reset, they keep their current value. That partial-update semantic is what &#x60;PATCH&#x60; expresses correctly, hence the move. This operation will be removed in a future release. 
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>200</b> - Corpus updated.
+     * @param corpusId ID of the corpus to update. (required)
+     * @param corpusUpdateRequest  (required)
+     * @return ResponseEntity&lt;CorpusUpdateResponse&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     * @deprecated
+     */
+    @Deprecated
+    public ResponseEntity<CorpusUpdateResponse> updateLegacyWithHttpInfo(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
+        Object localVarPostBody = corpusUpdateRequest;
+        
+        // verify the required parameter 'corpusId' is set
+        if (corpusId == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling updateLegacy");
+        }
+        
+        // verify the required parameter 'corpusUpdateRequest' is set
+        if (corpusUpdateRequest == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusUpdateRequest' when calling updateLegacy");
+        }
+        
+        // create path and map variables
+        final Map<String, Object> uriVariables = new HashMap<String, Object>();
+        uriVariables.put("corpusId", corpusId);
+
+        final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<String, String>();
+        final HttpHeaders localVarHeaderParams = new HttpHeaders();
+        final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<String, String>();
+        final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<String, Object>();
+
+        final String[] localVarAccepts = { 
+            "application/json"
+         };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
+            "application/json"
+         };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+
+        String[] localVarAuthNames = new String[] { "JWT", "AccessToken" };
+
+        ParameterizedTypeReference<CorpusUpdateResponse> localReturnType = new ParameterizedTypeReference<CorpusUpdateResponse>() {};
+        return apiClient.invokeAPI("/v1/corpus/{corpusId}", HttpMethod.PUT, uriVariables, localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
     }
 
     @Override

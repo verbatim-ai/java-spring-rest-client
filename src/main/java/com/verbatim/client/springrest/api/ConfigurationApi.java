@@ -41,34 +41,34 @@ public class ConfigurationApi extends BaseApi {
     /**
      * List supported LLM models
      * Return the identifiers of the LLM models the platform is configured to serve. The list is driven by the &#x60;app.ai.model&#x60; server property and is the same for every caller.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Supported models.
      * @return ModelListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ModelListResponse list5() throws RestClientException {
-        return list5WithHttpInfo().getBody();
+    public ModelListResponse list6() throws RestClientException {
+        return list6WithHttpInfo().getBody();
     }
 
     /**
      * List supported LLM models
      * Return the identifiers of the LLM models the platform is configured to serve. The list is driven by the &#x60;app.ai.model&#x60; server property and is the same for every caller.
+     * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>200</b> - Supported models.
      * @return ResponseEntity&lt;ModelListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<ModelListResponse> list5WithHttpInfo() throws RestClientException {
+    public ResponseEntity<ModelListResponse> list6WithHttpInfo() throws RestClientException {
         Object localVarPostBody = null;
         
 

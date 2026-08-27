@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -51,10 +51,29 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void attachmentTest() {
+    void attachment1Test() {
         UUID postId = null;
 
-        PostAttachmentResponse response = api.attachment(postId);
+        PostAttachmentResponse response = api.attachment1(postId);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * List posts
+     *
+     * Paginate every post (user queries and system answers) in a session, newest first.
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void callListTest() {
+        UUID sessionId = null;
+        Integer pageSize = null;
+        Integer pageIndex = null;
+
+        PostListResponse response = api.callList(sessionId, pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -68,10 +87,10 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void delete3Test() {
+    void delete5Test() {
         UUID postId = null;
 
-        AckResponse response = api.delete3(postId);
+        AckResponse response = api.delete5(postId);
 
         // TODO: test validations
     }
@@ -102,29 +121,10 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void get3Test() {
+    void get5Test() {
         UUID postId = null;
 
-        Post response = api.get3(postId);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * List posts
-     *
-     * Paginate every post (user queries and system answers) in a session, newest first.
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void list2Test() {
-        UUID sessionId = null;
-        Integer pageSize = null;
-        Integer pageIndex = null;
-
-        PostListResponse response = api.list2(sessionId, pageSize, pageIndex);
+        Post response = api.get5(postId);
 
         // TODO: test validations
     }
@@ -132,7 +132,7 @@ class PostApiTest {
     /**
      * Get presigned preview URLs
      *
-     * Return time-limited presigned URLs for the rendered preview images of the document. One entry is issued per (page, size): by default the first 4 pages × {SMALL, MEDIUM}, so up to 8 entries per call.  Pass &#x60;pages&#x60; to restrict the response to specific page indices (e.g. &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;). When omitted, pages 0–3 are used. Duplicate values are preserved as supplied.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn&#39;t been generated yet; clients SHOULD fall back per-tile. 
+     * Return time-limited presigned URLs for the rendered preview images of the document.  &#x60;pages&#x60; is **required** and selects the zero-based page indices to issue URLs for: at least one, at most 10 per request — &#x60;400&#x60; otherwise. Repeat the parameter for several values (&#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;) or send them comma-separated (&#x60;pages&#x3D;0,2&#x60;). Duplicates are preserved as supplied and count towards the limit. Paginate over a long document with several calls rather than asking for every page at once.  Every index must address a page of *that* document: negatives are rejected, and so is anything at or past its page count once that count is known (&#x60;nbPages&#x60; from &#x60;GET /v1/doc/{id}&#x60;, &#x60;0&#x60; while the rendering pipeline has not reported it).  One entry is issued per (page, size) over {SMALL, MEDIUM}, so a call returns &#x60;2 × pages&#x60; entries — at most 20.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn&#39;t been generated yet; clients SHOULD fall back per-tile. 
      *
      * @throws RestClientException
      *          if the Api call fails
@@ -150,18 +150,39 @@ class PostApiTest {
     /**
      * Send a query
      *
-     * Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with &#x60;owner &#x3D; USER&#x60;. 2. Vectorize the query and run a cosine-similarity search against the session&#39;s corpora. 3. Feed the top chunks to the session&#39;s LLM as context. 4. Persist the answer as a post with &#x60;owner &#x3D; SYSTEM&#x60;, with attachments pointing to the chunks used.  The response contains both the user post (&#x60;query&#x60;) and the system post (&#x60;answer&#x60;). 
+     * Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with &#x60;owner &#x3D; USER&#x60;. 2. Vectorize the query and run a cosine-similarity search against the session&#39;s corpora. 3. Feed the top chunks to the session&#39;s LLM as context. 4. Persist the answer as a post with &#x60;owner &#x3D; SYSTEM&#x60;, with attachments pointing to the chunks used.  The response contains both the user post (&#x60;query&#x60;) and the system post (&#x60;answer&#x60;).  ### Choosing an agent  How much of that pipeline runs, and how, is decided by an **agent** — retrieval width, whether the chunks are re-ranked, the system instruction, how much of the conversation is replayed, and which model answers. See &#x60;GET /v1/agent/&#x60;.  Omit &#x60;agentId&#x60; and the query runs on the platform default agent, which is what every query did before agents existed. Pass one to run this single query under a different setup:  &#x60;&#x60;&#x60; GET /v1/post/q?sessionId&#x3D;$SESSION_ID&amp;body&#x3D;What+is+the+refund+policy%3F&amp;agentId&#x3D;$AGENT_ID &#x60;&#x60;&#x60;  The choice is **per query, not per session** — the next query on the same session is independent, so a client can escalate one question to a wider, slower agent without changing the conversation it belongs to.  The agent is then recorded on the answer as &#x60;agentId&#x60;, and only on the answer: the user&#39;s question is not something an agent produced. A missing &#x60;agentId&#x60; on an answer therefore means \&quot;ran on the default agent\&quot;, not \&quot;unknown\&quot;. Deleting an agent does not rewrite the answers it produced, so this still names an agent you have since deleted — resolving that id through &#x60;GET /v1/agent/{agentId}&#x60; answers &#x60;404&#x60;, which is the honest reading.  An &#x60;agentId&#x60; your organization cannot see — someone else&#39;s, or one that never existed — answers &#x60;404&#x60; and no post is written. 
      *
      * @throws RestClientException
      *          if the Api call fails
      */
     @Test
-    void queryTest() {
+    void query1Test() {
         UUID sessionId = null;
         String body = null;
         String lang = null;
+        UUID agentId = null;
 
-        PostItemResponse response = api.query(sessionId, body, lang);
+        PostItemResponse response = api.query1(sessionId, body, lang, agentId);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * DEPRECATED. use GET /v1/post/q instead. Send a query
+     *
+     * DEPRECATED. use GET /v1/post instead. Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with &#x60;owner &#x3D; USER&#x60;. 2. Vectorize the query and run a cosine-similarity search against the session&#39;s corpora. 3. Feed the top chunks to the session&#39;s LLM as context. 4. Persist the answer as a post with &#x60;owner &#x3D; SYSTEM&#x60;, with attachments pointing to the chunks used.  The response contains both the user post (&#x60;query&#x60;) and the system post (&#x60;answer&#x60;). 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void queryPostLegacyTest() {
+        UUID sessionId = null;
+        String body = null;
+        String lang = null;
+        UUID agentId = null;
+
+        PostItemResponse response = api.queryPostLegacy(sessionId, body, lang, agentId);
 
         // TODO: test validations
     }

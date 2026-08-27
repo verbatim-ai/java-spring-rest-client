@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -43,24 +43,6 @@ class CorpusApiTest {
 
     
     /**
-     * List corpora
-     *
-     * Paginate corpora belonging to an organization.
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void callListTest() {
-        Integer pageSize = null;
-        Integer pageIndex = null;
-
-        CorpusListResponse response = api.callList(pageSize, pageIndex);
-
-        // TODO: test validations
-    }
-    
-    /**
      * Create a corpus
      *
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
@@ -86,10 +68,10 @@ class CorpusApiTest {
      *          if the Api call fails
      */
     @Test
-    void delete2Test() {
+    void deleteTest() {
         UUID corpusId = null;
 
-        AckResponse response = api.delete2(corpusId);
+        AckResponse response = api.delete(corpusId);
 
         // TODO: test validations
     }
@@ -103,10 +85,28 @@ class CorpusApiTest {
      *          if the Api call fails
      */
     @Test
-    void get2Test() {
+    void getTest() {
         UUID corpusId = null;
 
-        CorpusItemResponse response = api.get2(corpusId);
+        CorpusItemResponse response = api.get(corpusId);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * List corpora
+     *
+     * Paginate corpora belonging to an organization.
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void list1Test() {
+        Integer pageSize = null;
+        Integer pageIndex = null;
+
+        CorpusListResponse response = api.list1(pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -120,11 +120,29 @@ class CorpusApiTest {
      *          if the Api call fails
      */
     @Test
-    void update2Test() {
+    void updateTest() {
         UUID corpusId = null;
         CorpusUpdateRequest corpusUpdateRequest = null;
 
-        CorpusUpdateResponse response = api.update2(corpusId, corpusUpdateRequest);
+        CorpusUpdateResponse response = api.update(corpusId, corpusUpdateRequest);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * Update a corpus (deprecated)
+     *
+     * **Deprecated — use &#x60;PATCH /v1/corpus/{corpusId}&#x60; instead.**  Kept for backward compatibility and strictly equivalent to the &#x60;PATCH&#x60; operation: despite the &#x60;PUT&#x60; verb, omitted fields are **not** reset, they keep their current value. That partial-update semantic is what &#x60;PATCH&#x60; expresses correctly, hence the move. This operation will be removed in a future release. 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void updateLegacyTest() {
+        UUID corpusId = null;
+        CorpusUpdateRequest corpusUpdateRequest = null;
+
+        CorpusUpdateResponse response = api.updateLegacy(corpusId, corpusUpdateRequest);
 
         // TODO: test validations
     }
