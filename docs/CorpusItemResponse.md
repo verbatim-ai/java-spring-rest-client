@@ -8,7 +8,7 @@ Single corpus wrapped with its parent organization id.
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**orgId** | **String** | ID of the parent organization (UUIDv4). |  |
+|**orgId** | **String** |  |  [optional] |
 |**item** | [**Corpus**](Corpus.md) | The corpus payload. |  [optional] |
 
 

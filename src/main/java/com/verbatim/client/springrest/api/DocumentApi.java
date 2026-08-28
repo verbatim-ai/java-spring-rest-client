@@ -638,8 +638,8 @@ public class DocumentApi extends BaseApi {
      * @return DocumentSearchResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public DocumentSearchResponse search(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
-        return searchWithHttpInfo(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex).getBody();
+    public DocumentSearchResponse search1(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
+        return search1WithHttpInfo(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex).getBody();
     }
 
     /**
@@ -671,12 +671,12 @@ public class DocumentApi extends BaseApi {
      * @return ResponseEntity&lt;DocumentSearchResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<DocumentSearchResponse> searchWithHttpInfo(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<DocumentSearchResponse> search1WithHttpInfo(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling search");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling search1");
         }
         
 

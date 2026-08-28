@@ -32,16 +32,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Paginated list of corpora belonging to an organization.
  */
 @JsonPropertyOrder({
-  CorpusListResponse.JSON_PROPERTY_ORG_ID,
   CorpusListResponse.JSON_PROPERTY_PAGE_INDEX,
-  CorpusListResponse.JSON_PROPERTY_ITEMS
+  CorpusListResponse.JSON_PROPERTY_ITEMS,
+  CorpusListResponse.JSON_PROPERTY_ORG_ID
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class CorpusListResponse {
-  public static final String JSON_PROPERTY_ORG_ID = "orgId";
-  @javax.annotation.Nonnull
-  private String orgId;
-
   public static final String JSON_PROPERTY_PAGE_INDEX = "pageIndex";
   @javax.annotation.Nullable
   private Integer pageIndex;
@@ -50,32 +46,11 @@ public class CorpusListResponse {
   @javax.annotation.Nullable
   private List<Corpus> items = new ArrayList<>();
 
+  public static final String JSON_PROPERTY_ORG_ID = "orgId";
+  @javax.annotation.Nullable
+  private String orgId;
+
   public CorpusListResponse() {
-  }
-
-  public CorpusListResponse orgId(@javax.annotation.Nonnull String orgId) {
-    
-    this.orgId = orgId;
-    return this;
-  }
-
-  /**
-   * ID of the parent organization (UUIDv4).
-   * @return orgId
-   */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-
-  public String getOrgId() {
-    return orgId;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setOrgId(@javax.annotation.Nonnull String orgId) {
-    this.orgId = orgId;
   }
 
   public CorpusListResponse pageIndex(@javax.annotation.Nullable Integer pageIndex) {
@@ -136,6 +111,33 @@ public class CorpusListResponse {
     this.items = items;
   }
 
+  public CorpusListResponse orgId(@javax.annotation.Nullable String orgId) {
+    
+    this.orgId = orgId;
+    return this;
+  }
+
+  /**
+   * Get orgId
+   * @return orgId
+   * @deprecated
+   */
+  @Deprecated
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getOrgId() {
+    return orgId;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOrgId(@javax.annotation.Nullable String orgId) {
+    this.orgId = orgId;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -146,23 +148,23 @@ public class CorpusListResponse {
       return false;
     }
     CorpusListResponse corpusListResponse = (CorpusListResponse) o;
-    return Objects.equals(this.orgId, corpusListResponse.orgId) &&
-        Objects.equals(this.pageIndex, corpusListResponse.pageIndex) &&
-        Objects.equals(this.items, corpusListResponse.items);
+    return Objects.equals(this.pageIndex, corpusListResponse.pageIndex) &&
+        Objects.equals(this.items, corpusListResponse.items) &&
+        Objects.equals(this.orgId, corpusListResponse.orgId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(orgId, pageIndex, items);
+    return Objects.hash(pageIndex, items, orgId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CorpusListResponse {\n");
-    sb.append("    orgId: ").append(toIndentedString(orgId)).append("\n");
     sb.append("    pageIndex: ").append(toIndentedString(pageIndex)).append("\n");
     sb.append("    items: ").append(toIndentedString(items)).append("\n");
+    sb.append("    orgId: ").append(toIndentedString(orgId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

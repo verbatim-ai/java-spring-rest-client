@@ -41,14 +41,6 @@ class CorpusListResponseTest {
     }
 
     /**
-     * Test the property 'orgId'
-     */
-    @Test
-    void orgIdTest() {
-        // TODO: test orgId
-    }
-
-    /**
      * Test the property 'pageIndex'
      */
     @Test
@@ -62,6 +54,14 @@ class CorpusListResponseTest {
     @Test
     void itemsTest() {
         // TODO: test items
+    }
+
+    /**
+     * Test the property 'orgId'
+     */
+    @Test
+    void orgIdTest() {
+        // TODO: test orgId
     }
 
 }

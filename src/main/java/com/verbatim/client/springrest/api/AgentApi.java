@@ -240,8 +240,8 @@ public class AgentApi extends BaseApi {
      * @return AgentListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AgentListResponse list1(Integer pageSize, Integer pageIndex) throws RestClientException {
-        return list1WithHttpInfo(pageSize, pageIndex).getBody();
+    public AgentListResponse list2(Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list2WithHttpInfo(pageSize, pageIndex).getBody();
     }
 
     /**
@@ -259,7 +259,7 @@ public class AgentApi extends BaseApi {
      * @return ResponseEntity&lt;AgentListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AgentListResponse> list1WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<AgentListResponse> list2WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
 

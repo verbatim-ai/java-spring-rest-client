@@ -20,13 +20,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.verbatim.client.springrest.models.Attachment;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,25 +34,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @JsonPropertyOrder({
   Post.JSON_PROPERTY_ID,
   Post.JSON_PROPERTY_SESSION_ID,
+  Post.JSON_PROPERTY_AGENT_ID,
   Post.JSON_PROPERTY_BODY,
   Post.JSON_PROPERTY_OWNER,
   Post.JSON_PROPERTY_TOKEN,
   Post.JSON_PROPERTY_LANG,
   Post.JSON_PROPERTY_METADATA,
   Post.JSON_PROPERTY_CREATED_AT,
-  Post.JSON_PROPERTY_ATTACHMENTS,
-  Post.JSON_PROPERTY_ATTACHMENT,
-  Post.JSON_PROPERTY_AGENT_ID
+  Post.JSON_PROPERTY_ATTACHMENT
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class Post {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
-  private String id;
+  private UUID id;
 
   public static final String JSON_PROPERTY_SESSION_ID = "sessionId";
   @javax.annotation.Nonnull
-  private String sessionId;
+  private UUID sessionId;
+
+  public static final String JSON_PROPERTY_AGENT_ID = "agentId";
+  @javax.annotation.Nonnull
+  private UUID agentId;
 
   public static final String JSON_PROPERTY_BODY = "body";
   @javax.annotation.Nonnull
@@ -116,22 +116,14 @@ public class Post {
   @javax.annotation.Nonnull
   private OffsetDateTime createdAt;
 
-  public static final String JSON_PROPERTY_ATTACHMENTS = "attachments";
-  @javax.annotation.Nullable
-  private List<Attachment> attachments = new ArrayList<>();
-
   public static final String JSON_PROPERTY_ATTACHMENT = "attachment";
   @javax.annotation.Nullable
   private Integer attachment;
 
-  public static final String JSON_PROPERTY_AGENT_ID = "agentId";
-  @javax.annotation.Nullable
-  private String agentId;
-
   public Post() {
   }
 
-  public Post id(@javax.annotation.Nonnull String id) {
+  public Post id(@javax.annotation.Nonnull UUID id) {
     
     this.id = id;
     return this;
@@ -145,18 +137,18 @@ public class Post {
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setId(@javax.annotation.Nonnull String id) {
+  public void setId(@javax.annotation.Nonnull UUID id) {
     this.id = id;
   }
 
-  public Post sessionId(@javax.annotation.Nonnull String sessionId) {
+  public Post sessionId(@javax.annotation.Nonnull UUID sessionId) {
     
     this.sessionId = sessionId;
     return this;
@@ -170,15 +162,40 @@ public class Post {
   @JsonProperty(value = JSON_PROPERTY_SESSION_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getSessionId() {
+  public UUID getSessionId() {
     return sessionId;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_SESSION_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setSessionId(@javax.annotation.Nonnull String sessionId) {
+  public void setSessionId(@javax.annotation.Nonnull UUID sessionId) {
     this.sessionId = sessionId;
+  }
+
+  public Post agentId(@javax.annotation.Nonnull UUID agentId) {
+    
+    this.agentId = agentId;
+    return this;
+  }
+
+  /**
+   * Agent this answer was produced under
+   * @return agentId
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_AGENT_ID, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public UUID getAgentId() {
+    return agentId;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_AGENT_ID, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setAgentId(@javax.annotation.Nonnull UUID agentId) {
+    this.agentId = agentId;
   }
 
   public Post body(@javax.annotation.Nonnull String body) {
@@ -339,41 +356,6 @@ public class Post {
     this.createdAt = createdAt;
   }
 
-  public Post attachments(@javax.annotation.Nullable List<Attachment> attachments) {
-    
-    this.attachments = attachments;
-    return this;
-  }
-
-  public Post addAttachmentsItem(Attachment attachmentsItem) {
-    if (this.attachments == null) {
-      this.attachments = new ArrayList<>();
-    }
-    this.attachments.add(attachmentsItem);
-    return this;
-  }
-
-  /**
-   * DEPRECATED. Use /post/attachment to get accurate list. Legacy info :Document chunks used as context for this post. Only populated on system answers.
-   * @return attachments
-   * @deprecated
-   */
-  @Deprecated
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_ATTACHMENTS, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public List<Attachment> getAttachments() {
-    return attachments;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_ATTACHMENTS, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAttachments(@javax.annotation.Nullable List<Attachment> attachments) {
-    this.attachments = attachments;
-  }
-
   public Post attachment(@javax.annotation.Nullable Integer attachment) {
     
     this.attachment = attachment;
@@ -399,31 +381,6 @@ public class Post {
     this.attachment = attachment;
   }
 
-  public Post agentId(@javax.annotation.Nullable String agentId) {
-    
-    this.agentId = agentId;
-    return this;
-  }
-
-  /**
-   * Agent this answer was produced under, when the query named one explicitly (&#x60;GET /v1/post/q?agentId&#x3D;…&#x60;). Absent when the query ran on the platform default agent, which is the usual case — so a missing &#x60;agentId&#x60; means \&quot;default\&quot;, not \&quot;unknown\&quot;. Only system answers carry it; the user&#39;s question never does. Deleting an agent does not rewrite the answers it produced, so this still identifies an agent you have since deleted — resolving it through &#x60;GET /v1/agent/{agentId}&#x60; then answers &#x60;404&#x60;.
-   * @return agentId
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_AGENT_ID, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getAgentId() {
-    return agentId;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_AGENT_ID, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAgentId(@javax.annotation.Nullable String agentId) {
-    this.agentId = agentId;
-  }
-
 
   @Override
   public boolean equals(Object o) {
@@ -436,20 +393,19 @@ public class Post {
     Post post = (Post) o;
     return Objects.equals(this.id, post.id) &&
         Objects.equals(this.sessionId, post.sessionId) &&
+        Objects.equals(this.agentId, post.agentId) &&
         Objects.equals(this.body, post.body) &&
         Objects.equals(this.owner, post.owner) &&
         Objects.equals(this.token, post.token) &&
         Objects.equals(this.lang, post.lang) &&
         Objects.equals(this.metadata, post.metadata) &&
         Objects.equals(this.createdAt, post.createdAt) &&
-        Objects.equals(this.attachments, post.attachments) &&
-        Objects.equals(this.attachment, post.attachment) &&
-        Objects.equals(this.agentId, post.agentId);
+        Objects.equals(this.attachment, post.attachment);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, sessionId, body, owner, token, lang, metadata, createdAt, attachments, attachment, agentId);
+    return Objects.hash(id, sessionId, agentId, body, owner, token, lang, metadata, createdAt, attachment);
   }
 
   @Override
@@ -458,15 +414,14 @@ public class Post {
     sb.append("class Post {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    sessionId: ").append(toIndentedString(sessionId)).append("\n");
+    sb.append("    agentId: ").append(toIndentedString(agentId)).append("\n");
     sb.append("    body: ").append(toIndentedString(body)).append("\n");
     sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
     sb.append("    token: ").append(toIndentedString(token)).append("\n");
     sb.append("    lang: ").append(toIndentedString(lang)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
-    sb.append("    attachments: ").append(toIndentedString(attachments)).append("\n");
     sb.append("    attachment: ").append(toIndentedString(attachment)).append("\n");
-    sb.append("    agentId: ").append(toIndentedString(agentId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

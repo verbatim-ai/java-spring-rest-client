@@ -18,13 +18,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.verbatim.client.springrest.models.Attachment;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -57,6 +54,14 @@ class PostTest {
     @Test
     void sessionIdTest() {
         // TODO: test sessionId
+    }
+
+    /**
+     * Test the property 'agentId'
+     */
+    @Test
+    void agentIdTest() {
+        // TODO: test agentId
     }
 
     /**
@@ -108,27 +113,11 @@ class PostTest {
     }
 
     /**
-     * Test the property 'attachments'
-     */
-    @Test
-    void attachmentsTest() {
-        // TODO: test attachments
-    }
-
-    /**
      * Test the property 'attachment'
      */
     @Test
     void attachmentTest() {
         // TODO: test attachment
-    }
-
-    /**
-     * Test the property 'agentId'
-     */
-    @Test
-    void agentIdTest() {
-        // TODO: test agentId
     }
 
 }

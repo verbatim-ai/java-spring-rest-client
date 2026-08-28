@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Attachment {
   public static final String JSON_PROPERTY_POST_ID = "postId";
   @javax.annotation.Nonnull
-  private String postId;
+  private UUID postId;
 
   public static final String JSON_PROPERTY_DOC_ID = "docId";
   @javax.annotation.Nonnull
@@ -65,7 +65,7 @@ public class Attachment {
   public Attachment() {
   }
 
-  public Attachment postId(@javax.annotation.Nonnull String postId) {
+  public Attachment postId(@javax.annotation.Nonnull UUID postId) {
     
     this.postId = postId;
     return this;
@@ -74,21 +74,19 @@ public class Attachment {
   /**
    * ID of the post (UUIDv4).
    * @return postId
-   * @deprecated
    */
-  @Deprecated
   @javax.annotation.Nonnull
   @JsonProperty(value = JSON_PROPERTY_POST_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getPostId() {
+  public UUID getPostId() {
     return postId;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_POST_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPostId(@javax.annotation.Nonnull String postId) {
+  public void setPostId(@javax.annotation.Nonnull UUID postId) {
     this.postId = postId;
   }
 

@@ -42,9 +42,27 @@ class SessionApiTest {
 
     
     /**
+     * List sessions
+     *
+     * Paginate every session of the caller&#39;s organization, newest first.  The organization is resolved from the JWT, so there is nothing to pass and no way to ask for another tenant&#39;s sessions. A session belongs to an organization as soon as one of its corpora does.  The ordering is closed by the session id, so walking &#x60;pageIndex&#x60; never shows the same session twice nor skips one when several were opened in the same millisecond. &#x60;total&#x60; counts every session in the organization, not just those returned here.  To narrow the result — by user, by corpus, by metadata, or by any combination of the three — use &#x60;GET /v1/session/q&#x60;, which takes the same paging parameters. 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void callListTest() {
+        Integer pageSize = null;
+        Integer pageIndex = null;
+
+        SessionListResponse response = api.callList(pageSize, pageIndex);
+
+        // TODO: test validations
+    }
+    
+    /**
      * Create a session
      *
-     * Open a new conversation session against one or more corpora. The session is attached to the user carried by the caller&#39;s JWT. The model, system prompt, temperature and thinking flag are locked at creation time and apply to every post in the session.
+     * Open a new conversation session against one or more corpora. The session is attached to the user carried by the caller&#39;s JWT. How its queries are answered is not decided here: the agent named on each query decides, so a session carries the corpora, the owner and whatever metadata you attach to it.
      *
      * @throws RestClientException
      *          if the Api call fails
@@ -93,79 +111,24 @@ class SessionApiTest {
     }
     
     /**
-     * List sessions attached to a corpus
+     * Search sessions
      *
-     * Paginate the sessions opened against a corpus, newest first. The corpus must belong to the caller&#39;s organization.
+     * Find sessions of the caller&#39;s organization by owner, corpus and metadata.  Every filter is optional and they **narrow together**: a request carrying none of them returns the whole organization — the same answer as &#x60;GET /v1/session/&#x60; — and one carrying several returns only the sessions matching all of them. That is what this endpoint adds over the &#x60;by…&#x60; listings it replaces, which each answer one fixed combination.  The organization is never a parameter. It comes from the JWT and is always applied, so no combination of filters reaches another tenant&#39;s sessions.  ### Owner — &#x60;userId&#x60;  Exact match on the identifier carried by the JWT when the session was opened. Sent empty (&#x60;&amp;userId&#x3D;&#x60;) it is treated as absent rather than as a match on the empty string.  ### Corpus — &#x60;corpusId&#x60;  Keeps sessions bound to that corpus. A session may be bound to several, and it matches as soon as one of them is the requested one. The corpus must belong to the caller&#39;s organization.  ### Metadata — &#x60;key&#x60;/&#x60;value&#x60;, or &#x60;json&#x60;  Matches sessions whose metadata **contains** the fragment (PostgreSQL&#39;s &#x60;@&gt;&#x60; operator), extra keys on the session being fine. Pass &#x60;key&#x60; and &#x60;value&#x60; for a single pair — they go together, one without the other is a &#x60;400&#x60; — or &#x60;json&#x60; for a raw object when the filter is nested or has several keys. &#x60;json&#x60; wins when both are supplied.  ### Ordering and paging  Newest first, closed by the session id, so walking &#x60;pageIndex&#x60; never shows the same session twice nor skips one. &#x60;total&#x60; counts every match across all pages.  ### Examples  * &#x60;?userId&#x3D;user_42&#x60; — every session that user opened, across corpora * &#x60;?corpusId&#x3D;…&#x60; — every session opened against one corpus, whoever opened it * &#x60;?userId&#x3D;user_42&amp;corpusId&#x3D;…&#x60; — both, which &#x60;GET /v1/session/byUser&#x60; also did * &#x60;?userId&#x3D;user_42&amp;key&#x3D;customer_id&amp;value&#x3D;42&#x60; — the combination none of the   &#x60;by…&#x60; endpoints could express * &#x60;?json&#x3D;{\&quot;channel\&quot;:{\&quot;kind\&quot;:\&quot;web\&quot;}}&#x60; — a nested metadata fragment 
      *
      * @throws RestClientException
      *          if the Api call fails
      */
     @Test
-    void list2Test() {
+    void searchTest() {
+        String userId = null;
         UUID corpusId = null;
-        Integer pageSize = null;
-        Integer pageIndex = null;
-
-        SessionListResponse response = api.list2(corpusId, pageSize, pageIndex);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * List sessions matching a metadata fragment
-     *
-     * Paginate sessions whose metadata JSONB *contains* the provided fragment (PostgreSQL &#x60;@&gt;&#x60; operator). Results are scoped to the caller&#39;s organization. Filtering on a single key/value pair: pass &#x60;key&#x60; and &#x60;value&#x60;. For richer filtering (nested JSON, multiple keys) pass a raw JSON object as &#x60;json&#x60;.
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void listByMetadataTest() {
         String key = null;
         String value = null;
         String json = null;
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        SessionListResponse response = api.listByMetadata(key, value, json, pageSize, pageIndex);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * List every session in the caller&#39;s organization
-     *
-     * Paginate every session attached to at least one corpus of the caller&#39;s organization, newest first. The organization is resolved from the JWT, no parameter is needed.
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void listByOrganizationTest() {
-        Integer pageSize = null;
-        Integer pageIndex = null;
-
-        SessionListResponse response = api.listByOrganization(pageSize, pageIndex);
-
-        // TODO: test validations
-    }
-    
-    /**
-     * List sessions owned by a user
-     *
-     * Paginate the sessions opened by a given user identifier, newest first. Results are scoped to the caller&#39;s organization at the SQL level: only sessions attached to at least one corpus of the caller&#39;s org are returned, so a user identifier shared across tenants never leaks rows. Pass &#x60;corpusId&#x60; to further restrict results to sessions bound to that specific corpus.
-     *
-     * @throws RestClientException
-     *          if the Api call fails
-     */
-    @Test
-    void listByUserTest() {
-        String userId = null;
-        UUID corpusId = null;
-        Integer pageSize = null;
-        Integer pageIndex = null;
-
-        SessionListResponse response = api.listByUser(userId, corpusId, pageSize, pageIndex);
+        SessionListResponse response = api.search(userId, corpusId, key, value, json, pageSize, pageIndex);
 
         // TODO: test validations
     }

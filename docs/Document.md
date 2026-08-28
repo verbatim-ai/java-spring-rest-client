@@ -8,8 +8,8 @@ A file ingested into a corpus. Holds metadata; the binary content is streamed vi
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**id** | **String** | Unique identifier of the document (UUIDv4). |  |
-|**corpusId** | **String** | ID of the corpus this document belongs to. |  |
+|**id** | **UUID** | Unique identifier of the document (UUIDv4). |  |
+|**corpusId** | **UUID** | ID of the corpus this document belongs to. |  |
 |**userId** | **String** | Identifier of the user who uploaded the document. May be null when no user identity was provided at upload time. |  [optional] |
 |**filename** | **String** | Original filename, as provided at upload time. |  |
 |**contentType** | **String** | MIME content type of the file. |  |

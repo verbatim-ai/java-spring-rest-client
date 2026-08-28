@@ -100,11 +100,11 @@ class AgentApiTest {
      *          if the Api call fails
      */
     @Test
-    void list1Test() {
+    void list2Test() {
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        AgentListResponse response = api.list1(pageSize, pageIndex);
+        AgentListResponse response = api.list2(pageSize, pageIndex);
 
         // TODO: test validations
     }

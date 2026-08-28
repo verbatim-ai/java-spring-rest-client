@@ -8,7 +8,7 @@ Attachment details for a Post
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**postId** | **String** | ID of the post (UUIDv4). |  |
+|**postId** | **UUID** | ID of the post (UUIDv4). |  |
 |**items** | [**List&lt;Attachment&gt;**](Attachment.md) | All the attachments of the post |  |
 
 

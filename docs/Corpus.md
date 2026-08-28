@@ -8,7 +8,7 @@ Knowledge base inside an organization. Bound to an embedding model and a summary
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**id** | **String** | Unique identifier of the corpus (UUIDv4). |  |
+|**id** | **UUID** | Unique identifier of the corpus (UUIDv4). |  |
 |**createdAt** | **OffsetDateTime** | Creation timestamp (ISO-8601, UTC). |  |
 |**updatedAt** | **OffsetDateTime** | Last update timestamp (ISO-8601, UTC). |  |
 |**name** | **String** | Human-readable name of the corpus. |  |

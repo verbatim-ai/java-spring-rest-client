@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -59,11 +60,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Document {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
-  private String id;
+  private UUID id;
 
   public static final String JSON_PROPERTY_CORPUS_ID = "corpusId";
   @javax.annotation.Nonnull
-  private String corpusId;
+  private UUID corpusId;
 
   public static final String JSON_PROPERTY_USER_ID = "userId";
   @javax.annotation.Nullable
@@ -181,7 +182,7 @@ public class Document {
   public Document() {
   }
 
-  public Document id(@javax.annotation.Nonnull String id) {
+  public Document id(@javax.annotation.Nonnull UUID id) {
     
     this.id = id;
     return this;
@@ -195,18 +196,18 @@ public class Document {
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setId(@javax.annotation.Nonnull String id) {
+  public void setId(@javax.annotation.Nonnull UUID id) {
     this.id = id;
   }
 
-  public Document corpusId(@javax.annotation.Nonnull String corpusId) {
+  public Document corpusId(@javax.annotation.Nonnull UUID corpusId) {
     
     this.corpusId = corpusId;
     return this;
@@ -220,14 +221,14 @@ public class Document {
   @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getCorpusId() {
+  public UUID getCorpusId() {
     return corpusId;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setCorpusId(@javax.annotation.Nonnull String corpusId) {
+  public void setCorpusId(@javax.annotation.Nonnull UUID corpusId) {
     this.corpusId = corpusId;
   }
 

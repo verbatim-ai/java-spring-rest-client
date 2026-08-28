@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -67,38 +68,6 @@ class SessionTest {
     }
 
     /**
-     * Test the property 'model'
-     */
-    @Test
-    void modelTest() {
-        // TODO: test model
-    }
-
-    /**
-     * Test the property 'system'
-     */
-    @Test
-    void systemTest() {
-        // TODO: test system
-    }
-
-    /**
-     * Test the property 'temperature'
-     */
-    @Test
-    void temperatureTest() {
-        // TODO: test temperature
-    }
-
-    /**
-     * Test the property 'thinking'
-     */
-    @Test
-    void thinkingTest() {
-        // TODO: test thinking
-    }
-
-    /**
      * Test the property 'metadata'
      */
     @Test
@@ -112,6 +81,22 @@ class SessionTest {
     @Test
     void createdAtTest() {
         // TODO: test createdAt
+    }
+
+    /**
+     * Test the property 'updatedAt'
+     */
+    @Test
+    void updatedAtTest() {
+        // TODO: test updatedAt
+    }
+
+    /**
+     * Test the property 'model'
+     */
+    @Test
+    void modelTest() {
+        // TODO: test model
     }
 
 }

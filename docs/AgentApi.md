@@ -7,7 +7,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | [**create3**](AgentApi.md#create3) | **POST** /v1/agent/ | Create an agent |
 | [**delete3**](AgentApi.md#delete3) | **DELETE** /v1/agent/{agentId} | Delete an agent |
 | [**get3**](AgentApi.md#get3) | **GET** /v1/agent/{agentId} | Get an agent |
-| [**list1**](AgentApi.md#list1) | **GET** /v1/agent/ | List agents |
+| [**list2**](AgentApi.md#list2) | **GET** /v1/agent/ | List agents |
 | [**update3**](AgentApi.md#update3) | **PATCH** /v1/agent/{agentId} | Update an agent |
 
 
@@ -261,9 +261,9 @@ public class Example {
 | **200** | Agent found. |  -  |
 
 
-## list1
+## list2
 
-> AgentListResponse list1(pageSize, pageIndex)
+> AgentListResponse list2(pageSize, pageIndex)
 
 List agents
 
@@ -299,10 +299,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            AgentListResponse result = apiInstance.list1(pageSize, pageIndex);
+            AgentListResponse result = apiInstance.list2(pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#list1");
+            System.err.println("Exception when calling AgentApi#list2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());

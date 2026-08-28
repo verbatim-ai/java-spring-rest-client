@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class CorpusItemResponse {
   public static final String JSON_PROPERTY_ORG_ID = "orgId";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private String orgId;
 
   public static final String JSON_PROPERTY_ITEM = "item";
@@ -45,28 +45,30 @@ public class CorpusItemResponse {
   public CorpusItemResponse() {
   }
 
-  public CorpusItemResponse orgId(@javax.annotation.Nonnull String orgId) {
+  public CorpusItemResponse orgId(@javax.annotation.Nullable String orgId) {
     
     this.orgId = orgId;
     return this;
   }
 
   /**
-   * ID of the parent organization (UUIDv4).
+   * Get orgId
    * @return orgId
+   * @deprecated
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @Deprecated
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getOrgId() {
     return orgId;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setOrgId(@javax.annotation.Nonnull String orgId) {
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOrgId(@javax.annotation.Nullable String orgId) {
     this.orgId = orgId;
   }
 

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,13 +34,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   CorpusUpdateResponse.JSON_PROPERTY_CREATED_AT,
   CorpusUpdateResponse.JSON_PROPERTY_UPDATED_AT,
   CorpusUpdateResponse.JSON_PROPERTY_NAME,
-  CorpusUpdateResponse.JSON_PROPERTY_DESCRIPTION
+  CorpusUpdateResponse.JSON_PROPERTY_DESCRIPTION,
+  CorpusUpdateResponse.JSON_PROPERTY_ORG_ID
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class CorpusUpdateResponse {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
-  private String id;
+  private UUID id;
 
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
   @javax.annotation.Nonnull
@@ -57,10 +59,14 @@ public class CorpusUpdateResponse {
   @javax.annotation.Nonnull
   private String description;
 
+  public static final String JSON_PROPERTY_ORG_ID = "orgId";
+  @javax.annotation.Nullable
+  private String orgId;
+
   public CorpusUpdateResponse() {
   }
 
-  public CorpusUpdateResponse id(@javax.annotation.Nonnull String id) {
+  public CorpusUpdateResponse id(@javax.annotation.Nonnull UUID id) {
     
     this.id = id;
     return this;
@@ -74,14 +80,14 @@ public class CorpusUpdateResponse {
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setId(@javax.annotation.Nonnull String id) {
+  public void setId(@javax.annotation.Nonnull UUID id) {
     this.id = id;
   }
 
@@ -185,6 +191,33 @@ public class CorpusUpdateResponse {
     this.description = description;
   }
 
+  public CorpusUpdateResponse orgId(@javax.annotation.Nullable String orgId) {
+    
+    this.orgId = orgId;
+    return this;
+  }
+
+  /**
+   * Get orgId
+   * @return orgId
+   * @deprecated
+   */
+  @Deprecated
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getOrgId() {
+    return orgId;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOrgId(@javax.annotation.Nullable String orgId) {
+    this.orgId = orgId;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -199,12 +232,13 @@ public class CorpusUpdateResponse {
         Objects.equals(this.createdAt, corpusUpdateResponse.createdAt) &&
         Objects.equals(this.updatedAt, corpusUpdateResponse.updatedAt) &&
         Objects.equals(this.name, corpusUpdateResponse.name) &&
-        Objects.equals(this.description, corpusUpdateResponse.description);
+        Objects.equals(this.description, corpusUpdateResponse.description) &&
+        Objects.equals(this.orgId, corpusUpdateResponse.orgId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, updatedAt, name, description);
+    return Objects.hash(id, createdAt, updatedAt, name, description, orgId);
   }
 
   @Override
@@ -216,6 +250,7 @@ public class CorpusUpdateResponse {
     sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
+    sb.append("    orgId: ").append(toIndentedString(orgId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

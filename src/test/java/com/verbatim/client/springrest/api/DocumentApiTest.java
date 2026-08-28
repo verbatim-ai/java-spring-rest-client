@@ -212,7 +212,7 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void searchTest() {
+    void search1Test() {
         UUID corpusId = null;
         String q = null;
         List<String> tags = null;
@@ -230,7 +230,7 @@ class DocumentApiTest {
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        DocumentSearchResponse response = api.search(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
+        DocumentSearchResponse response = api.search1(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
 
         // TODO: test validations
     }

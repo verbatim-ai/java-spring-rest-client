@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,7 +37,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @JsonPropertyOrder({
   SessionListResponse.JSON_PROPERTY_CORPUS_ID,
   SessionListResponse.JSON_PROPERTY_USER_ID,
-  SessionListResponse.JSON_PROPERTY_ORG_ID,
   SessionListResponse.JSON_PROPERTY_METADATA,
   SessionListResponse.JSON_PROPERTY_PAGE_INDEX,
   SessionListResponse.JSON_PROPERTY_PAGE_SIZE,
@@ -46,16 +46,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class SessionListResponse {
   public static final String JSON_PROPERTY_CORPUS_ID = "corpusId";
-  @javax.annotation.Nonnull
-  private String corpusId;
+  @javax.annotation.Nullable
+  private UUID corpusId;
 
   public static final String JSON_PROPERTY_USER_ID = "userId";
   @javax.annotation.Nullable
   private String userId;
-
-  public static final String JSON_PROPERTY_ORG_ID = "orgId";
-  @javax.annotation.Nonnull
-  private String orgId;
 
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @javax.annotation.Nullable
@@ -80,7 +76,7 @@ public class SessionListResponse {
   public SessionListResponse() {
   }
 
-  public SessionListResponse corpusId(@javax.annotation.Nonnull String corpusId) {
+  public SessionListResponse corpusId(@javax.annotation.Nullable UUID corpusId) {
     
     this.corpusId = corpusId;
     return this;
@@ -90,18 +86,18 @@ public class SessionListResponse {
    * Echo of the corpus filter, when the listing was filtered by corpus.
    * @return corpusId
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public String getCorpusId() {
+  public UUID getCorpusId() {
     return corpusId;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setCorpusId(@javax.annotation.Nonnull String corpusId) {
+  @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCorpusId(@javax.annotation.Nullable UUID corpusId) {
     this.corpusId = corpusId;
   }
 
@@ -128,31 +124,6 @@ public class SessionListResponse {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setUserId(@javax.annotation.Nullable String userId) {
     this.userId = userId;
-  }
-
-  public SessionListResponse orgId(@javax.annotation.Nonnull String orgId) {
-    
-    this.orgId = orgId;
-    return this;
-  }
-
-  /**
-   * Echo of the organization scope (resolved from the caller&#39;s JWT).
-   * @return orgId
-   */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-
-  public String getOrgId() {
-    return orgId;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setOrgId(@javax.annotation.Nonnull String orgId) {
-    this.orgId = orgId;
   }
 
   public SessionListResponse metadata(@javax.annotation.Nullable Map<String, Object> metadata) {
@@ -308,7 +279,6 @@ public class SessionListResponse {
     SessionListResponse sessionListResponse = (SessionListResponse) o;
     return Objects.equals(this.corpusId, sessionListResponse.corpusId) &&
         Objects.equals(this.userId, sessionListResponse.userId) &&
-        Objects.equals(this.orgId, sessionListResponse.orgId) &&
         Objects.equals(this.metadata, sessionListResponse.metadata) &&
         Objects.equals(this.pageIndex, sessionListResponse.pageIndex) &&
         Objects.equals(this.pageSize, sessionListResponse.pageSize) &&
@@ -318,7 +288,7 @@ public class SessionListResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(corpusId, userId, orgId, metadata, pageIndex, pageSize, total, items);
+    return Objects.hash(corpusId, userId, metadata, pageIndex, pageSize, total, items);
   }
 
   @Override
@@ -327,7 +297,6 @@ public class SessionListResponse {
     sb.append("class SessionListResponse {\n");
     sb.append("    corpusId: ").append(toIndentedString(corpusId)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
-    sb.append("    orgId: ").append(toIndentedString(orgId)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("    pageIndex: ").append(toIndentedString(pageIndex)).append("\n");
     sb.append("    pageSize: ").append(toIndentedString(pageSize)).append("\n");

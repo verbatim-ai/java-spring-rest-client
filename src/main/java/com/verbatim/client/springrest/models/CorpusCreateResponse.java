@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,13 +36,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   CorpusCreateResponse.JSON_PROPERTY_CREATED_AT,
   CorpusCreateResponse.JSON_PROPERTY_NAME,
   CorpusCreateResponse.JSON_PROPERTY_DESCRIPTION,
-  CorpusCreateResponse.JSON_PROPERTY_METADATA
+  CorpusCreateResponse.JSON_PROPERTY_METADATA,
+  CorpusCreateResponse.JSON_PROPERTY_ORG_ID
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class CorpusCreateResponse {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
-  private String id;
+  private UUID id;
 
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
   @javax.annotation.Nonnull
@@ -59,10 +61,14 @@ public class CorpusCreateResponse {
   @javax.annotation.Nullable
   private Map<String, Object> metadata = new HashMap<>();
 
+  public static final String JSON_PROPERTY_ORG_ID = "orgId";
+  @javax.annotation.Nullable
+  private String orgId;
+
   public CorpusCreateResponse() {
   }
 
-  public CorpusCreateResponse id(@javax.annotation.Nonnull String id) {
+  public CorpusCreateResponse id(@javax.annotation.Nonnull UUID id) {
     
     this.id = id;
     return this;
@@ -76,14 +82,14 @@ public class CorpusCreateResponse {
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setId(@javax.annotation.Nonnull String id) {
+  public void setId(@javax.annotation.Nonnull UUID id) {
     this.id = id;
   }
 
@@ -195,6 +201,33 @@ public class CorpusCreateResponse {
     this.metadata = metadata;
   }
 
+  public CorpusCreateResponse orgId(@javax.annotation.Nullable String orgId) {
+    
+    this.orgId = orgId;
+    return this;
+  }
+
+  /**
+   * Get orgId
+   * @return orgId
+   * @deprecated
+   */
+  @Deprecated
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getOrgId() {
+    return orgId;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ORG_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOrgId(@javax.annotation.Nullable String orgId) {
+    this.orgId = orgId;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -209,12 +242,13 @@ public class CorpusCreateResponse {
         Objects.equals(this.createdAt, corpusCreateResponse.createdAt) &&
         Objects.equals(this.name, corpusCreateResponse.name) &&
         Objects.equals(this.description, corpusCreateResponse.description) &&
-        Objects.equals(this.metadata, corpusCreateResponse.metadata);
+        Objects.equals(this.metadata, corpusCreateResponse.metadata) &&
+        Objects.equals(this.orgId, corpusCreateResponse.orgId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, name, description, metadata);
+    return Objects.hash(id, createdAt, name, description, metadata, orgId);
   }
 
   @Override
@@ -226,6 +260,7 @@ public class CorpusCreateResponse {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+    sb.append("    orgId: ").append(toIndentedString(orgId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

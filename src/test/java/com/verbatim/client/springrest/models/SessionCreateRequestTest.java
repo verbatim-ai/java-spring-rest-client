@@ -51,38 +51,6 @@ class SessionCreateRequestTest {
     }
 
     /**
-     * Test the property 'model'
-     */
-    @Test
-    void modelTest() {
-        // TODO: test model
-    }
-
-    /**
-     * Test the property 'system'
-     */
-    @Test
-    void systemTest() {
-        // TODO: test system
-    }
-
-    /**
-     * Test the property 'temperature'
-     */
-    @Test
-    void temperatureTest() {
-        // TODO: test temperature
-    }
-
-    /**
-     * Test the property 'thinking'
-     */
-    @Test
-    void thinkingTest() {
-        // TODO: test thinking
-    }
-
-    /**
      * Test the property 'metadata'
      */
     @Test

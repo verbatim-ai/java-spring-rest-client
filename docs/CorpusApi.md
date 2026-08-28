@@ -4,97 +4,12 @@ All URIs are relative to *https://api.verbatim-ai.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**callList**](CorpusApi.md#callList) | **GET** /v1/corpus/ | List corpora |
 | [**create1**](CorpusApi.md#create1) | **POST** /v1/corpus/ | Create a corpus |
 | [**delete2**](CorpusApi.md#delete2) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus |
 | [**get2**](CorpusApi.md#get2) | **GET** /v1/corpus/{corpusId} | Get a corpus |
+| [**list1**](CorpusApi.md#list1) | **GET** /v1/corpus/ | List corpora |
 | [**update2**](CorpusApi.md#update2) | **PATCH** /v1/corpus/{corpusId} | Update a corpus |
 
-
-
-## callList
-
-> CorpusListResponse callList(pageSize, pageIndex)
-
-List corpora
-
-Paginate corpora belonging to an organization.
-
-### Example
-
-```java
-// Import classes:
-import com.verbatim.client.springrest.invoker.ApiClient;
-import com.verbatim.client.springrest.invoker.ApiException;
-import com.verbatim.client.springrest.invoker.Configuration;
-import com.verbatim.client.springrest.invoker.auth.*;
-import com.verbatim.client.springrest.invoker.models.*;
-import com.verbatim.client.springrest.api.CorpusApi;
-
-public class Example {
-    public static void main(String[] args) {
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://api.verbatim-ai.com");
-        
-        // Configure HTTP bearer authorization: JWT
-        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
-        JWT.setBearerToken("BEARER TOKEN");
-
-        // Configure API key authorization: AccessToken
-        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
-        AccessToken.setApiKey("YOUR API KEY");
-        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-        //AccessToken.setApiKeyPrefix("Token");
-
-        CorpusApi apiInstance = new CorpusApi(defaultClient);
-        Integer pageSize = 25; // Integer | Number of items per page.
-        Integer pageIndex = 0; // Integer | Zero-based page index.
-        try {
-            CorpusListResponse result = apiInstance.callList(pageSize, pageIndex);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#callList");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
-        }
-    }
-}
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **pageSize** | **Integer**| Number of items per page. | [optional] [default to 25] |
-| **pageIndex** | **Integer**| Zero-based page index. | [optional] [default to 0] |
-
-### Return type
-
-[**CorpusListResponse**](CorpusListResponse.md)
-
-### Authorization
-
-[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
-| **500** | Internal error. Check body to get more info |  -  |
-| **403** | Not authorized. Access not granted for this request |  -  |
-| **404** | The resource referenced by the request does not exist. |  -  |
-| **400** | The request is malformed or contains invalid parameters. |  -  |
-| **409** | The request conflicts with the current state of the resource. |  -  |
-| **200** | Page of corpora. |  -  |
 
 
 ## create1
@@ -344,6 +259,91 @@ public class Example {
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **200** | Corpus found. |  -  |
+
+
+## list1
+
+> CorpusListResponse list1(pageSize, pageIndex)
+
+List corpora
+
+Paginate corpora belonging to an organization.
+
+### Example
+
+```java
+// Import classes:
+import com.verbatim.client.springrest.invoker.ApiClient;
+import com.verbatim.client.springrest.invoker.ApiException;
+import com.verbatim.client.springrest.invoker.Configuration;
+import com.verbatim.client.springrest.invoker.auth.*;
+import com.verbatim.client.springrest.invoker.models.*;
+import com.verbatim.client.springrest.api.CorpusApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
+        
+        // Configure HTTP bearer authorization: JWT
+        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
+        JWT.setBearerToken("BEARER TOKEN");
+
+        // Configure API key authorization: AccessToken
+        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
+        AccessToken.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //AccessToken.setApiKeyPrefix("Token");
+
+        CorpusApi apiInstance = new CorpusApi(defaultClient);
+        Integer pageSize = 25; // Integer | Number of items per page.
+        Integer pageIndex = 0; // Integer | Zero-based page index.
+        try {
+            CorpusListResponse result = apiInstance.list1(pageSize, pageIndex);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling CorpusApi#list1");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **pageSize** | **Integer**| Number of items per page. | [optional] [default to 25] |
+| **pageIndex** | **Integer**| Zero-based page index. | [optional] [default to 0] |
+
+### Return type
+
+[**CorpusListResponse**](CorpusListResponse.md)
+
+### Authorization
+
+[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
+| **500** | Internal error. Check body to get more info |  -  |
+| **403** | Not authorized. Access not granted for this request |  -  |
+| **404** | The resource referenced by the request does not exist. |  -  |
+| **400** | The request is malformed or contains invalid parameters. |  -  |
+| **409** | The request conflicts with the current state of the resource. |  -  |
+| **200** | Page of corpora. |  -  |
 
 
 ## update2

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -77,6 +78,14 @@ class CorpusCreateResponseTest {
     @Test
     void metadataTest() {
         // TODO: test metadata
+    }
+
+    /**
+     * Test the property 'orgId'
+     */
+    @Test
+    void orgIdTest() {
+        // TODO: test orgId
     }
 
 }

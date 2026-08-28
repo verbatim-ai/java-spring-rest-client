@@ -230,7 +230,7 @@ public class PostApi extends BaseApi {
     }
     /**
      * Get a post
-     * Fetch a single post by its identifier, including its attachments.
+     * Fetch a single post by its identifier. The response carries &#x60;attachment&#x60;, the number of source chunks behind it; the sources themselves come from &#x60;GET /v1/post/attachment/{postId}&#x60;.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
@@ -248,7 +248,7 @@ public class PostApi extends BaseApi {
 
     /**
      * Get a post
-     * Fetch a single post by its identifier, including its attachments.
+     * Fetch a single post by its identifier. The response carries &#x60;attachment&#x60;, the number of source chunks behind it; the sources themselves come from &#x60;GET /v1/post/attachment/{postId}&#x60;.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request

@@ -46,65 +46,6 @@ public class CorpusApi extends BaseApi {
     }
 
     /**
-     * List corpora
-     * Paginate corpora belonging to an organization.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
-     * <p><b>500</b> - Internal error. Check body to get more info
-     * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>400</b> - The request is malformed or contains invalid parameters.
-     * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>200</b> - Page of corpora.
-     * @param pageSize Number of items per page. (optional, default to 25)
-     * @param pageIndex Zero-based page index. (optional, default to 0)
-     * @return CorpusListResponse
-     * @throws RestClientException if an error occurs while attempting to invoke the API
-     */
-    public CorpusListResponse callList(Integer pageSize, Integer pageIndex) throws RestClientException {
-        return callListWithHttpInfo(pageSize, pageIndex).getBody();
-    }
-
-    /**
-     * List corpora
-     * Paginate corpora belonging to an organization.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
-     * <p><b>500</b> - Internal error. Check body to get more info
-     * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>404</b> - The resource referenced by the request does not exist.
-     * <p><b>400</b> - The request is malformed or contains invalid parameters.
-     * <p><b>409</b> - The request conflicts with the current state of the resource.
-     * <p><b>200</b> - Page of corpora.
-     * @param pageSize Number of items per page. (optional, default to 25)
-     * @param pageIndex Zero-based page index. (optional, default to 0)
-     * @return ResponseEntity&lt;CorpusListResponse&gt;
-     * @throws RestClientException if an error occurs while attempting to invoke the API
-     */
-    public ResponseEntity<CorpusListResponse> callListWithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
-        Object localVarPostBody = null;
-        
-
-        final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<String, String>();
-        final HttpHeaders localVarHeaderParams = new HttpHeaders();
-        final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<String, String>();
-        final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<String, Object>();
-
-        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageSize", pageSize));
-        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageIndex", pageIndex));
-        
-
-        final String[] localVarAccepts = { 
-            "application/json"
-         };
-        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-        final String[] localVarContentTypes = {  };
-        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-
-        String[] localVarAuthNames = new String[] { "JWT", "AccessToken" };
-
-        ParameterizedTypeReference<CorpusListResponse> localReturnType = new ParameterizedTypeReference<CorpusListResponse>() {};
-        return apiClient.invokeAPI("/v1/corpus/", HttpMethod.GET, Collections.<String, Object>emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
-    }
-    /**
      * Create a corpus
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
@@ -285,6 +226,65 @@ public class CorpusApi extends BaseApi {
 
         ParameterizedTypeReference<CorpusItemResponse> localReturnType = new ParameterizedTypeReference<CorpusItemResponse>() {};
         return apiClient.invokeAPI("/v1/corpus/{corpusId}", HttpMethod.GET, uriVariables, localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
+    }
+    /**
+     * List corpora
+     * Paginate corpora belonging to an organization.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>200</b> - Page of corpora.
+     * @param pageSize Number of items per page. (optional, default to 25)
+     * @param pageIndex Zero-based page index. (optional, default to 0)
+     * @return CorpusListResponse
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public CorpusListResponse list1(Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list1WithHttpInfo(pageSize, pageIndex).getBody();
+    }
+
+    /**
+     * List corpora
+     * Paginate corpora belonging to an organization.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>200</b> - Page of corpora.
+     * @param pageSize Number of items per page. (optional, default to 25)
+     * @param pageIndex Zero-based page index. (optional, default to 0)
+     * @return ResponseEntity&lt;CorpusListResponse&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<CorpusListResponse> list1WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
+        Object localVarPostBody = null;
+        
+
+        final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<String, String>();
+        final HttpHeaders localVarHeaderParams = new HttpHeaders();
+        final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<String, String>();
+        final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<String, Object>();
+
+        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageSize", pageSize));
+        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pageIndex", pageIndex));
+        
+
+        final String[] localVarAccepts = { 
+            "application/json"
+         };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = {  };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+
+        String[] localVarAuthNames = new String[] { "JWT", "AccessToken" };
+
+        ParameterizedTypeReference<CorpusListResponse> localReturnType = new ParameterizedTypeReference<CorpusListResponse>() {};
+        return apiClient.invokeAPI("/v1/corpus/", HttpMethod.GET, Collections.<String, Object>emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
     }
     /**
      * Update a corpus

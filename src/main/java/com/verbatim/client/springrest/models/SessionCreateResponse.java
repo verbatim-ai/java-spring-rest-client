@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,17 +39,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   SessionCreateResponse.JSON_PROPERTY_USER_ID,
   SessionCreateResponse.JSON_PROPERTY_CORPUS_ID,
   SessionCreateResponse.JSON_PROPERTY_MODEL,
-  SessionCreateResponse.JSON_PROPERTY_SYSTEM,
-  SessionCreateResponse.JSON_PROPERTY_TEMPERATURE,
-  SessionCreateResponse.JSON_PROPERTY_THINKING,
   SessionCreateResponse.JSON_PROPERTY_METADATA,
-  SessionCreateResponse.JSON_PROPERTY_CREATED_AT
+  SessionCreateResponse.JSON_PROPERTY_CREATED_AT,
+  SessionCreateResponse.JSON_PROPERTY_UPDATED_AT
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class SessionCreateResponse {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
-  private String id;
+  private UUID id;
 
   public static final String JSON_PROPERTY_USER_ID = "userId";
   @javax.annotation.Nullable
@@ -56,23 +55,11 @@ public class SessionCreateResponse {
 
   public static final String JSON_PROPERTY_CORPUS_ID = "corpusId";
   @javax.annotation.Nonnull
-  private List<String> corpusId = new ArrayList<>();
+  private List<UUID> corpusId = new ArrayList<>();
 
   public static final String JSON_PROPERTY_MODEL = "model";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private String model;
-
-  public static final String JSON_PROPERTY_SYSTEM = "system";
-  @javax.annotation.Nullable
-  private String system;
-
-  public static final String JSON_PROPERTY_TEMPERATURE = "temperature";
-  @javax.annotation.Nullable
-  private Double temperature;
-
-  public static final String JSON_PROPERTY_THINKING = "thinking";
-  @javax.annotation.Nullable
-  private Boolean thinking;
 
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @javax.annotation.Nullable
@@ -82,10 +69,14 @@ public class SessionCreateResponse {
   @javax.annotation.Nonnull
   private OffsetDateTime createdAt;
 
+  public static final String JSON_PROPERTY_UPDATED_AT = "updatedAt";
+  @javax.annotation.Nonnull
+  private OffsetDateTime updatedAt;
+
   public SessionCreateResponse() {
   }
 
-  public SessionCreateResponse id(@javax.annotation.Nonnull String id) {
+  public SessionCreateResponse id(@javax.annotation.Nonnull UUID id) {
     
     this.id = id;
     return this;
@@ -99,14 +90,14 @@ public class SessionCreateResponse {
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setId(@javax.annotation.Nonnull String id) {
+  public void setId(@javax.annotation.Nonnull UUID id) {
     this.id = id;
   }
 
@@ -135,13 +126,13 @@ public class SessionCreateResponse {
     this.userId = userId;
   }
 
-  public SessionCreateResponse corpusId(@javax.annotation.Nonnull List<String> corpusId) {
+  public SessionCreateResponse corpusId(@javax.annotation.Nonnull List<UUID> corpusId) {
     
     this.corpusId = corpusId;
     return this;
   }
 
-  public SessionCreateResponse addCorpusIdItem(String corpusIdItem) {
+  public SessionCreateResponse addCorpusIdItem(UUID corpusIdItem) {
     if (this.corpusId == null) {
       this.corpusId = new ArrayList<>();
     }
@@ -157,115 +148,42 @@ public class SessionCreateResponse {
   @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public List<String> getCorpusId() {
+  public List<UUID> getCorpusId() {
     return corpusId;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_CORPUS_ID, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setCorpusId(@javax.annotation.Nonnull List<String> corpusId) {
+  public void setCorpusId(@javax.annotation.Nonnull List<UUID> corpusId) {
     this.corpusId = corpusId;
   }
 
-  public SessionCreateResponse model(@javax.annotation.Nonnull String model) {
+  public SessionCreateResponse model(@javax.annotation.Nullable String model) {
     
     this.model = model;
     return this;
   }
 
   /**
-   * LLM bound to the session.
+   * Get model
    * @return model
+   * @deprecated
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MODEL, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @Deprecated
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MODEL, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getModel() {
     return model;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MODEL, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setModel(@javax.annotation.Nonnull String model) {
+  @JsonProperty(value = JSON_PROPERTY_MODEL, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setModel(@javax.annotation.Nullable String model) {
     this.model = model;
-  }
-
-  public SessionCreateResponse system(@javax.annotation.Nullable String system) {
-    
-    this.system = system;
-    return this;
-  }
-
-  /**
-   * System prompt the LLM was initialised with.
-   * @return system
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_SYSTEM, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getSystem() {
-    return system;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_SYSTEM, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setSystem(@javax.annotation.Nullable String system) {
-    this.system = system;
-  }
-
-  public SessionCreateResponse temperature(@javax.annotation.Nullable Double temperature) {
-    
-    this.temperature = temperature;
-    return this;
-  }
-
-  /**
-   * Sampling temperature configured on the session.
-   * @return temperature
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_TEMPERATURE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public Double getTemperature() {
-    return temperature;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_TEMPERATURE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTemperature(@javax.annotation.Nullable Double temperature) {
-    this.temperature = temperature;
-  }
-
-  public SessionCreateResponse thinking(@javax.annotation.Nullable Boolean thinking) {
-    
-    this.thinking = thinking;
-    return this;
-  }
-
-  /**
-   * Whether the model&#39;s *thinking* mode is enabled on this session.
-   * @return thinking
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_THINKING, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public Boolean getThinking() {
-    return thinking;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_THINKING, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setThinking(@javax.annotation.Nullable Boolean thinking) {
-    this.thinking = thinking;
   }
 
   public SessionCreateResponse metadata(@javax.annotation.Nullable Map<String, Object> metadata) {
@@ -326,6 +244,31 @@ public class SessionCreateResponse {
     this.createdAt = createdAt;
   }
 
+  public SessionCreateResponse updatedAt(@javax.annotation.Nonnull OffsetDateTime updatedAt) {
+    
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
+  /**
+   * Last modification of the session (ISO-8601, UTC). Equal to &#x60;createdAt&#x60; on a session that has just been created.
+   * @return updatedAt
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_UPDATED_AT, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public OffsetDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_UPDATED_AT, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setUpdatedAt(@javax.annotation.Nonnull OffsetDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -340,16 +283,14 @@ public class SessionCreateResponse {
         Objects.equals(this.userId, sessionCreateResponse.userId) &&
         Objects.equals(this.corpusId, sessionCreateResponse.corpusId) &&
         Objects.equals(this.model, sessionCreateResponse.model) &&
-        Objects.equals(this.system, sessionCreateResponse.system) &&
-        Objects.equals(this.temperature, sessionCreateResponse.temperature) &&
-        Objects.equals(this.thinking, sessionCreateResponse.thinking) &&
         Objects.equals(this.metadata, sessionCreateResponse.metadata) &&
-        Objects.equals(this.createdAt, sessionCreateResponse.createdAt);
+        Objects.equals(this.createdAt, sessionCreateResponse.createdAt) &&
+        Objects.equals(this.updatedAt, sessionCreateResponse.updatedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, userId, corpusId, model, system, temperature, thinking, metadata, createdAt);
+    return Objects.hash(id, userId, corpusId, model, metadata, createdAt, updatedAt);
   }
 
   @Override
@@ -360,11 +301,9 @@ public class SessionCreateResponse {
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("    corpusId: ").append(toIndentedString(corpusId)).append("\n");
     sb.append("    model: ").append(toIndentedString(model)).append("\n");
-    sb.append("    system: ").append(toIndentedString(system)).append("\n");
-    sb.append("    temperature: ").append(toIndentedString(temperature)).append("\n");
-    sb.append("    thinking: ").append(toIndentedString(thinking)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
+    sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

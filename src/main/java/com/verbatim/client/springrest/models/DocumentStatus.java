@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class DocumentStatus {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nullable
-  private String id;
+  private UUID id;
 
   /**
    * Current lifecycle status of the document.
@@ -96,7 +97,7 @@ public class DocumentStatus {
   public DocumentStatus() {
   }
 
-  public DocumentStatus id(@javax.annotation.Nullable String id) {
+  public DocumentStatus id(@javax.annotation.Nullable UUID id) {
     
     this.id = id;
     return this;
@@ -110,14 +111,14 @@ public class DocumentStatus {
   @JsonProperty(value = JSON_PROPERTY_ID, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ID, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setId(@javax.annotation.Nullable String id) {
+  public void setId(@javax.annotation.Nullable UUID id) {
     this.id = id;
   }
 

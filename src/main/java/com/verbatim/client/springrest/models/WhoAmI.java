@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class WhoAmI {
   public static final String JSON_PROPERTY_ORGANIZATION_ID = "organizationId";
   @javax.annotation.Nullable
-  private String organizationId;
+  private UUID organizationId;
 
   public static final String JSON_PROPERTY_USER_ID = "userId";
   @javax.annotation.Nullable
@@ -60,7 +61,7 @@ public class WhoAmI {
   public WhoAmI() {
   }
 
-  public WhoAmI organizationId(@javax.annotation.Nullable String organizationId) {
+  public WhoAmI organizationId(@javax.annotation.Nullable UUID organizationId) {
     
     this.organizationId = organizationId;
     return this;
@@ -74,14 +75,14 @@ public class WhoAmI {
   @JsonProperty(value = JSON_PROPERTY_ORGANIZATION_ID, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public String getOrganizationId() {
+  public UUID getOrganizationId() {
     return organizationId;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ORGANIZATION_ID, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setOrganizationId(@javax.annotation.Nullable String organizationId) {
+  public void setOrganizationId(@javax.annotation.Nullable UUID organizationId) {
     this.organizationId = organizationId;
   }
 

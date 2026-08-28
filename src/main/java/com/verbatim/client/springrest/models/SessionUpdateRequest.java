@@ -30,137 +30,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Payload to patch a session. Only the fields you set are updated; omit a field to leave it unchanged.
  */
 @JsonPropertyOrder({
-  SessionUpdateRequest.JSON_PROPERTY_MODEL,
-  SessionUpdateRequest.JSON_PROPERTY_SYSTEM,
-  SessionUpdateRequest.JSON_PROPERTY_TEMPERATURE,
-  SessionUpdateRequest.JSON_PROPERTY_THINKING,
   SessionUpdateRequest.JSON_PROPERTY_METADATA
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class SessionUpdateRequest {
-  public static final String JSON_PROPERTY_MODEL = "model";
-  @javax.annotation.Nullable
-  private String model;
-
-  public static final String JSON_PROPERTY_SYSTEM = "system";
-  @javax.annotation.Nullable
-  private String system;
-
-  public static final String JSON_PROPERTY_TEMPERATURE = "temperature";
-  @javax.annotation.Nullable
-  private Double temperature;
-
-  public static final String JSON_PROPERTY_THINKING = "thinking";
-  @javax.annotation.Nullable
-  private Boolean thinking;
-
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @javax.annotation.Nullable
   private Map<String, Object> metadata = new HashMap<>();
 
   public SessionUpdateRequest() {
-  }
-
-  public SessionUpdateRequest model(@javax.annotation.Nullable String model) {
-    
-    this.model = model;
-    return this;
-  }
-
-  /**
-   * New LLM for the session. Must be installed on the Ollama runtime. Omit to keep the current model.
-   * @return model
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_MODEL, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getModel() {
-    return model;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_MODEL, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setModel(@javax.annotation.Nullable String model) {
-    this.model = model;
-  }
-
-  public SessionUpdateRequest system(@javax.annotation.Nullable String system) {
-    
-    this.system = system;
-    return this;
-  }
-
-  /**
-   * New system prompt. Omit to keep the current prompt.
-   * @return system
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_SYSTEM, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getSystem() {
-    return system;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_SYSTEM, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setSystem(@javax.annotation.Nullable String system) {
-    this.system = system;
-  }
-
-  public SessionUpdateRequest temperature(@javax.annotation.Nullable Double temperature) {
-    
-    this.temperature = temperature;
-    return this;
-  }
-
-  /**
-   * New sampling temperature. Omit to keep the current value.
-   * minimum: 0
-   * maximum: 2
-   * @return temperature
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_TEMPERATURE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public Double getTemperature() {
-    return temperature;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_TEMPERATURE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTemperature(@javax.annotation.Nullable Double temperature) {
-    this.temperature = temperature;
-  }
-
-  public SessionUpdateRequest thinking(@javax.annotation.Nullable Boolean thinking) {
-    
-    this.thinking = thinking;
-    return this;
-  }
-
-  /**
-   * Enable or disable thinking mode. Omit to keep the current value.
-   * @return thinking
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_THINKING, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public Boolean getThinking() {
-    return thinking;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_THINKING, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setThinking(@javax.annotation.Nullable Boolean thinking) {
-    this.thinking = thinking;
   }
 
   public SessionUpdateRequest metadata(@javax.annotation.Nullable Map<String, Object> metadata) {
@@ -206,26 +84,18 @@ public class SessionUpdateRequest {
       return false;
     }
     SessionUpdateRequest sessionUpdateRequest = (SessionUpdateRequest) o;
-    return Objects.equals(this.model, sessionUpdateRequest.model) &&
-        Objects.equals(this.system, sessionUpdateRequest.system) &&
-        Objects.equals(this.temperature, sessionUpdateRequest.temperature) &&
-        Objects.equals(this.thinking, sessionUpdateRequest.thinking) &&
-        Objects.equals(this.metadata, sessionUpdateRequest.metadata);
+    return Objects.equals(this.metadata, sessionUpdateRequest.metadata);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(model, system, temperature, thinking, metadata);
+    return Objects.hash(metadata);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SessionUpdateRequest {\n");
-    sb.append("    model: ").append(toIndentedString(model)).append("\n");
-    sb.append("    system: ").append(toIndentedString(system)).append("\n");
-    sb.append("    temperature: ").append(toIndentedString(temperature)).append("\n");
-    sb.append("    thinking: ").append(toIndentedString(thinking)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("}");
     return sb.toString();

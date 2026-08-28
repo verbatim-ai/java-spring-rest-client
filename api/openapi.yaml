@@ -239,26 +239,197 @@ paths:
       x-accepts:
       - application/json
   /v1/session/:
+    get:
+      description: |
+        Paginate every session of the caller's organization, newest first.
+
+        The organization is resolved from the JWT, so there is nothing to pass and no
+        way to ask for another tenant's sessions. A session belongs to an organization
+        as soon as one of its corpora does.
+
+        The ordering is closed by the session id, so walking `pageIndex` never shows the
+        same session twice nor skips one when several were opened in the same
+        millisecond. `total` counts every session in the organization, not just those
+        returned here.
+
+        To narrow the result — by user, by corpus, by metadata, or by any combination of
+        the three — use `GET /v1/session/q`, which takes the same paging parameters.
+      operationId: list
+      parameters:
+      - description: "Number of items per page, 1-100."
+        example: 25
+        explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          default: 25
+          format: int32
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - description: Zero-based page index.
+        example: 0
+        explode: true
+        in: query
+        name: pageIndex
+        required: false
+        schema:
+          default: 0
+          format: int32
+          minimum: 0
+          type: integer
+        style: form
+      responses:
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "200":
+          content:
+            application/json:
+              example:
+                orgId: 550e8400-e29b-41d4-a716-446655440099
+                pageIndex: 0
+                pageSize: 25
+                total: 2
+                items:
+                - id: 550e8400-e29b-41d4-a716-446655440001
+                  userId: user_42
+                  corpusIds:
+                  - 550e8400-e29b-41d4-a716-446655440000
+                  metadata:
+                    customer_id: "42"
+                  createdAt: 2026-04-23T04:06:51Z
+                  updatedAt: 2026-04-23T04:06:51Z
+                - id: 550e8400-e29b-41d4-a716-446655440002
+                  userId: user_43
+                  corpusIds:
+                  - 550e8400-e29b-41d4-a716-446655440000
+                  createdAt: 2026-04-22T10:00:00Z
+                  updatedAt: 2026-04-22T11:30:00Z
+              schema:
+                $ref: "#/components/schemas/SessionListResponse"
+          description: Page of sessions.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: List sessions
+      tags:
+      - Session
+      x-accepts:
+      - application/json
     post:
       description: "Open a new conversation session against one or more corpora. The\
-        \ session is attached to the user carried by the caller's JWT. The model,\
-        \ system prompt, temperature and thinking flag are locked at creation time\
-        \ and apply to every post in the session."
+        \ session is attached to the user carried by the caller's JWT. How its queries\
+        \ are answered is not decided here: the agent named on each query decides,\
+        \ so a session carries the corpora, the owner and whatever metadata you attach\
+        \ to it."
       operationId: create
       requestBody:
         content:
           application/json:
             examples:
-              French support session:
-                description: French support session
-                summary: Single-corpus session with a custom system prompt
+              Support session:
+                description: Support session
+                summary: Single-corpus session carrying a customer reference
                 value:
                   corpusIds:
                   - 550e8400-e29b-41d4-a716-446655440000
-                  model: mistral
-                  system: You are a concise support agent. Answer in French.
-                  temperature: 0.2
-                  thinking: false
                   metadata:
                     customer_id: "42"
             schema:
@@ -370,13 +541,10 @@ paths:
                 userId: user_42
                 corpusId:
                 - 550e8400-e29b-41d4-a716-446655440000
-                model: mistral
-                system: You are a concise support agent. Answer in French.
-                temperature: 0.2
-                thinking: false
                 metadata:
                   customer_id: "42"
                 createdAt: 2026-04-23T04:06:51Z
+                updatedAt: 2026-04-23T04:06:51Z
               schema:
                 $ref: "#/components/schemas/SessionCreateResponse"
           description: Session created.
@@ -808,7 +976,7 @@ paths:
   /v1/corpus/:
     get:
       description: Paginate corpora belonging to an organization.
-      operationId: list
+      operationId: list_1
       parameters:
       - description: Number of items per page.
         example: 25
@@ -1260,7 +1428,7 @@ paths:
         not modify. A brand-new organization sees six of them, one per use case, and the
         single agent carrying `default: true` is the one a query that names no agent runs
         on.
-      operationId: list_1
+      operationId: list_2
       parameters:
       - description: Number of items per page.
         example: 25
@@ -1858,13 +2026,10 @@ paths:
                 userId: user_42
                 corpusIds:
                 - 550e8400-e29b-41d4-a716-446655440000
-                model: mistral
-                system: You are a concise support agent. Answer in French.
-                temperature: 0.2
-                thinking: false
                 metadata:
                   customer_id: "42"
                 createdAt: 2026-04-23T04:06:51Z
+                updatedAt: 2026-04-23T04:06:51Z
               schema:
                 $ref: "#/components/schemas/Session"
           description: Session found.
@@ -1896,11 +2061,10 @@ paths:
         content:
           application/json:
             examples:
-              Switch model and attach ticket:
-                description: Switch model and attach ticket
-                summary: Update LLM and replace metadata
+              Attach a ticket:
+                description: Attach a ticket
+                summary: Replace the session metadata
                 value:
-                  model: gemma4
                   metadata:
                     customer_id: "42"
                     ticket: SUPP-999
@@ -2013,14 +2177,11 @@ paths:
                 userId: user_42
                 corpusIds:
                 - 550e8400-e29b-41d4-a716-446655440000
-                model: gemma4
-                system: You are a concise support agent. Answer in French.
-                temperature: 0.2
-                thinking: false
                 metadata:
                   customer_id: "42"
                   ticket: SUPP-999
                 createdAt: 2026-04-23T04:06:51Z
+                updatedAt: 2026-05-02T09:12:00Z
               schema:
                 $ref: "#/components/schemas/Session"
           description: Session updated.
@@ -4061,26 +4222,67 @@ paths:
       - Usage
       x-accepts:
       - application/json
-  /v1/session/byUser:
+  /v1/session/q:
     get:
-      description: "Paginate the sessions opened by a given user identifier, newest\
-        \ first. Results are scoped to the caller's organization at the SQL level:\
-        \ only sessions attached to at least one corpus of the caller's org are returned,\
-        \ so a user identifier shared across tenants never leaks rows. Pass `corpusId`\
-        \ to further restrict results to sessions bound to that specific corpus."
-      operationId: listByUser
+      description: |
+        Find sessions of the caller's organization by owner, corpus and metadata.
+
+        Every filter is optional and they **narrow together**: a request carrying none of
+        them returns the whole organization — the same answer as `GET /v1/session/` —
+        and one carrying several returns only the sessions matching all of them. That is
+        what this endpoint adds over the `by…` listings it replaces, which each answer
+        one fixed combination.
+
+        The organization is never a parameter. It comes from the JWT and is always
+        applied, so no combination of filters reaches another tenant's sessions.
+
+        ### Owner — `userId`
+
+        Exact match on the identifier carried by the JWT when the session was opened.
+        Sent empty (`&userId=`) it is treated as absent rather than as a match on the
+        empty string.
+
+        ### Corpus — `corpusId`
+
+        Keeps sessions bound to that corpus. A session may be bound to several, and it
+        matches as soon as one of them is the requested one. The corpus must belong to
+        the caller's organization.
+
+        ### Metadata — `key`/`value`, or `json`
+
+        Matches sessions whose metadata **contains** the fragment (PostgreSQL's `@>`
+        operator), extra keys on the session being fine. Pass `key` and `value` for a
+        single pair — they go together, one without the other is a `400` — or `json`
+        for a raw object when the filter is nested or has several keys. `json` wins when
+        both are supplied.
+
+        ### Ordering and paging
+
+        Newest first, closed by the session id, so walking `pageIndex` never shows the
+        same session twice nor skips one. `total` counts every match across all pages.
+
+        ### Examples
+
+        * `?userId=user_42` — every session that user opened, across corpora
+        * `?corpusId=…` — every session opened against one corpus, whoever opened it
+        * `?userId=user_42&corpusId=…` — both, which `GET /v1/session/byUser` also did
+        * `?userId=user_42&key=customer_id&value=42` — the combination none of the
+          `by…` endpoints could express
+        * `?json={"channel":{"kind":"web"}}` — a nested metadata fragment
+      operationId: search
       parameters:
-      - description: Identifier of the user (free-form string).
+      - description: "Exact identifier of the user who opened the session. Blank or\
+          \ omitted, the owner is not filtered."
         example: user_42
         explode: true
         in: query
         name: userId
-        required: true
+        required: false
         schema:
           type: string
         style: form
-      - description: "Optional corpus filter. When provided, only sessions bound to\
-          \ this corpus are returned."
+      - description: Keep sessions bound to this corpus. Must belong to the caller's
+          organization.
         example: 123e4567-e89b-12d3-a456-426614174000
         explode: true
         in: query
@@ -4090,322 +4292,7 @@ paths:
           format: uuid
           type: string
         style: form
-      - description: Number of items per page.
-        example: 25
-        explode: true
-        in: query
-        name: pageSize
-        required: false
-        schema:
-          default: 25
-          format: int32
-          type: integer
-        style: form
-      - description: Zero-based page index.
-        example: 0
-        explode: true
-        in: query
-        name: pageIndex
-        required: false
-        schema:
-          default: 0
-          format: int32
-          type: integer
-        style: form
-      responses:
-        "415":
-          content:
-            application/json:
-              examples:
-                Invalid content type error:
-                  description: Invalid content type error
-                  summary: Generic 415 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 415
-                    error: invalid content type
-                    message: application/json is not supported
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
-            for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
-        "400":
-          content:
-            application/json:
-              examples:
-                Bad request error:
-                  description: Bad request error
-                  summary: Generic 400 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 400
-                    error: Bad Request
-                    message: pages list must not be empty
-                    path: /v1/doc/id/preview
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request is malformed or contains invalid parameters.
-        "409":
-          content:
-            application/json:
-              examples:
-                Conflicts error:
-                  description: Conflicts error
-                  summary: Generic 409 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 409
-                    error: conflicts on ressource
-                    message: state not match with request
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request conflicts with the current state of the resource.
-        "200":
-          content:
-            application/json:
-              example:
-                orgId: 550e8400-e29b-41d4-a716-446655440099
-                userId: user_42
-                pageIndex: 0
-                pageSize: 25
-                total: 1
-                items:
-                - id: 550e8400-e29b-41d4-a716-446655440001
-                  userId: user_42
-                  corpusIds:
-                  - 550e8400-e29b-41d4-a716-446655440000
-                  model: mistral
-                  createdAt: 2026-04-23T04:06:51Z
-              schema:
-                $ref: "#/components/schemas/SessionListResponse"
-          description: Page of sessions.
-      security:
-      - JWT: []
-      - AccessToken: []
-      summary: List sessions owned by a user
-      tags:
-      - Session
-      x-accepts:
-      - application/json
-  /v1/session/byOrganization:
-    get:
-      description: "Paginate every session attached to at least one corpus of the\
-        \ caller's organization, newest first. The organization is resolved from the\
-        \ JWT, no parameter is needed."
-      operationId: listByOrganization
-      parameters:
-      - description: Number of items per page.
-        example: 25
-        explode: true
-        in: query
-        name: pageSize
-        required: false
-        schema:
-          default: 25
-          format: int32
-          type: integer
-        style: form
-      - description: Zero-based page index.
-        example: 0
-        explode: true
-        in: query
-        name: pageIndex
-        required: false
-        schema:
-          default: 0
-          format: int32
-          type: integer
-        style: form
-      responses:
-        "415":
-          content:
-            application/json:
-              examples:
-                Invalid content type error:
-                  description: Invalid content type error
-                  summary: Generic 415 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 415
-                    error: invalid content type
-                    message: application/json is not supported
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
-            for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
-        "400":
-          content:
-            application/json:
-              examples:
-                Bad request error:
-                  description: Bad request error
-                  summary: Generic 400 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 400
-                    error: Bad Request
-                    message: pages list must not be empty
-                    path: /v1/doc/id/preview
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request is malformed or contains invalid parameters.
-        "409":
-          content:
-            application/json:
-              examples:
-                Conflicts error:
-                  description: Conflicts error
-                  summary: Generic 409 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 409
-                    error: conflicts on ressource
-                    message: state not match with request
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request conflicts with the current state of the resource.
-        "200":
-          content:
-            application/json:
-              example:
-                orgId: 550e8400-e29b-41d4-a716-446655440099
-                pageIndex: 0
-                pageSize: 25
-                total: 2
-                items:
-                - id: 550e8400-e29b-41d4-a716-446655440001
-                  userId: user_42
-                  corpusIds:
-                  - 550e8400-e29b-41d4-a716-446655440000
-                  model: mistral
-                  createdAt: 2026-04-23T04:06:51Z
-                - id: 550e8400-e29b-41d4-a716-446655440002
-                  userId: user_43
-                  corpusIds:
-                  - 550e8400-e29b-41d4-a716-446655440000
-                  model: gemma4
-                  createdAt: 2026-04-22T10:00:00Z
-              schema:
-                $ref: "#/components/schemas/SessionListResponse"
-          description: Page of sessions.
-      security:
-      - JWT: []
-      - AccessToken: []
-      summary: List every session in the caller's organization
-      tags:
-      - Session
-      x-accepts:
-      - application/json
-  /v1/session/byMetadata:
-    get:
-      description: "Paginate sessions whose metadata JSONB *contains* the provided\
-        \ fragment (PostgreSQL `@>` operator). Results are scoped to the caller's\
-        \ organization. Filtering on a single key/value pair: pass `key` and `value`.\
-        \ For richer filtering (nested JSON, multiple keys) pass a raw JSON object\
-        \ as `json`."
-      operationId: listByMetadata
-      parameters:
-      - description: Metadata key to filter on. Pair with `value`.
+      - description: Metadata key to filter on. Goes together with `value`.
         example: customer_id
         explode: true
         in: query
@@ -4434,7 +4321,7 @@ paths:
         schema:
           type: string
         style: form
-      - description: Number of items per page.
+      - description: "Number of items per page, 1-100."
         example: 25
         explode: true
         in: query
@@ -4443,6 +4330,8 @@ paths:
         schema:
           default: 25
           format: int32
+          maximum: 100
+          minimum: 1
           type: integer
         style: form
       - description: Zero-based page index.
@@ -4454,6 +4343,7 @@ paths:
         schema:
           default: 0
           format: int32
+          minimum: 0
           type: integer
         style: form
       responses:
@@ -4526,18 +4416,28 @@ paths:
           content:
             application/json:
               examples:
-                Bad request error:
-                  description: Bad request error
-                  summary: Generic 400 payload
+                Half a metadata pair:
+                  description: Half a metadata pair
+                  summary: '`key` without `value`'
                   value:
-                    timestamp: 2026-04-23T04:06:51Z
+                    timestamp: 2026-05-21T10:00:00Z
                     status: 400
                     error: Bad Request
-                    message: pages list must not be empty
-                    path: /v1/doc/id/preview
+                    message: '`key` and `value` must be provided together'
+                    path: /v1/session/q
+                Malformed json filter:
+                  description: Malformed json filter
+                  summary: '`json` is not a JSON object'
+                  value:
+                    timestamp: 2026-05-21T10:00:00Z
+                    status: 400
+                    error: Bad Request
+                    message: "`json` is not a valid JSON object: ..."
+                    path: /v1/session/q
               schema:
                 $ref: "#/components/schemas/Error"
-          description: The request is malformed or contains invalid parameters.
+          description: "A metadata filter is malformed, or a paging parameter is out\
+            \ of bounds."
         "409":
           content:
             application/json:
@@ -4558,208 +4458,30 @@ paths:
           content:
             application/json:
               example:
-                orgId: 550e8400-e29b-41d4-a716-446655440000
+                orgId: 550e8400-e29b-41d4-a716-446655440099
+                userId: user_42
                 metadata:
                   customer_id: "42"
                 pageIndex: 0
                 pageSize: 25
                 total: 1
                 items:
-                - id: 550e8400-e29b-41d4-a716-446655440000
+                - id: 550e8400-e29b-41d4-a716-446655440001
                   userId: user_42
                   corpusIds:
                   - 550e8400-e29b-41d4-a716-446655440000
-                  model: mistral
                   metadata:
                     customer_id: "42"
+                    ticket: SUPP-999
                   createdAt: 2026-04-23T04:06:51Z
+                  updatedAt: 2026-04-23T04:06:51Z
               schema:
                 $ref: "#/components/schemas/SessionListResponse"
-          description: Page of sessions.
+          description: Page of matching sessions.
       security:
       - JWT: []
       - AccessToken: []
-      summary: List sessions matching a metadata fragment
-      tags:
-      - Session
-      x-accepts:
-      - application/json
-  /v1/session/byCorpus:
-    get:
-      description: "Paginate the sessions opened against a corpus, newest first. The\
-        \ corpus must belong to the caller's organization."
-      operationId: list_2
-      parameters:
-      - description: ID of the corpus.
-        example: 123e4567-e89b-12d3-a456-426614174000
-        explode: true
-        in: query
-        name: corpusId
-        required: true
-        schema:
-          format: uuid
-          type: string
-        style: form
-      - description: Number of items per page.
-        example: 25
-        explode: true
-        in: query
-        name: pageSize
-        required: false
-        schema:
-          default: 25
-          format: int32
-          type: integer
-        style: form
-      - description: Zero-based page index.
-        example: 0
-        explode: true
-        in: query
-        name: pageIndex
-        required: false
-        schema:
-          default: 0
-          format: int32
-          type: integer
-        style: form
-      responses:
-        "415":
-          content:
-            application/json:
-              examples:
-                Invalid content type error:
-                  description: Invalid content type error
-                  summary: Generic 415 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 415
-                    error: invalid content type
-                    message: application/json is not supported
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
-            for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
-        "400":
-          content:
-            application/json:
-              examples:
-                Bad request error:
-                  description: Bad request error
-                  summary: Generic 400 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 400
-                    error: Bad Request
-                    message: pages list must not be empty
-                    path: /v1/doc/id/preview
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request is malformed or contains invalid parameters.
-        "409":
-          content:
-            application/json:
-              examples:
-                Conflicts error:
-                  description: Conflicts error
-                  summary: Generic 409 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 409
-                    error: conflicts on ressource
-                    message: state not match with request
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request conflicts with the current state of the resource.
-        "200":
-          content:
-            application/json:
-              examples:
-                Single corpus:
-                  description: Session attached to a single corpus
-                  value:
-                    corpusId: 550e8400-e29b-41d4-a716-446655440000
-                    pageIndex: 0
-                    pageSize: 25
-                    total: 1
-                    items:
-                    - id: 550e8400-e29b-41d4-a716-446655440001
-                      userId: user_42
-                      corpusIds:
-                      - 550e8400-e29b-41d4-a716-446655440000
-                      model: mistral
-                      createdAt: 2026-04-23T04:06:51Z
-                Multiple corpus:
-                  description: One Sessions attached to 2 corpus
-                  value:
-                    corpusId: 550e8400-e29b-41d4-a716-446655440000
-                    pageIndex: 0
-                    pageSize: 25
-                    total: 1
-                    items:
-                    - id: 550e8400-e29b-41d4-a716-446655440001
-                      userId: user_42
-                      corpusIds:
-                      - 550e8400-e29b-41d4-a716-446655440000
-                      - 1234-e29b-41d4-a716-446655440000
-                      model: mistral
-                      createdAt: 2026-04-23T04:06:51Z
-              schema:
-                $ref: "#/components/schemas/SessionListResponse"
-          description: Page of sessions.
-      security:
-      - JWT: []
-      - AccessToken: []
-      summary: List sessions attached to a corpus
+      summary: Search sessions
       tags:
       - Session
       x-accepts:
@@ -4896,7 +4618,9 @@ paths:
       x-accepts:
       - application/json
     get:
-      description: "Fetch a single post by its identifier, including its attachments."
+      description: "Fetch a single post by its identifier. The response carries `attachment`,\
+        \ the number of source chunks behind it; the sources themselves come from\
+        \ `GET /v1/post/attachment/{postId}`."
       operationId: get_4
       parameters:
       - description: ID of the post.
@@ -5021,6 +4745,7 @@ paths:
                 metadata: {}
                 createdAt: 2026-04-23T04:06:52Z
                 attachment: 1
+                agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
               schema:
                 $ref: "#/components/schemas/Post"
           description: Post found.
@@ -5212,9 +4937,9 @@ paths:
           content:
             application/json:
               examples:
-                Answered by a named agent:
-                  description: Answered by a named agent
-                  summary: "agentId was passed, and comes back on the answer"
+                Answer without attachment:
+                  description: Answer without attachment
+                  summary: Answer (owner==system) has no attachment (attachment==0)
                   value:
                     sessionId: 550e8400-e29b-41d4-a716-446655440000
                     query:
@@ -5228,6 +4953,7 @@ paths:
                         client: web
                       createdAt: 2026-04-23T04:06:51Z
                       attachment: 0
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
                     answer:
                       id: 550e8400-e29b-41d4-a716-446655440001
                       sessionId: 550e8400-e29b-41d4-a716-446655440000
@@ -5238,11 +4964,11 @@ paths:
                       lang: en
                       metadata: {}
                       createdAt: 2026-04-23T04:06:52Z
-                      attachment: 1
-                      agentId: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
-                Answered by the default agent:
-                  description: Answered by the default agent
-                  summary: No agentId was passed — the answer carries none either
+                      attachment: 0
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
+                Answer with two attachment:
+                  description: Answer with two attachment
+                  summary: Answer (owner==system) has 2 attachments (attachment==2)
                   value:
                     sessionId: 550e8400-e29b-41d4-a716-446655440000
                     query:
@@ -5254,6 +4980,7 @@ paths:
                       lang: en
                       createdAt: 2026-04-23T04:06:51Z
                       attachment: 0
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
                     answer:
                       id: 550e8400-e29b-41d4-a716-446655440001
                       sessionId: 550e8400-e29b-41d4-a716-446655440000
@@ -5263,7 +4990,8 @@ paths:
                       token: 21
                       lang: en
                       createdAt: 2026-04-23T04:06:52Z
-                      attachment: 1
+                      attachment: 2
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
               schema:
                 $ref: "#/components/schemas/PostItemResponse"
           description: Query processed and answer returned.
@@ -5938,6 +5666,7 @@ paths:
                   metadata: {}
                   createdAt: 2026-04-23T04:06:52Z
                   attachment: 1
+                  agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
                 - id: 550e8400-e29b-41d4-a716-446655440000
                   sessionId: 550e8400-e29b-41d4-a716-446655440000
                   body: What is the main topic of the corpus?
@@ -5948,6 +5677,7 @@ paths:
                     client: web
                   createdAt: 2026-04-23T04:06:51Z
                   attachment: 0
+                  agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
               schema:
                 $ref: "#/components/schemas/PostListResponse"
           description: Page of posts.
@@ -6662,7 +6392,7 @@ paths:
         * `?corpusId=…&contentType=application/pdf&contentType=text/plain&minSize=1048576`
           — PDFs and plain text over 1 MB
         * `?corpusId=…&maxSize=0` — documents that were uploaded empty
-      operationId: search
+      operationId: search_1
       parameters:
       - description: ID of the corpus to search.
         example: 123e4567-e89b-12d3-a456-426614174000
@@ -7817,10 +7547,12 @@ components:
         id:
           description: Unique identifier of the document (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         corpusId:
           description: ID of the corpus this document belongs to.
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         userId:
           description: Identifier of the user who uploaded the document. May be null
@@ -7977,10 +7709,6 @@ components:
       example:
         corpusIds:
         - 550e8400-e29b-41d4-a716-446655440000
-        model: mistral
-        system: You are a concise support agent. Answer in French.
-        temperature: 0.2
-        thinking: false
         metadata:
           customer_id: "42"
       properties:
@@ -7994,29 +7722,6 @@ components:
             type: string
           type: array
           default: null
-        model:
-          description: Name of the LLM used to answer queries in this session. Must
-            be installed on the Ollama runtime.
-          example: mistral
-          type: string
-        system:
-          description: System prompt sent to the LLM as the first message. Falls back
-            to a default RAG prompt when omitted.
-          example: You are a concise support agent. Answer in French.
-          type: string
-        temperature:
-          description: Sampling temperature. Range and meaning depend on the model
-            — refer to the model's documentation.
-          example: 0.2
-          format: double
-          maximum: 2
-          minimum: 0
-          type: number
-        thinking:
-          description: Enable the model's *thinking* mode. Only honored by models
-            that support it.
-          example: false
-          type: boolean
         metadata:
           additionalProperties:
             nullable: true
@@ -8027,7 +7732,6 @@ components:
           type: object
       required:
       - corpusIds
-      - model
     SessionCreateResponse:
       description: Acknowledgement returned after opening a new session.
       example:
@@ -8035,17 +7739,16 @@ components:
         userId: user_42
         corpusId:
         - 550e8400-e29b-41d4-a716-446655440000
-        model: mistral
-        system: You are a concise support agent. Answer in French.
-        temperature: 0.2
-        thinking: false
+        model: model
         metadata:
           customer_id: "42"
         createdAt: 2026-04-23T04:06:51Z
+        updatedAt: 2026-04-23T04:06:51Z
       properties:
         id:
           description: ID of the newly created session (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         userId:
           description: Identifier of the user who opened the session (echo of the
@@ -8057,26 +7760,13 @@ components:
           example:
           - 550e8400-e29b-41d4-a716-446655440000
           items:
+            format: uuid
             type: string
           type: array
           default: null
         model:
-          description: LLM bound to the session.
-          example: mistral
+          deprecated: true
           type: string
-        system:
-          description: System prompt the LLM was initialised with.
-          example: You are a concise support agent. Answer in French.
-          type: string
-        temperature:
-          description: Sampling temperature configured on the session.
-          example: 0.2
-          format: double
-          type: number
-        thinking:
-          description: Whether the model's *thinking* mode is enabled on this session.
-          example: false
-          type: boolean
         metadata:
           additionalProperties:
             nullable: true
@@ -8089,11 +7779,17 @@ components:
           example: 2026-04-23T04:06:51Z
           format: date-time
           type: string
+        updatedAt:
+          description: "Last modification of the session (ISO-8601, UTC). Equal to\
+            \ `createdAt` on a session that has just been created."
+          example: 2026-04-23T04:06:51Z
+          format: date-time
+          type: string
       required:
       - corpusId
       - createdAt
       - id
-      - model
+      - updatedAt
     DocumentInitRequest:
       description: Body of POST /v1/doc/init. Declares a document and requests a presigned
         PUT URL for direct-to-storage upload.
@@ -8261,10 +7957,12 @@ components:
         description: "Tickets, FAQs and runbooks used by the support team."
         metadata:
           customer_id: "42"
+        orgId: orgId
       properties:
         id:
           description: ID of the newly created corpus (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         createdAt:
           description: "Creation timestamp (ISO-8601, UTC)."
@@ -8286,6 +7984,9 @@ components:
           example:
             customer_id: "42"
           type: object
+        orgId:
+          deprecated: true
+          type: string
       required:
       - createdAt
       - id
@@ -8518,6 +8219,7 @@ components:
         id:
           description: Unique identifier of the agent (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         name:
           description: Human-readable name of the agent.
@@ -8631,33 +8333,9 @@ components:
       description: Payload to patch a session. Only the fields you set are updated;
         omit a field to leave it unchanged.
       example:
-        model: gemma4
-        system: You are a helpful assistant.
-        temperature: 0.5
-        thinking: true
         metadata:
           customer_id: "99"
       properties:
-        model:
-          description: New LLM for the session. Must be installed on the Ollama runtime.
-            Omit to keep the current model.
-          example: gemma4
-          type: string
-        system:
-          description: New system prompt. Omit to keep the current prompt.
-          example: You are a helpful assistant.
-          type: string
-        temperature:
-          description: New sampling temperature. Omit to keep the current value.
-          example: 0.5
-          format: double
-          maximum: 2
-          minimum: 0
-          type: number
-        thinking:
-          description: Enable or disable thinking mode. Omit to keep the current value.
-          example: true
-          type: boolean
         metadata:
           additionalProperties:
             nullable: true
@@ -8673,17 +8351,16 @@ components:
         userId: user_42
         corpusIds:
         - 550e8400-e29b-41d4-a716-446655440000
-        model: mistral
-        system: You are a concise support agent. Answer in French.
-        temperature: 0.2
-        thinking: false
         metadata:
           customer_id: "42"
         createdAt: 2026-04-23T04:06:51Z
+        updatedAt: 2026-04-23T04:06:51Z
+        model: model
       properties:
         id:
           description: Unique identifier of the session (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         userId:
           description: "Identifier of the user who opened the session, as carried\
@@ -8696,26 +8373,10 @@ components:
           example:
           - 550e8400-e29b-41d4-a716-446655440000
           items:
+            format: uuid
             type: string
           type: array
           default: null
-        model:
-          description: LLM bound to the session.
-          example: mistral
-          type: string
-        system:
-          description: System prompt the LLM was initialised with.
-          example: You are a concise support agent. Answer in French.
-          type: string
-        temperature:
-          description: Sampling temperature configured on the session.
-          example: 0.2
-          format: double
-          type: number
-        thinking:
-          description: Whether the model's *thinking* mode is enabled on this session.
-          example: false
-          type: boolean
         metadata:
           additionalProperties:
             nullable: true
@@ -8728,11 +8389,21 @@ components:
           example: 2026-04-23T04:06:51Z
           format: date-time
           type: string
+        updatedAt:
+          description: "Last modification of the session (ISO-8601, UTC) — moved by\
+            \ `PATCH /v1/session/{sessionId}`. Equal to `createdAt` on a session nobody\
+            \ has patched."
+          example: 2026-04-23T04:06:51Z
+          format: date-time
+          type: string
+        model:
+          deprecated: true
+          type: string
       required:
       - corpusIds
       - createdAt
       - id
-      - model
+      - updatedAt
     DocumentUpdateRequest:
       description: Payload to patch a document. Only the fields you set are updated;
         omit a field to leave it unchanged.
@@ -8856,10 +8527,12 @@ components:
         updatedAt: 2026-04-23T04:06:51Z
         name: Support knowledge base
         description: "Tickets, FAQs and runbooks used by the support team."
+        orgId: orgId
       properties:
         id:
           description: ID of the corpus (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         createdAt:
           description: "Original creation timestamp (ISO-8601, UTC)."
@@ -8878,6 +8551,9 @@ components:
         description:
           description: Description of the corpus.
           example: "Tickets, FAQs and runbooks used by the support team."
+          type: string
+        orgId:
+          deprecated: true
           type: string
       required:
       - createdAt
@@ -9252,7 +8928,6 @@ components:
       example:
         corpusId: 550e8400-e29b-41d4-a716-446655440000
         userId: user_42
-        orgId: 550e8400-e29b-41d4-a716-446655440000
         metadata:
           customer_id: "42"
         pageIndex: 0
@@ -9263,39 +8938,31 @@ components:
           userId: user_42
           corpusIds:
           - 550e8400-e29b-41d4-a716-446655440000
-          model: mistral
-          system: You are a concise support agent. Answer in French.
-          temperature: 0.2
-          thinking: false
           metadata:
             customer_id: "42"
           createdAt: 2026-04-23T04:06:51Z
+          updatedAt: 2026-04-23T04:06:51Z
+          model: model
         - id: 550e8400-e29b-41d4-a716-446655440000
           userId: user_42
           corpusIds:
           - 550e8400-e29b-41d4-a716-446655440000
-          model: mistral
-          system: You are a concise support agent. Answer in French.
-          temperature: 0.2
-          thinking: false
           metadata:
             customer_id: "42"
           createdAt: 2026-04-23T04:06:51Z
+          updatedAt: 2026-04-23T04:06:51Z
+          model: model
       properties:
         corpusId:
           description: "Echo of the corpus filter, when the listing was filtered by\
             \ corpus."
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         userId:
           description: "Echo of the user filter, when the listing was filtered by\
             \ user."
           example: user_42
-          type: string
-        orgId:
-          description: Echo of the organization scope (resolved from the caller's
-            JWT).
-          example: 550e8400-e29b-41d4-a716-446655440000
           type: string
         metadata:
           additionalProperties:
@@ -9327,65 +8994,15 @@ components:
           type: array
           default: null
       required:
-      - corpusId
-      - orgId
       - pageIndex
       - pageSize
       - total
-    Attachment:
-      description: Document used as context to produce a system answer.
-      example:
-        postId: 550e8400-e29b-41d4-a716-446655440000
-        docId: 550e8400-e29b-41d4-a716-446655440000
-        summary: the document expose the marketing strategy of the WAOUW product
-        pages:
-        - 0
-        - 0
-        metadata:
-          source: user
-          team: legal
-      properties:
-        postId:
-          deprecated: true
-          description: ID of the post (UUIDv4).
-          example: 550e8400-e29b-41d4-a716-446655440000
-          type: string
-        docId:
-          description: ID of the document (UUIDv4).
-          example: 550e8400-e29b-41d4-a716-446655440000
-          format: uuid
-          type: string
-        summary:
-          description: Summary of the document (markdown)
-          example: the document expose the marketing strategy of the WAOUW product
-          type: string
-        pages:
-          description: "Sorted list of page indexes (1-based) retrieved from this\
-            \ document. User endpoint /{id}/preview-urls get secured preview image\
-            \ of the page"
-          items:
-            format: int32
-            type: integer
-          type: array
-          default: null
-        metadata:
-          additionalProperties:
-            nullable: true
-          description: Metadata of the source document.
-          example:
-            source: user
-            team: legal
-          type: object
-      required:
-      - docId
-      - pages
-      - postId
-      - summary
     Post:
       description: Single user query or system answer inside a session.
       example:
         id: 550e8400-e29b-41d4-a716-446655440000
         sessionId: 550e8400-e29b-41d4-a716-446655440000
+        agentId: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
         body: What is the main topic of the corpus?
         owner: USER
         token: 42
@@ -9393,35 +9010,22 @@ components:
         metadata:
           client: web
         createdAt: 2026-04-23T04:06:51Z
-        attachments:
-        - postId: 550e8400-e29b-41d4-a716-446655440000
-          docId: 550e8400-e29b-41d4-a716-446655440000
-          summary: the document expose the marketing strategy of the WAOUW product
-          pages:
-          - 0
-          - 0
-          metadata:
-            source: user
-            team: legal
-        - postId: 550e8400-e29b-41d4-a716-446655440000
-          docId: 550e8400-e29b-41d4-a716-446655440000
-          summary: the document expose the marketing strategy of the WAOUW product
-          pages:
-          - 0
-          - 0
-          metadata:
-            source: user
-            team: legal
-        attachment: 6
-        agentId: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
+        attachment: 0
       properties:
         id:
           description: Unique identifier of the post (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         sessionId:
           description: ID of the session this post belongs to.
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
+          type: string
+        agentId:
+          description: Agent this answer was produced under
+          example: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
+          format: uuid
           type: string
         body:
           description: "Text content of the post — the user query when `owner = USER`,\
@@ -9456,33 +9060,14 @@ components:
           example: 2026-04-23T04:06:51Z
           format: date-time
           type: string
-        attachments:
-          deprecated: true
-          description: DEPRECATED. Use /post/attachment to get accurate list. Legacy
-            info :Document chunks used as context for this post. Only populated on
-            system answers.
-          items:
-            $ref: "#/components/schemas/Attachment"
-          type: array
-          default: null
         attachment:
           description: Number of attachment used in the post. Used /post/attachment
             to get details. Filled only when post have more than one attachment. Zero
             when no attachment.
           format: int32
           type: integer
-        agentId:
-          description: "Agent this answer was produced under, when the query named\
-            \ one explicitly (`GET /v1/post/q?agentId=…`). Absent when the query ran\
-            \ on the platform default agent, which is the usual case — so a missing\
-            \ `agentId` means \"default\", not \"unknown\". Only system answers carry\
-            \ it; the user's question never does. Deleting an agent does not rewrite\
-            \ the answers it produced, so this still identifies an agent you have\
-            \ since deleted — resolving it through `GET /v1/agent/{agentId}` then\
-            \ answers `404`."
-          example: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
-          type: string
       required:
+      - agentId
       - body
       - createdAt
       - id
@@ -9499,6 +9084,7 @@ components:
         sessionId:
           description: ID of the session the posts belong to (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         query:
           allOf:
@@ -9511,6 +9097,55 @@ components:
             \ pointing to the chunks used as context."
       required:
       - sessionId
+    Attachment:
+      description: Document used as context to produce a system answer.
+      example:
+        postId: 550e8400-e29b-41d4-a716-446655440000
+        docId: 550e8400-e29b-41d4-a716-446655440000
+        summary: the document expose the marketing strategy of the WAOUW product
+        pages:
+        - 0
+        - 0
+        metadata:
+          source: user
+          team: legal
+      properties:
+        postId:
+          description: ID of the post (UUIDv4).
+          example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
+          type: string
+        docId:
+          description: ID of the document (UUIDv4).
+          example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
+          type: string
+        summary:
+          description: Summary of the document (markdown)
+          example: the document expose the marketing strategy of the WAOUW product
+          type: string
+        pages:
+          description: "Sorted list of page indexes (1-based) retrieved from this\
+            \ document. User endpoint /{id}/preview-urls get secured preview image\
+            \ of the page"
+          items:
+            format: int32
+            type: integer
+          type: array
+          default: null
+        metadata:
+          additionalProperties:
+            nullable: true
+          description: Metadata of the source document.
+          example:
+            source: user
+            team: legal
+          type: object
+      required:
+      - docId
+      - pages
+      - postId
+      - summary
     PostAttachmentResponse:
       description: Attachment details for a Post
       example:
@@ -9538,6 +9173,7 @@ components:
         postId:
           description: ID of the post (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         items:
           description: All the attachments of the post
@@ -9648,6 +9284,7 @@ components:
         items:
         - id: 550e8400-e29b-41d4-a716-446655440000
           sessionId: 550e8400-e29b-41d4-a716-446655440000
+          agentId: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
           body: What is the main topic of the corpus?
           owner: USER
           token: 42
@@ -9655,29 +9292,10 @@ components:
           metadata:
             client: web
           createdAt: 2026-04-23T04:06:51Z
-          attachments:
-          - postId: 550e8400-e29b-41d4-a716-446655440000
-            docId: 550e8400-e29b-41d4-a716-446655440000
-            summary: the document expose the marketing strategy of the WAOUW product
-            pages:
-            - 0
-            - 0
-            metadata:
-              source: user
-              team: legal
-          - postId: 550e8400-e29b-41d4-a716-446655440000
-            docId: 550e8400-e29b-41d4-a716-446655440000
-            summary: the document expose the marketing strategy of the WAOUW product
-            pages:
-            - 0
-            - 0
-            metadata:
-              source: user
-              team: legal
-          attachment: 6
-          agentId: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
+          attachment: 0
         - id: 550e8400-e29b-41d4-a716-446655440000
           sessionId: 550e8400-e29b-41d4-a716-446655440000
+          agentId: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
           body: What is the main topic of the corpus?
           owner: USER
           token: 42
@@ -9685,27 +9303,7 @@ components:
           metadata:
             client: web
           createdAt: 2026-04-23T04:06:51Z
-          attachments:
-          - postId: 550e8400-e29b-41d4-a716-446655440000
-            docId: 550e8400-e29b-41d4-a716-446655440000
-            summary: the document expose the marketing strategy of the WAOUW product
-            pages:
-            - 0
-            - 0
-            metadata:
-              source: user
-              team: legal
-          - postId: 550e8400-e29b-41d4-a716-446655440000
-            docId: 550e8400-e29b-41d4-a716-446655440000
-            summary: the document expose the marketing strategy of the WAOUW product
-            pages:
-            - 0
-            - 0
-            metadata:
-              source: user
-              team: legal
-          attachment: 6
-          agentId: 1a7c9e10-5b3d-4a2f-8c6e-9d0b3f4a5c61
+          attachment: 0
       properties:
         sessionId:
           description: ID of the session (UUIDv4).
@@ -9738,6 +9336,7 @@ components:
         id:
           description: ID of the document (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         status:
           description: Current lifecycle status of the document.
@@ -9827,6 +9426,7 @@ components:
         corpusId:
           description: ID of the searched corpus (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440001
+          format: uuid
           type: string
         pageIndex:
           default: 0
@@ -9923,6 +9523,7 @@ components:
         corpusId:
           description: ID of the corpus (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         pageIndex:
           default: 0
@@ -9956,6 +9557,7 @@ components:
         id:
           description: Unique identifier of the corpus (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         createdAt:
           description: "Creation timestamp (ISO-8601, UTC)."
@@ -9992,23 +9594,19 @@ components:
     CorpusItemResponse:
       description: Single corpus wrapped with its parent organization id.
       example:
-        orgId: 550e8400-e29b-41d4-a716-446655440000
+        orgId: orgId
         item: ""
       properties:
         orgId:
-          description: ID of the parent organization (UUIDv4).
-          example: 550e8400-e29b-41d4-a716-446655440000
+          deprecated: true
           type: string
         item:
           allOf:
           - $ref: "#/components/schemas/Corpus"
           description: The corpus payload.
-      required:
-      - orgId
     CorpusListResponse:
       description: Paginated list of corpora belonging to an organization.
       example:
-        orgId: 550e8400-e29b-41d4-a716-446655440000
         pageIndex: 0
         items:
         - id: 550e8400-e29b-41d4-a716-446655440000
@@ -10027,11 +9625,8 @@ components:
           metadata:
             owner: support-team
             language: fr
+        orgId: orgId
       properties:
-        orgId:
-          description: ID of the parent organization (UUIDv4).
-          example: 550e8400-e29b-41d4-a716-446655440000
-          type: string
         pageIndex:
           description: Zero-based index of the returned page.
           example: 0
@@ -10043,8 +9638,9 @@ components:
             $ref: "#/components/schemas/Corpus"
           type: array
           default: null
-      required:
-      - orgId
+        orgId:
+          deprecated: true
+          type: string
     ModelListResponse:
       description: LLM models supported by the platform.
       example:
@@ -10074,6 +9670,7 @@ components:
         organizationId:
           description: ID of the organization the caller belongs to (UUIDv4).
           example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
           type: string
         userId:
           description: Unique identifier of the authenticated user (UUIDv4).

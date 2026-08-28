@@ -35,10 +35,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @JsonPropertyOrder({
   SessionCreateRequest.JSON_PROPERTY_CORPUS_IDS,
-  SessionCreateRequest.JSON_PROPERTY_MODEL,
-  SessionCreateRequest.JSON_PROPERTY_SYSTEM,
-  SessionCreateRequest.JSON_PROPERTY_TEMPERATURE,
-  SessionCreateRequest.JSON_PROPERTY_THINKING,
   SessionCreateRequest.JSON_PROPERTY_METADATA
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
@@ -46,22 +42,6 @@ public class SessionCreateRequest {
   public static final String JSON_PROPERTY_CORPUS_IDS = "corpusIds";
   @javax.annotation.Nonnull
   private List<UUID> corpusIds = new ArrayList<>();
-
-  public static final String JSON_PROPERTY_MODEL = "model";
-  @javax.annotation.Nonnull
-  private String model;
-
-  public static final String JSON_PROPERTY_SYSTEM = "system";
-  @javax.annotation.Nullable
-  private String system;
-
-  public static final String JSON_PROPERTY_TEMPERATURE = "temperature";
-  @javax.annotation.Nullable
-  private Double temperature;
-
-  public static final String JSON_PROPERTY_THINKING = "thinking";
-  @javax.annotation.Nullable
-  private Boolean thinking;
 
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @javax.annotation.Nullable
@@ -101,108 +81,6 @@ public class SessionCreateRequest {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setCorpusIds(@javax.annotation.Nonnull List<UUID> corpusIds) {
     this.corpusIds = corpusIds;
-  }
-
-  public SessionCreateRequest model(@javax.annotation.Nonnull String model) {
-    
-    this.model = model;
-    return this;
-  }
-
-  /**
-   * Name of the LLM used to answer queries in this session. Must be installed on the Ollama runtime.
-   * @return model
-   */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MODEL, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-
-  public String getModel() {
-    return model;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_MODEL, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setModel(@javax.annotation.Nonnull String model) {
-    this.model = model;
-  }
-
-  public SessionCreateRequest system(@javax.annotation.Nullable String system) {
-    
-    this.system = system;
-    return this;
-  }
-
-  /**
-   * System prompt sent to the LLM as the first message. Falls back to a default RAG prompt when omitted.
-   * @return system
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_SYSTEM, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getSystem() {
-    return system;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_SYSTEM, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setSystem(@javax.annotation.Nullable String system) {
-    this.system = system;
-  }
-
-  public SessionCreateRequest temperature(@javax.annotation.Nullable Double temperature) {
-    
-    this.temperature = temperature;
-    return this;
-  }
-
-  /**
-   * Sampling temperature. Range and meaning depend on the model — refer to the model&#39;s documentation.
-   * minimum: 0
-   * maximum: 2
-   * @return temperature
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_TEMPERATURE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public Double getTemperature() {
-    return temperature;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_TEMPERATURE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTemperature(@javax.annotation.Nullable Double temperature) {
-    this.temperature = temperature;
-  }
-
-  public SessionCreateRequest thinking(@javax.annotation.Nullable Boolean thinking) {
-    
-    this.thinking = thinking;
-    return this;
-  }
-
-  /**
-   * Enable the model&#39;s *thinking* mode. Only honored by models that support it.
-   * @return thinking
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_THINKING, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public Boolean getThinking() {
-    return thinking;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_THINKING, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setThinking(@javax.annotation.Nullable Boolean thinking) {
-    this.thinking = thinking;
   }
 
   public SessionCreateRequest metadata(@javax.annotation.Nullable Map<String, Object> metadata) {
@@ -249,16 +127,12 @@ public class SessionCreateRequest {
     }
     SessionCreateRequest sessionCreateRequest = (SessionCreateRequest) o;
     return Objects.equals(this.corpusIds, sessionCreateRequest.corpusIds) &&
-        Objects.equals(this.model, sessionCreateRequest.model) &&
-        Objects.equals(this.system, sessionCreateRequest.system) &&
-        Objects.equals(this.temperature, sessionCreateRequest.temperature) &&
-        Objects.equals(this.thinking, sessionCreateRequest.thinking) &&
         Objects.equals(this.metadata, sessionCreateRequest.metadata);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(corpusIds, model, system, temperature, thinking, metadata);
+    return Objects.hash(corpusIds, metadata);
   }
 
   @Override
@@ -266,10 +140,6 @@ public class SessionCreateRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class SessionCreateRequest {\n");
     sb.append("    corpusIds: ").append(toIndentedString(corpusIds)).append("\n");
-    sb.append("    model: ").append(toIndentedString(model)).append("\n");
-    sb.append("    system: ").append(toIndentedString(system)).append("\n");
-    sb.append("    temperature: ").append(toIndentedString(temperature)).append("\n");
-    sb.append("    thinking: ").append(toIndentedString(thinking)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("}");
     return sb.toString();
