@@ -5197,29 +5197,29 @@ paths:
           format: uuid
           type: string
         style: simple
-      - description: "Zero-based page indices to issue preview URLs for. Required:\
+      - description: "One-based page indices to issue preview URLs for. Required:\
           \ 1 to 10 values per request, each within the document's page range. Repeat\
-          \ for multiple values: `pages=0&pages=2`."
+          \ for multiple values: `pages=1&pages=2`."
         examples:
           First page:
             description: First page
             summary: A single page
             value:
-            - 0
+            - 1
           First three pages:
             description: First three pages
             summary: Several pages in one call
             value:
-            - 0
             - 1
             - 2
+            - 3
         explode: true
         in: query
         name: pages
         required: true
         schema:
           items:
-            example: 0
+            example: 1
             format: int32
             type: integer
           maxItems: 10
@@ -5990,29 +5990,29 @@ paths:
           format: uuid
           type: string
         style: simple
-      - description: "Zero-based page indices to issue preview URLs for. Required:\
+      - description: "One-based page indices to issue preview URLs for. Required:\
           \ 1 to 10 values per request, each within the document's page range. Repeat\
-          \ for multiple values: `pages=0&pages=2`."
+          \ for multiple values: `pages=1&pages=2`."
         examples:
           First page:
             description: First page
             summary: A single page
             value:
-            - 0
+            - 1
           First three pages:
             description: First three pages
             summary: Several pages in one call
             value:
-            - 0
             - 1
             - 2
+            - 3
         explode: true
         in: query
         name: pages
         required: true
         schema:
           items:
-            example: 0
+            example: 1
             format: int32
             type: integer
           maxItems: 10

@@ -469,7 +469,7 @@ public class Example {
 
         PostApi apiInstance = new PostApi(defaultClient);
         UUID docId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document.
-        List<Integer> pages = Arrays.asList(); // List<Integer> | Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document's page range. Repeat for multiple values: `pages=0&pages=2`.
+        List<Integer> pages = Arrays.asList(); // List<Integer> | One-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document's page range. Repeat for multiple values: `pages=1&pages=2`.
         try {
             DocumentPreviewUrls result = apiInstance.previewUrls(docId, pages);
             System.out.println(result);
@@ -490,7 +490,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **docId** | **UUID**| ID of the document. | |
-| **pages** | [**List&lt;Integer&gt;**](Integer.md)| Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;. | |
+| **pages** | [**List&lt;Integer&gt;**](Integer.md)| One-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;1&amp;pages&#x3D;2&#x60;. | |
 
 ### Return type
 

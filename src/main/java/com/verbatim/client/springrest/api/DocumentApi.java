@@ -488,7 +488,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>200</b> - Presigned preview URLs issued.
      * @param id ID of the document. (required)
-     * @param pages Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;. (required)
+     * @param pages One-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;1&amp;pages&#x3D;2&#x60;. (required)
      * @return DocumentPreviewUrls
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
@@ -507,7 +507,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>200</b> - Presigned preview URLs issued.
      * @param id ID of the document. (required)
-     * @param pages Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;. (required)
+     * @param pages One-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;1&amp;pages&#x3D;2&#x60;. (required)
      * @return ResponseEntity&lt;DocumentPreviewUrls&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
