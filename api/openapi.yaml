@@ -5900,7 +5900,7 @@ paths:
         so is anything at or past its page count once that count is known (`nbPages` from
         `GET /v1/doc/{id}`, `0` while the rendering pipeline has not reported it).
 
-        One entry is issued per (page, size) over {SMALL, MEDIUM}, so a call returns
+        One entry is issued per (page, size) over {SMALL, LARGE}, so a call returns
         `2 × pages` entries — at most 20.
 
         The URLs point at preview images produced asynchronously by the rendering pipeline.
@@ -6077,10 +6077,6 @@ paths:
                 - page: 0
                   size: SMALL
                   url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/preview/<doc>/small/0.jpg?X-Amz-Algorithm=...
-                  expiresAt: 2026-05-21T10:15:00Z
-                - page: 0
-                  size: MEDIUM
-                  url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/preview/<doc>/medium/0.jpg?X-Amz-Algorithm=...
                   expiresAt: 2026-05-21T10:15:00Z
                 - page: 0
                   size: LARGE
@@ -6778,7 +6774,7 @@ paths:
         so is anything at or past its page count once that count is known (`nbPages` from
         `GET /v1/doc/{id}`, `0` while the rendering pipeline has not reported it).
 
-        One entry is issued per (page, size) over {SMALL, MEDIUM}, so a call returns
+        One entry is issued per (page, size) over {SMALL, LARGE}, so a call returns
         `2 × pages` entries — at most 20.
 
         The URLs point at preview images produced asynchronously by the rendering pipeline.
@@ -6955,10 +6951,6 @@ paths:
                 - page: 0
                   size: SMALL
                   url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/preview/<doc>/small/0.jpg?X-Amz-Algorithm=...
-                  expiresAt: 2026-05-21T10:15:00Z
-                - page: 0
-                  size: MEDIUM
-                  url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/preview/<doc>/medium/0.jpg?X-Amz-Algorithm=...
                   expiresAt: 2026-05-21T10:15:00Z
                 - page: 0
                   size: LARGE
@@ -10667,7 +10659,6 @@ components:
           description: Rendering size of the preview image.
           enum:
           - SMALL
-          - MEDIUM
           - LARGE
           example: SMALL
           type: string
