@@ -66,47 +66,6 @@ tags:
     `GET /v1/doc/accept`.
   name: Configuration
 - description: |
-    A **post** is one message inside a session: either a user question (`owner: USER`) or the
-    answer the platform produced for it (`owner: SYSTEM`). They are created in pairs — one
-    exchange is two posts — and the rest of this domain follows from that.
-
-    `GET /v1/post/q` is how you ask a question, and it is the one endpoint here that **writes**:
-    it persists the question, vectorizes it, runs a similarity search over the session's corpora,
-    feeds the best chunks to the model and persists the answer, returning both posts. It being a
-    `GET` has a consequence worth knowing when minting access tokens: scopes are derived from the
-    HTTP method, so running a query requires `post:read`, not `post:create`. A token you thought
-    was read-only can ask questions.
-
-    **The agent decides how the pipeline runs** — retrieval width, whether chunks are re-ranked,
-    the system instruction, how much of the conversation is replayed, which model answers. Pass
-    `agentId` to run one query under a specific agent (`GET /v1/agent/`), or omit it for the
-    platform default. The choice is **per query, not per session**, so escalating a hard question
-    to a wider, slower agent does not change the conversation it belongs to. Both posts of the
-    exchange record the agent that ran, so aggregating on it counts questions as well as answers.
-
-    **Attachments are the citations.** An answer references the chunks that were fed to the model
-    as context, and `GET /v1/post/attachment/{postId}` resolves them to their source documents and
-    pages, with presigned URLs to download the file or render page previews. On the post itself,
-    `attachment` is the *count* of those sources, not the list. An answer may legitimately have
-    zero — the model can respond without retrieving anything.
-
-    Citations are resolved at answer time and are not re-derived afterwards, so they can go stale
-    in one direction: deleting a chunk (`DELETE /v1/chunk/{chunkId}`) or replacing a document's
-    content removes the attachments pointing at it, and an old answer then keeps its text while
-    losing the sources behind it.
-
-    `GET /v1/post/` paginates a session's posts and takes an `order`: `DESC` — the default —
-    reads the conversation newest first, so page `0` is always the latest exchange; `ASC` reads
-    it as a transcript, from the first question. Both pages carry `total`, the number of posts
-    in the session.
-
-    `DELETE` removes a post and its attachments — a soft delete — and leaves the documents and
-    chunks they pointed at untouched. Deleting the session removes its posts the same way.
-
-    `POST /v1/post/` is the deprecated spelling of the query endpoint; it still works and
-    `GET /v1/post/q` replaces it.
-  name: Post
-- description: |
     A **document** is a file ingested into a corpus. Ask `GET /v1/doc/accept` for the content
     types accepted rather than hard-coding a list — it is configuration, and it changes.
 
@@ -147,8 +106,9 @@ tags:
     storage until your PUT overwrites it, so committing without uploading re-ingests the old
     content.
 
-    `DELETE` is a soft delete that also takes the document's chunks out of the API; the archived
-    file is kept in storage rather than destroyed, but no public endpoint restores it.
+    `DELETE` is a soft delete and cascades to the document's chunks, which are soft-deleted with
+    it; the archived file and the chunks' stored text are kept rather than destroyed, but no
+    public endpoint restores any of it.
   name: Document
 - description: |
     An **agent** is the setup a RAG query runs on: how many chunks the vector search returns,
@@ -234,6 +194,47 @@ tags:
     cascades to its posts**; the documents and chunks they cited are untouched.
   name: Session
 - description: |
+    A **post** is one message inside a session: either a user question (`owner: USER`) or the
+    answer the platform produced for it (`owner: SYSTEM`). They are created in pairs — one
+    exchange is two posts — and the rest of this domain follows from that.
+
+    `GET /v1/post/q` is how you ask a question, and it is the one endpoint here that **writes**:
+    it persists the question, vectorizes it, runs a similarity search over the session's corpora,
+    feeds the best chunks to the model and persists the answer, returning both posts. It being a
+    `GET` has a consequence worth knowing when minting access tokens: scopes are derived from the
+    HTTP method, so running a query requires `post:read`, not `post:create`. A token you thought
+    was read-only can ask questions.
+
+    **The agent decides how the pipeline runs** — retrieval width, whether chunks are re-ranked,
+    the system instruction, how much of the conversation is replayed, which model answers. Pass
+    `agentId` to run one query under a specific agent (`GET /v1/agent/`), or omit it for the
+    platform default. The choice is **per query, not per session**, so escalating a hard question
+    to a wider, slower agent does not change the conversation it belongs to. Both posts of the
+    exchange record the agent that ran, so aggregating on it counts questions as well as answers.
+
+    **Attachments are the citations.** An answer references the chunks that were fed to the model
+    as context, and `GET /v1/post/attachment/{postId}` resolves them to their source documents and
+    pages, with presigned URLs to download the file or render page previews. On the post itself,
+    `attachment` is the *count* of those sources, not the list. An answer may legitimately have
+    zero — the model can respond without retrieving anything.
+
+    Citations are resolved at answer time and are not re-derived afterwards, so they can go stale
+    in one direction: deleting a chunk (`DELETE /v1/chunk/{chunkId}`), deleting its document, or
+    replacing that document's content all leave the attachments pointing at it unresolvable, and
+    an old answer then keeps its text while losing the sources behind it.
+
+    `GET /v1/post/` paginates a session's posts and takes an `order`: `DESC` — the default —
+    reads the conversation newest first, so page `0` is always the latest exchange; `ASC` reads
+    it as a transcript, from the first question. Both pages carry `total`, the number of posts
+    in the session.
+
+    `DELETE` removes a post and its attachments — a soft delete — and leaves the documents and
+    chunks they pointed at untouched. Deleting the session removes its posts the same way.
+
+    `POST /v1/post/` is the deprecated spelling of the query endpoint; it still works and
+    `GET /v1/post/q` replaces it.
+  name: Post
+- description: |
     A **corpus** is a knowledge base: the container documents are ingested into and the scope a
     query is answered from. It is also the unit ownership is checked against — every document,
     chunk, session and post hangs off a corpus, and the corpus is what ties them to your
@@ -309,9 +310,9 @@ paths:
 
         Two things to be aware of:
 
-        - Posts that cited this document **lose their attachments to it**, because the
-          citations point at the embeddings being deleted. Answers already returned to
-          users are not modified.
+        - Posts that cited this document **lose their attachments to it**: the chunks
+          those citations point at are deleted, so they no longer resolve. Answers
+          already returned to users are not modified.
         - The previously uploaded file **stays in storage** until your PUT overwrites it.
           Committing without uploading first therefore re-ingests the old content.
       operationId: reinitUpload
@@ -2402,9 +2403,17 @@ paths:
       - application/json
   /v1/doc/{id}:
     delete:
-      description: Permanently remove a document from its corpus. **Cascades** to
-        all embeddings and attachments referencing this document. This operation cannot
-        be undone.
+      description: |
+        Remove a document from its corpus.
+
+        **This is a soft delete, and it cascades to the document's chunks.** The
+        document and every chunk it was split into disappear from the API together and
+        stop being retrievable as context, so no answer produced from now on can be
+        built on them. Nothing is destroyed underneath: the archived file and the
+        chunks' stored text are kept. There is no endpoint that undoes it.
+
+        Posts that cited this document keep their text and **lose the citations**
+        pointing at it.
       operationId: delete_1
       parameters:
       - description: ID of the document to delete.
@@ -2904,8 +2913,14 @@ paths:
       - application/json
   /v1/corpus/{corpusId}:
     delete:
-      description: "Permanently delete a corpus. **Cascades** to every session, post,\
-        \ document and embedding owned by this corpus. This operation cannot be undone."
+      description: |
+        Delete a corpus.
+
+        **This is a soft delete, and it cascades** to every document owned by this
+        corpus and to every chunk those documents were split into. All of it disappears
+        from the API together and stops being retrievable, while nothing is destroyed
+        underneath: archived files and chunk texts are kept. There is no endpoint that
+        undoes it.
       operationId: delete_2
       parameters:
       - description: ID of the corpus to delete.
@@ -3332,22 +3347,26 @@ paths:
   /v1/chunk/{chunkId}:
     delete:
       description: |
-        Remove a chunk: the row and its stored text.
+        Take a chunk out of the index.
 
-        **This is a hard delete and it reaches further than the chunk.** Unlike a
-        document or a session, a chunk is not soft-deleted — there is no row left
-        underneath and nothing to restore. The links between past answers and this
-        chunk go with it, so those answers keep their text and lose the citation
+        **This is a soft delete, like deleting a document or a session.** The chunk
+        stops existing as far as this API and every answer built from now on is
+        concerned: it disappears from `GET /v1/chunk/`, `GET /v1/chunk/q` and
+        `GET /v1/chunk/{chunkId}`, and it can no longer be retrieved as context for a
+        query. Nothing is destroyed underneath — neither the row nor the archived text —
+        which is what makes it a decision about what may be retrieved rather than an
+        erasure of what was. There is no endpoint that undoes it.
+
+        Past answers that cited this chunk keep their text and **lose the citation**
         pointing here.
 
         The document itself is untouched: its file, its summary and its other chunks
-        stay exactly as they were. What changes is that the deleted passage can no
-        longer be retrieved, which is the point — it is how a chunk carrying content
-        that should never have been ingested is taken out of the index without
-        destroying the document it came from.
+        stay exactly as they were. That is what makes this usable for taking one passage
+        out of the index without destroying the document it came from.
 
-        Re-ingesting the document (`PUT /v1/doc/{docId}/content`) rebuilds every chunk
-        from the file, this one included.
+        Deleting the document (`DELETE /v1/doc/{docId}`) does the same thing to every
+        chunk at once, and re-ingesting it (`PUT /v1/doc/{docId}/content`) rebuilds
+        every chunk from the file, this one included.
       operationId: delete_3
       parameters:
       - description: ID of the chunk to delete.

@@ -107,7 +107,7 @@ public class CorpusApi extends BaseApi {
     }
     /**
      * Delete a corpus
-     * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
+     * Delete a corpus.  **This is a soft delete, and it cascades** to every document owned by this corpus and to every chunk those documents were split into. All of it disappears from the API together and stops being retrievable, while nothing is destroyed underneath: archived files and chunk texts are kept. There is no endpoint that undoes it. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>403</b> - Not authorized. Access not granted for this request
@@ -125,7 +125,7 @@ public class CorpusApi extends BaseApi {
 
     /**
      * Delete a corpus
-     * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
+     * Delete a corpus.  **This is a soft delete, and it cascades** to every document owned by this corpus and to every chunk those documents were split into. All of it disappears from the API together and stops being retrievable, while nothing is destroyed underneath: archived files and chunk texts are kept. There is no endpoint that undoes it. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>403</b> - Not authorized. Access not granted for this request
