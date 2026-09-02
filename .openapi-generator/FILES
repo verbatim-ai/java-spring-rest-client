@@ -16,6 +16,10 @@ docs/AgentListResponse.md
 docs/AgentUpdateRequest.md
 docs/Attachment.md
 docs/AuthApi.md
+docs/Chunk.md
+docs/ChunkApi.md
+docs/ChunkListResponse.md
+docs/ChunkUpdateRequest.md
 docs/ConfigurationApi.md
 docs/Corpus.md
 docs/CorpusApi.md
@@ -67,6 +71,7 @@ settings.gradle
 src/main/AndroidManifest.xml
 src/main/java/com/verbatim/client/springrest/api/AgentApi.java
 src/main/java/com/verbatim/client/springrest/api/AuthApi.java
+src/main/java/com/verbatim/client/springrest/api/ChunkApi.java
 src/main/java/com/verbatim/client/springrest/api/ConfigurationApi.java
 src/main/java/com/verbatim/client/springrest/api/CorpusApi.java
 src/main/java/com/verbatim/client/springrest/api/DocumentApi.java
@@ -93,6 +98,9 @@ src/main/java/com/verbatim/client/springrest/models/AgentCreateRequest.java
 src/main/java/com/verbatim/client/springrest/models/AgentListResponse.java
 src/main/java/com/verbatim/client/springrest/models/AgentUpdateRequest.java
 src/main/java/com/verbatim/client/springrest/models/Attachment.java
+src/main/java/com/verbatim/client/springrest/models/Chunk.java
+src/main/java/com/verbatim/client/springrest/models/ChunkListResponse.java
+src/main/java/com/verbatim/client/springrest/models/ChunkUpdateRequest.java
 src/main/java/com/verbatim/client/springrest/models/Corpus.java
 src/main/java/com/verbatim/client/springrest/models/CorpusCreateRequest.java
 src/main/java/com/verbatim/client/springrest/models/CorpusCreateResponse.java
@@ -129,6 +137,7 @@ src/main/java/com/verbatim/client/springrest/models/UsageTokens.java
 src/main/java/com/verbatim/client/springrest/models/WhoAmI.java
 src/test/java/com/verbatim/client/springrest/api/AgentApiTest.java
 src/test/java/com/verbatim/client/springrest/api/AuthApiTest.java
+src/test/java/com/verbatim/client/springrest/api/ChunkApiTest.java
 src/test/java/com/verbatim/client/springrest/api/ConfigurationApiTest.java
 src/test/java/com/verbatim/client/springrest/api/CorpusApiTest.java
 src/test/java/com/verbatim/client/springrest/api/DocumentApiTest.java
@@ -143,6 +152,9 @@ src/test/java/com/verbatim/client/springrest/models/AgentListResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/AgentTest.java
 src/test/java/com/verbatim/client/springrest/models/AgentUpdateRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/AttachmentTest.java
+src/test/java/com/verbatim/client/springrest/models/ChunkListResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/ChunkTest.java
+src/test/java/com/verbatim/client/springrest/models/ChunkUpdateRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/CorpusCreateRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/CorpusCreateResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/CorpusItemResponseTest.java

@@ -5,9 +5,9 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**attachment**](PostApi.md#attachment) | **GET** /v1/post/attachment/{postId} | Attachments from a post |
-| [**delete4**](PostApi.md#delete4) | **DELETE** /v1/post/{postId} | Delete a post |
+| [**delete5**](PostApi.md#delete5) | **DELETE** /v1/post/{postId} | Delete a post |
 | [**downloadUrl**](PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL |
-| [**get4**](PostApi.md#get4) | **GET** /v1/post/{postId} | Get a post |
+| [**get5**](PostApi.md#get5) | **GET** /v1/post/{postId} | Get a post |
 | [**list3**](PostApi.md#list3) | **GET** /v1/post/ | List posts |
 | [**previewUrls**](PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs |
 | [**query**](PostApi.md#query) | **GET** /v1/post/q | Send a query |
@@ -88,8 +88,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
@@ -97,9 +97,9 @@ public class Example {
 | **200** | Attachments found. |  -  |
 
 
-## delete4
+## delete5
 
-> AckResponse delete4(postId)
+> AckResponse delete5(postId)
 
 Delete a post
 
@@ -134,10 +134,10 @@ public class Example {
         PostApi apiInstance = new PostApi(defaultClient);
         UUID postId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the post to delete.
         try {
-            AckResponse result = apiInstance.delete4(postId);
+            AckResponse result = apiInstance.delete5(postId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#delete4");
+            System.err.println("Exception when calling PostApi#delete5");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -171,8 +171,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
@@ -254,8 +254,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
@@ -263,9 +263,9 @@ public class Example {
 | **200** | Presigned URL issued. |  -  |
 
 
-## get4
+## get5
 
-> Post get4(postId)
+> Post get5(postId)
 
 Get a post
 
@@ -300,10 +300,10 @@ public class Example {
         PostApi apiInstance = new PostApi(defaultClient);
         UUID postId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the post.
         try {
-            Post result = apiInstance.get4(postId);
+            Post result = apiInstance.get5(postId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#get4");
+            System.err.println("Exception when calling PostApi#get5");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -337,8 +337,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
@@ -348,11 +348,11 @@ public class Example {
 
 ## list3
 
-> PostListResponse list3(sessionId, pageSize, pageIndex)
+> PostListResponse list3(sessionId, pageSize, pageIndex, order)
 
 List posts
 
-Paginate every post (user queries and system answers) in a session, newest first.
+Paginate every post of a session — the user questions and the system answers alike, interleaved in the order they were written.  **Ordering.** &#x60;order&#x3D;ASC&#x60; (the default) reads the conversation, natural timestamp (lastest post first). Ordering &#x60;order&#x3D;DESC&#x60; reads the conversation backwards, most recent first, which is what a client polling for what just happened wants: page &#x60;0&#x60; is the latest exchange whatever the session has grown to. &#x60;order&#x3D;ASC&#x60; reads it forwards, oldest first — the transcript order, and the one to walk when rendering a whole conversation from the beginning.  Posts are ordered on &#x60;createdAt&#x60; and the ordering is closed by the post id, so walking &#x60;pageIndex&#x60; never shows the same post twice nor skips one — the two posts of a single exchange are written microseconds apart and can share a timestamp. Note the consequence of that tie: when they do share one, the question and its answer are ordered by id, which is arbitrary. Read &#x60;owner&#x60; rather than position to tell them apart.  **Paging.** &#x60;pageSize&#x60; is 1–100 and defaults to &#x60;25&#x60;; &#x60;pageIndex&#x60; is zero-based. Values outside those bounds are refused with &#x60;400&#x60;. &#x60;total&#x60; carries the number of posts in the session across every page, so a client knows how far it has to walk. Soft-deleted posts are excluded from both the page and the count.  Examples:  * &#x60;?sessionId&#x3D;…&#x60; — the 25 most recent posts of the session, newest first. * &#x60;?sessionId&#x3D;…&amp;order&#x3D;ASC&amp;pageSize&#x3D;50&#x60; — the conversation from its first post,   50 at a time. * &#x60;?sessionId&#x3D;…&amp;pageIndex&#x3D;1&#x60; — the exchange before the latest ones. 
 
 ### Example
 
@@ -382,10 +382,11 @@ public class Example {
 
         PostApi apiInstance = new PostApi(defaultClient);
         UUID sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the session.
-        Integer pageSize = 25; // Integer | Number of items per page.
+        Integer pageSize = 25; // Integer | Number of items per page, 1-100.
         Integer pageIndex = 0; // Integer | Zero-based page index.
+        String order = "ASC"; // String | Direction to read the session in: `DESC` newest first, `ASC` oldest first. Defaults to `DESC`.
         try {
-            PostListResponse result = apiInstance.list3(sessionId, pageSize, pageIndex);
+            PostListResponse result = apiInstance.list3(sessionId, pageSize, pageIndex, order);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling PostApi#list3");
@@ -404,8 +405,9 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **sessionId** | **UUID**| ID of the session. | |
-| **pageSize** | **Integer**| Number of items per page. | [optional] [default to 25] |
+| **pageSize** | **Integer**| Number of items per page, 1-100. | [optional] [default to 25] |
 | **pageIndex** | **Integer**| Zero-based page index. | [optional] [default to 0] |
+| **order** | **String**| Direction to read the session in: &#x60;DESC&#x60; newest first, &#x60;ASC&#x60; oldest first. Defaults to &#x60;DESC&#x60;. | [optional] [enum: ASC, DESC] |
 
 ### Return type
 
@@ -424,11 +426,11 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
-| **400** | The request is malformed or contains invalid parameters. |  -  |
+| **400** | &#x60;pageSize&#x60; outside 1–100, a negative &#x60;pageIndex&#x60;, or an &#x60;order&#x60; other than &#x60;ASC&#x60; or &#x60;DESC&#x60;. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **200** | Page of posts. |  -  |
 
@@ -509,8 +511,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document. |  -  |
@@ -598,8 +600,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |

@@ -2,7 +2,7 @@
 
 # Corpus
 
-Knowledge base inside an organization. Bound to an embedding model and a summary LLM.
+Knowledge base inside an organization: the container documents are ingested into and the scope a query is answered from.
 
 ## Properties
 

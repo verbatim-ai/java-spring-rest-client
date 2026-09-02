@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -68,10 +68,10 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void delete4Test() {
+    void delete5Test() {
         UUID postId = null;
 
-        AckResponse response = api.delete4(postId);
+        AckResponse response = api.delete5(postId);
 
         // TODO: test validations
     }
@@ -102,10 +102,10 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void get4Test() {
+    void get5Test() {
         UUID postId = null;
 
-        Post response = api.get4(postId);
+        Post response = api.get5(postId);
 
         // TODO: test validations
     }
@@ -113,7 +113,7 @@ class PostApiTest {
     /**
      * List posts
      *
-     * Paginate every post (user queries and system answers) in a session, newest first.
+     * Paginate every post of a session — the user questions and the system answers alike, interleaved in the order they were written.  **Ordering.** &#x60;order&#x3D;ASC&#x60; (the default) reads the conversation, natural timestamp (lastest post first). Ordering &#x60;order&#x3D;DESC&#x60; reads the conversation backwards, most recent first, which is what a client polling for what just happened wants: page &#x60;0&#x60; is the latest exchange whatever the session has grown to. &#x60;order&#x3D;ASC&#x60; reads it forwards, oldest first — the transcript order, and the one to walk when rendering a whole conversation from the beginning.  Posts are ordered on &#x60;createdAt&#x60; and the ordering is closed by the post id, so walking &#x60;pageIndex&#x60; never shows the same post twice nor skips one — the two posts of a single exchange are written microseconds apart and can share a timestamp. Note the consequence of that tie: when they do share one, the question and its answer are ordered by id, which is arbitrary. Read &#x60;owner&#x60; rather than position to tell them apart.  **Paging.** &#x60;pageSize&#x60; is 1–100 and defaults to &#x60;25&#x60;; &#x60;pageIndex&#x60; is zero-based. Values outside those bounds are refused with &#x60;400&#x60;. &#x60;total&#x60; carries the number of posts in the session across every page, so a client knows how far it has to walk. Soft-deleted posts are excluded from both the page and the count.  Examples:  * &#x60;?sessionId&#x3D;…&#x60; — the 25 most recent posts of the session, newest first. * &#x60;?sessionId&#x3D;…&amp;order&#x3D;ASC&amp;pageSize&#x3D;50&#x60; — the conversation from its first post,   50 at a time. * &#x60;?sessionId&#x3D;…&amp;pageIndex&#x3D;1&#x60; — the exchange before the latest ones. 
      *
      * @throws RestClientException
      *          if the Api call fails
@@ -123,8 +123,9 @@ class PostApiTest {
         UUID sessionId = null;
         Integer pageSize = null;
         Integer pageIndex = null;
+        String order = null;
 
-        PostListResponse response = api.list3(sessionId, pageSize, pageIndex);
+        PostListResponse response = api.list3(sessionId, pageSize, pageIndex, order);
 
         // TODO: test validations
     }

@@ -2,7 +2,7 @@
 
 # CorpusUpdateRequest
 
-Payload to patch a corpus. Only the fields you set are updated; omit a field to leave it unchanged. Changing the embedding or summary model does **not** re-process already-ingested documents.
+Payload to patch a corpus. Only the fields you set are updated; omit a field to leave it unchanged. Everything patchable here is descriptive — nothing on a corpus affects how its documents were ingested or how queries against it are answered, so no edit re-processes anything.
 
 ## Properties
 

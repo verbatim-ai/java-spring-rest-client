@@ -41,8 +41,8 @@ public class ConfigurationApi extends BaseApi {
     /**
      * List supported LLM models
      * Return the identifiers of the LLM models the platform is configured to serve. The list is driven by the &#x60;app.ai.model&#x60; server property and is the same for every caller.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
@@ -58,8 +58,8 @@ public class ConfigurationApi extends BaseApi {
     /**
      * List supported LLM models
      * Return the identifiers of the LLM models the platform is configured to serve. The list is driven by the &#x60;app.ai.model&#x60; server property and is the same for every caller.
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>403</b> - Not authorized. Access not granted for this request
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.

@@ -9,11 +9,12 @@ Verbatim AI — GenAI Backend API
 
 
 ## Concepts
-API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains:
+API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains:
 - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM.
 - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…).
+- **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns.
 - **Session** — a conversation thread bound to one or more corpora.
-- **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).
+- **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).
 
 ## Authentication
 Two authentication methods are accepted on endpoints:
@@ -153,13 +154,18 @@ All URIs are relative to *https://api.verbatim-ai.com*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *AgentApi* | [**create3**](docs/AgentApi.md#create3) | **POST** /v1/agent/ | Create an agent
-*AgentApi* | [**delete3**](docs/AgentApi.md#delete3) | **DELETE** /v1/agent/{agentId} | Delete an agent
-*AgentApi* | [**get3**](docs/AgentApi.md#get3) | **GET** /v1/agent/{agentId} | Get an agent
+*AgentApi* | [**delete4**](docs/AgentApi.md#delete4) | **DELETE** /v1/agent/{agentId} | Delete an agent
+*AgentApi* | [**get4**](docs/AgentApi.md#get4) | **GET** /v1/agent/{agentId} | Get an agent
 *AgentApi* | [**list2**](docs/AgentApi.md#list2) | **GET** /v1/agent/ | List agents
-*AgentApi* | [**update3**](docs/AgentApi.md#update3) | **PATCH** /v1/agent/{agentId} | Update an agent
+*AgentApi* | [**update4**](docs/AgentApi.md#update4) | **PATCH** /v1/agent/{agentId} | Update an agent
 *AuthApi* | [**create2**](docs/AuthApi.md#create2) | **POST** /v1/auth/access-token | Create an access token
 *AuthApi* | [**revoke**](docs/AuthApi.md#revoke) | **DELETE** /v1/auth/access-token/{token} | Revoke an access token
 *AuthApi* | [**whoami**](docs/AuthApi.md#whoami) | **GET** /v1/auth/whoami | Who am I
+*ChunkApi* | [**delete3**](docs/ChunkApi.md#delete3) | **DELETE** /v1/chunk/{chunkId} | Delete a chunk
+*ChunkApi* | [**get3**](docs/ChunkApi.md#get3) | **GET** /v1/chunk/{chunkId} | Get a chunk
+*ChunkApi* | [**list6**](docs/ChunkApi.md#list6) | **GET** /v1/chunk/ | List chunks
+*ChunkApi* | [**search2**](docs/ChunkApi.md#search2) | **GET** /v1/chunk/q | Search chunks
+*ChunkApi* | [**update3**](docs/ChunkApi.md#update3) | **PATCH** /v1/chunk/{chunkId} | Update a chunk
 *ConfigurationApi* | [**list5**](docs/ConfigurationApi.md#list5) | **GET** /v1/config/model | List supported LLM models
 *CorpusApi* | [**create1**](docs/CorpusApi.md#create1) | **POST** /v1/corpus/ | Create a corpus
 *CorpusApi* | [**delete2**](docs/CorpusApi.md#delete2) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus
@@ -180,9 +186,9 @@ Class | Method | HTTP request | Description
 *DocumentApi* | [**summary**](docs/DocumentApi.md#summary) | **GET** /v1/doc/{id}/summary | Get a document summary
 *DocumentApi* | [**update1**](docs/DocumentApi.md#update1) | **PATCH** /v1/doc/{id} | Update a document
 *PostApi* | [**attachment**](docs/PostApi.md#attachment) | **GET** /v1/post/attachment/{postId} | Attachments from a post
-*PostApi* | [**delete4**](docs/PostApi.md#delete4) | **DELETE** /v1/post/{postId} | Delete a post
+*PostApi* | [**delete5**](docs/PostApi.md#delete5) | **DELETE** /v1/post/{postId} | Delete a post
 *PostApi* | [**downloadUrl**](docs/PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL
-*PostApi* | [**get4**](docs/PostApi.md#get4) | **GET** /v1/post/{postId} | Get a post
+*PostApi* | [**get5**](docs/PostApi.md#get5) | **GET** /v1/post/{postId} | Get a post
 *PostApi* | [**list3**](docs/PostApi.md#list3) | **GET** /v1/post/ | List posts
 *PostApi* | [**previewUrls**](docs/PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs
 *PostApi* | [**query**](docs/PostApi.md#query) | **GET** /v1/post/q | Send a query
@@ -207,6 +213,9 @@ Class | Method | HTTP request | Description
  - [AgentListResponse](docs/AgentListResponse.md)
  - [AgentUpdateRequest](docs/AgentUpdateRequest.md)
  - [Attachment](docs/Attachment.md)
+ - [Chunk](docs/Chunk.md)
+ - [ChunkListResponse](docs/ChunkListResponse.md)
+ - [ChunkUpdateRequest](docs/ChunkUpdateRequest.md)
  - [Corpus](docs/Corpus.md)
  - [CorpusCreateRequest](docs/CorpusCreateRequest.md)
  - [CorpusCreateResponse](docs/CorpusCreateResponse.md)

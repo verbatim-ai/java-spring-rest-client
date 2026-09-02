@@ -5,10 +5,10 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**create3**](AgentApi.md#create3) | **POST** /v1/agent/ | Create an agent |
-| [**delete3**](AgentApi.md#delete3) | **DELETE** /v1/agent/{agentId} | Delete an agent |
-| [**get3**](AgentApi.md#get3) | **GET** /v1/agent/{agentId} | Get an agent |
+| [**delete4**](AgentApi.md#delete4) | **DELETE** /v1/agent/{agentId} | Delete an agent |
+| [**get4**](AgentApi.md#get4) | **GET** /v1/agent/{agentId} | Get an agent |
 | [**list2**](AgentApi.md#list2) | **GET** /v1/agent/ | List agents |
-| [**update3**](AgentApi.md#update3) | **PATCH** /v1/agent/{agentId} | Update an agent |
+| [**update4**](AgentApi.md#update4) | **PATCH** /v1/agent/{agentId} | Update an agent |
 
 
 
@@ -86,8 +86,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | Missing or over-long &#x60;name&#x60;, a non-positive &#x60;topK&#x60; / &#x60;rerankTopK&#x60; / &#x60;historySize&#x60;, a &#x60;temperature&#x60; outside 0–1, or a model name &#x60;GET /v1/config/model&#x60; does not advertise. |  -  |
@@ -95,9 +95,9 @@ public class Example {
 | **200** | Agent created. |  -  |
 
 
-## delete3
+## delete4
 
-> AckResponse delete3(agentId)
+> AckResponse delete4(agentId)
 
 Delete an agent
 
@@ -132,10 +132,10 @@ public class Example {
         AgentApi apiInstance = new AgentApi(defaultClient);
         UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the agent to delete.
         try {
-            AckResponse result = apiInstance.delete3(agentId);
+            AckResponse result = apiInstance.delete4(agentId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#delete3");
+            System.err.println("Exception when calling AgentApi#delete4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -169,8 +169,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | No agent with this id is visible to your organization. |  -  |
 | **400** | The agent is a core agent (&#x60;lock: true&#x60;). |  -  |
@@ -178,9 +178,9 @@ public class Example {
 | **200** | Agent deleted. |  -  |
 
 
-## get3
+## get4
 
-> Agent get3(agentId)
+> Agent get4(agentId)
 
 Get an agent
 
@@ -215,10 +215,10 @@ public class Example {
         AgentApi apiInstance = new AgentApi(defaultClient);
         UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the agent.
         try {
-            Agent result = apiInstance.get3(agentId);
+            Agent result = apiInstance.get4(agentId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#get3");
+            System.err.println("Exception when calling AgentApi#get4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -252,8 +252,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | No agent with this id is visible to your organization. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
@@ -337,8 +337,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
@@ -346,9 +346,9 @@ public class Example {
 | **200** | Page of agents. |  -  |
 
 
-## update3
+## update4
 
-> Agent update3(agentId, agentUpdateRequest)
+> Agent update4(agentId, agentUpdateRequest)
 
 Update an agent
 
@@ -384,10 +384,10 @@ public class Example {
         UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the agent to update.
         AgentUpdateRequest agentUpdateRequest = new AgentUpdateRequest(); // AgentUpdateRequest | 
         try {
-            Agent result = apiInstance.update3(agentId, agentUpdateRequest);
+            Agent result = apiInstance.update4(agentId, agentUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#update3");
+            System.err.println("Exception when calling AgentApi#update4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -422,8 +422,8 @@ public class Example {
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **500** | Internal error. Check body to get more info |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | No agent with this id is visible to your organization. |  -  |
 | **400** | The agent is a core agent (&#x60;lock: true&#x60;), &#x60;reset&#x60; names a field that has no platform default, or a value fails validation. |  -  |

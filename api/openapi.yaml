@@ -8,11 +8,12 @@ info:
 
 
     ## Concepts
-    API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains:
+    API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains:
     - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM.
     - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…).
+    - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns.
     - **Session** — a conversation thread bound to one or more corpora.
-    - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).
+    - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).
 
     ## Authentication
     Two authentication methods are accepted on endpoints:
@@ -46,10 +47,109 @@ servers:
 - description: Staging
   url: https://staging-api.verbatim-ai.com
 tags:
-- description: Configuration services
+- description: |
+    What this deployment is configured to serve, so a client can discover it instead of
+    hard-coding it.
+
+    `GET /v1/config/model` returns the LLM identifiers accepted anywhere a model is named —
+    today that is an agent's `baseModel` and `rerankModel`. The names are short aliases
+    (`gemma4`, `mistral`) mapped server-side to concrete provider models, so the mapping can
+    change under you without breaking a stored agent.
+
+    The list is the same for every caller and moves with the deployment, which is the reason to
+    read it rather than embed it: agents validate model names **at write time**, so a name that
+    is not in this list is a `400` on the request that set it rather than a failure on every
+    query the agent later runs. Populating a picker from this endpoint is what keeps the two in
+    step.
+
+    Accepted document content types are **not** here — they belong to ingestion and live at
+    `GET /v1/doc/accept`.
   name: Configuration
-- description: Authenticate services. Manage and check your tokens.
-  name: Auth
+- description: |
+    A **post** is one message inside a session: either a user question (`owner: USER`) or the
+    answer the platform produced for it (`owner: SYSTEM`). They are created in pairs — one
+    exchange is two posts — and the rest of this domain follows from that.
+
+    `GET /v1/post/q` is how you ask a question, and it is the one endpoint here that **writes**:
+    it persists the question, vectorizes it, runs a similarity search over the session's corpora,
+    feeds the best chunks to the model and persists the answer, returning both posts. It being a
+    `GET` has a consequence worth knowing when minting access tokens: scopes are derived from the
+    HTTP method, so running a query requires `post:read`, not `post:create`. A token you thought
+    was read-only can ask questions.
+
+    **The agent decides how the pipeline runs** — retrieval width, whether chunks are re-ranked,
+    the system instruction, how much of the conversation is replayed, which model answers. Pass
+    `agentId` to run one query under a specific agent (`GET /v1/agent/`), or omit it for the
+    platform default. The choice is **per query, not per session**, so escalating a hard question
+    to a wider, slower agent does not change the conversation it belongs to. Both posts of the
+    exchange record the agent that ran, so aggregating on it counts questions as well as answers.
+
+    **Attachments are the citations.** An answer references the chunks that were fed to the model
+    as context, and `GET /v1/post/attachment/{postId}` resolves them to their source documents and
+    pages, with presigned URLs to download the file or render page previews. On the post itself,
+    `attachment` is the *count* of those sources, not the list. An answer may legitimately have
+    zero — the model can respond without retrieving anything.
+
+    Citations are resolved at answer time and are not re-derived afterwards, so they can go stale
+    in one direction: deleting a chunk (`DELETE /v1/chunk/{chunkId}`) or replacing a document's
+    content removes the attachments pointing at it, and an old answer then keeps its text while
+    losing the sources behind it.
+
+    `GET /v1/post/` paginates a session's posts and takes an `order`: `DESC` — the default —
+    reads the conversation newest first, so page `0` is always the latest exchange; `ASC` reads
+    it as a transcript, from the first question. Both pages carry `total`, the number of posts
+    in the session.
+
+    `DELETE` removes a post and its attachments — a soft delete — and leaves the documents and
+    chunks they pointed at untouched. Deleting the session removes its posts the same way.
+
+    `POST /v1/post/` is the deprecated spelling of the query endpoint; it still works and
+    `GET /v1/post/q` replaces it.
+  name: Post
+- description: |
+    A **document** is a file ingested into a corpus. Ask `GET /v1/doc/accept` for the content
+    types accepted rather than hard-coding a list — it is configuration, and it changes.
+
+    **File bytes never travel through this API.** An upload is three calls and one direct
+    transfer: `POST /v1/doc/init` registers the document and returns a presigned `PUT` URL, your
+    client PUTs the bytes straight to object storage, and `POST /v1/doc/{id}/commit` confirms the
+    upload and queues ingestion. The signature is bound to the `contentType` declared at `init`,
+    so the PUT has to send that same one or storage rejects it.
+
+    Ingestion — conversion to Markdown, summarization, chunking, embedding — is **asynchronous**,
+    and `status` is how you follow it:
+
+    | Status | Meaning |
+    |---|---|
+    | `AWAITING_UPLOAD` | Registered; the bytes have not been committed yet |
+    | `PENDING` | Committed and queued for the next processing batch |
+    | `PROCESSING` | Ingestion is running |
+    | `READY` | Ingested and searchable |
+    | `FAILED` | Ingestion failed — the reason is in `statusMsg` |
+
+    Poll `GET /v1/doc/{id}/status` for that, and expect `AWAITING_UPLOAD` to be an ordinary state
+    rather than an error: it is where a document sits between `init` and `commit`. Only a `READY`
+    document can be retrieved by a query, and the counters `size`, `tokens`, `nbWords` and
+    `nbPages` are filled in by ingestion, so they are absent until it finishes.
+
+    What ingestion produced is readable elsewhere: the generated summary at
+    `GET /v1/doc/{id}/summary`, and the pieces the file was split into under `/v1/chunk` — which
+    is where to look when an answer cites something surprising.
+
+    Two typed attributes are worth setting, both at `init` and patchable afterwards. `tags` is a
+    list of labels you can filter listings on. `chunk` overrides how ingestion splits *this*
+    document; it applies to the **next** ingestion and never retroactively, so changing it on an
+    ingested document does nothing until you replace its content.
+
+    Replacing content is `PUT /v1/doc/{id}/init` → PUT the bytes → `commit`, and it **drops
+    everything derived from the previous file** — its chunks, its summary and its counters. Posts
+    that cited the old chunks lose those attachments. Note also that the previous file stays in
+    storage until your PUT overwrites it, so committing without uploading re-ingests the old
+    content.
+
+    `DELETE` is a soft delete that also takes the document's chunks out of the API; the archived
+    file is kept in storage rather than destroyed, but no public endpoint restores it.
+  name: Document
 - description: |
     An **agent** is the setup a RAG query runs on: how many chunks the vector search returns,
     whether an LLM re-ranks them, what system instruction the model is given, how much of the
@@ -79,9 +179,115 @@ tags:
     within that list: it must be free among your own agents *and* among the core agents you see
     alongside them. Creating or renaming onto a name either of those holds answers `409`.
   name: Agent
-- description: "Aggregated usage metrics (tokens, corpora, sessions, posts, storage)\
-    \ for the caller's organization, one of its users or one of its corpora — as headline\
-    \ totals and as a time series."
+- description: |
+    Mint the credentials untrusted clients use, and check who a token belongs to.
+
+    The platform accepts two credentials. An **RSA JWT** is signed by your backend with a key you
+    published, carries your organization in its `oid` claim, and is the one you keep server-side.
+    An **access token** is a short-lived opaque string minted from that JWT and safe to hand to
+    code you do not control — a browser widget, a mobile client.
+
+    The flow is always one direction: **your backend holds the JWT → mints an access token → the
+    untrusted client uses the access token.** These endpoints are themselves reachable with a JWT
+    only, so an access token can never mint or revoke another — a leaked one cannot extend its
+    own life or widen its own reach.
+
+    Two things bound what a leaked token can do. It **expires** — one hour by default, settable
+    at creation — and it carries a mandatory **scope**, a list of `DOMAIN:ACTION` entries such as
+    `corpus:read` or `post:create`. Unlike a JWT, where an empty scope means unrestricted, an
+    access token with no scope is refused at creation, so browser-facing credentials are always
+    least-privilege. `ACTION` is derived from the HTTP method — `GET` is `read`, `POST` is
+    `create`, `PUT`/`PATCH` are `update`, `DELETE` is `delete` — which is worth checking against
+    the endpoint you mean to allow: running a RAG query is `GET /v1/post/q`, so it needs
+    `post:read`.
+
+    Revocation is immediate and by token value. `GET /v1/auth/whoami` resolves whichever
+    credential you sent back to its organization and user, which is the cheap way to confirm a
+    token is still live and what it is bound to.
+  name: Auth
+- description: |
+    A **session** is a conversation: the thread a question is asked in, and the memory the next
+    question is answered with. It binds three things — the corpora it searches, the user who
+    opened it, and whatever `metadata` you attach — and nothing else.
+
+    It may be bound to **several corpora**, and a query then searches all of them at once, which
+    is how one conversation spans separate knowledge bases. The corpora are fixed when the
+    session is opened; only `metadata` is patchable afterwards.
+
+    The owner comes from your token, never from the request body. Two tenants using the same
+    user identifier therefore never see each other's sessions — the organization is resolved
+    from the JWT and applied to every read, so there is no parameter that widens the search
+    beyond it.
+
+    **A session decides where to look, not how to answer.** Retrieval width, re-ranking, the
+    system instruction, how much history is replayed and which model answers all belong to the
+    agent named on each query (`GET /v1/agent/`) — chosen per query, so two questions in one
+    session can run under two different setups. Sessions opened before agents existed carry a
+    `model` field; it is deprecated, read-only and ignored.
+
+    `GET /v1/session/q` narrows your organization's sessions by owner, corpus and metadata, every
+    filter optional and combining; `GET /v1/session/` is the same query with no filter at all.
+    The `by…` endpoints they replace each answered one fixed combination and are deprecated.
+
+    The messages live under `/v1/post`: `GET /v1/post/q` asks a question in a session, and
+    `GET /v1/post/?sessionId=…` reads the thread back. `DELETE` soft-deletes a session **and
+    cascades to its posts**; the documents and chunks they cited are untouched.
+  name: Session
+- description: |
+    A **corpus** is a knowledge base: the container documents are ingested into and the scope a
+    query is answered from. It is also the unit ownership is checked against — every document,
+    chunk, session and post hangs off a corpus, and the corpus is what ties them to your
+    organization. The organization itself is never a parameter; it comes from your token.
+
+    A corpus carries a name, a description and a free-form `metadata` map, and nothing else you
+    have to decide up front. **How** a query against it is answered is deliberately not its
+    business: retrieval width, re-ranking, the system instruction and the models that answer all
+    belong to the agent named on each query (`GET /v1/agent/`), so two questions against the same
+    corpus can run under two different setups.
+
+    A document belongs to exactly one corpus. A session may be bound to several, and a query then
+    searches all of them at once — which is how one conversation spans separate knowledge bases.
+
+    `DELETE` **cascades to everything the corpus owns**: its documents, their chunks, and the
+    sessions and posts answered from it all stop being reachable. It is a soft delete — the rows
+    are stamped rather than removed and the archived files are kept in storage — but nothing in
+    the public API brings them back, so from a client's point of view it is permanent. There is
+    no undo endpoint.
+  name: Corpus
+- description: |
+    A **chunk** is one embeddable piece of a document: the text that was vectorised, the pages
+    it came from, and the metadata ingestion attached to it. It is the unit RAG actually
+    retrieves — a post's attachments point at chunks, not at documents.
+
+    This domain is a window onto ingestion's output. **Chunks are never created here**: the
+    pipeline splits a document, embeds each piece and stores both halves, and what these
+    endpoints add is the two things it cannot do — showing you what came out, and letting you
+    fix a chunk that came out wrong.
+
+    Two fields of the underlying row are not published. The 1024-dimension vector is the search
+    index: meaningless to read, and it would dominate every payload. The old scalar `page`
+    column is superseded by `pages`, which records the whole span a chunk covers.
+  name: Chunk
+- description: |
+    What your organization has consumed — tokens, corpora, sessions, posts and storage — at three
+    scopes: the whole organization, one of its users, or one of its corpora.
+
+    Every response carries the same two shapes. The headline counters are **lifetime** totals
+    plus what was created and removed over the reported range. `series` is the same deltas
+    bucket by bucket, which is what a metrics page charts.
+
+    `timeframe` selects the **bucket size**, not a window length, and buckets are aligned to UTC
+    calendar boundaries — so two calls minutes apart return the same edges and two reports
+    overlay on one chart. Only **completed** buckets are reported: the series stops at the start
+    of the bucket `now` falls in, so `to` sits in the past and every entry is final, which is
+    what makes a cached chart safe. The trade is that today's activity waits for its bucket to
+    close before it appears in the series, while the lifetime totals count it immediately.
+
+    **Soft-deleted items still count toward the lifetime totals** — the tokens were billed and
+    the storage was charged when they were produced, and deleting them afterwards does not
+    refund that. The `removed` delta is the supported way to see cleanup activity.
+
+    `corpora` is absent at user and corpus scope, where its cardinality is meaningless.
   name: Usage
 paths:
   /v1/doc/{id}/init:
@@ -121,10 +327,6 @@ paths:
           type: string
         style: simple
       responses:
-        "415":
-          content: {}
-          description: The document's content type is no longer accepted — see `GET
-            /v1/doc/accept`.
         "500":
           content:
             application/json:
@@ -141,6 +343,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "415":
+          content: {}
+          description: The document's content type is no longer accepted — see `GET
+            /v1/doc/accept`.
         "403":
           content:
             application/json:
@@ -282,6 +488,22 @@ paths:
           type: integer
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -299,22 +521,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -436,6 +642,22 @@ paths:
               $ref: "#/components/schemas/SessionCreateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -453,22 +675,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -585,6 +791,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -602,22 +824,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -830,6 +1036,22 @@ paths:
               $ref: "#/components/schemas/DocumentInitRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -847,22 +1069,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -1001,6 +1207,22 @@ paths:
           type: integer
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -1018,22 +1240,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -1125,9 +1331,9 @@ paths:
       x-accepts:
       - application/json
     post:
-      description: Create a new corpus inside an organization. The embedding model
-        and summary LLM are locked at creation time and used for every document ingested
-        afterwards.
+      description: "Create a new corpus inside an organization. The organization is\
+        \ taken from your token, so there is nothing to pass: a corpus needs only\
+        \ a name, and optionally a description and metadata."
       operationId: create_1
       requestBody:
         content:
@@ -1146,6 +1352,22 @@ paths:
               $ref: "#/components/schemas/CorpusCreateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -1163,22 +1385,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -1272,7 +1478,7 @@ paths:
         \ organization. The token can be used as the `X-Access-Token` header on `/v1/`\
         \ API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit\
         \ privileges over all the domains. To limit access, defined a list of scope,\
-        \ where each must be compliant with the regex (config|auth|session|doc|corpus|post|usage|agent):(create|read|update|delete)"
+        \ where each must be compliant with the regex (config|auth|session|doc|chunk|corpus|post|usage|agent):(create|read|update|delete)"
       operationId: create_2
       requestBody:
         content:
@@ -1297,6 +1503,22 @@ paths:
               $ref: "#/components/schemas/AccessTokenCreateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -1314,22 +1536,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -1453,6 +1659,22 @@ paths:
           type: integer
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -1470,22 +1692,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -1670,6 +1876,22 @@ paths:
               $ref: "#/components/schemas/AgentCreateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -1687,22 +1909,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -1791,6 +1997,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -1808,22 +2030,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -1921,6 +2127,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -1938,22 +2160,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -2072,6 +2278,22 @@ paths:
               $ref: "#/components/schemas/SessionUpdateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -2089,22 +2311,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -2212,6 +2418,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -2229,22 +2451,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -2342,6 +2548,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -2359,22 +2581,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -2573,6 +2779,22 @@ paths:
               $ref: "#/components/schemas/DocumentUpdateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -2590,22 +2812,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -2713,6 +2919,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -2730,22 +2952,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -2842,6 +3048,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -2859,22 +3081,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -2972,7 +3178,9 @@ paths:
         `metadata` **replaces** the stored map when provided — merge client-side if you want to
         preserve existing keys.
 
-        Changing models does **not** re-process already-ingested documents.
+        Nothing patchable here changes how the corpus behaves: retrieval and the models that
+        answer belong to the agent named on each query, so no edit re-processes documents or
+        affects queries already running.
       operationId: update_2
       parameters:
       - description: ID of the corpus to update.
@@ -2999,6 +3207,22 @@ paths:
               $ref: "#/components/schemas/CorpusUpdateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -3016,22 +3240,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -3121,6 +3329,500 @@ paths:
       x-content-type: application/json
       x-accepts:
       - application/json
+  /v1/chunk/{chunkId}:
+    delete:
+      description: |
+        Remove a chunk: the row and its stored text.
+
+        **This is a hard delete and it reaches further than the chunk.** Unlike a
+        document or a session, a chunk is not soft-deleted — there is no row left
+        underneath and nothing to restore. The links between past answers and this
+        chunk go with it, so those answers keep their text and lose the citation
+        pointing here.
+
+        The document itself is untouched: its file, its summary and its other chunks
+        stay exactly as they were. What changes is that the deleted passage can no
+        longer be retrieved, which is the point — it is how a chunk carrying content
+        that should never have been ingested is taken out of the index without
+        destroying the document it came from.
+
+        Re-ingesting the document (`PUT /v1/doc/{docId}/content`) rebuilds every chunk
+        from the file, this one included.
+      operationId: delete_3
+      parameters:
+      - description: ID of the chunk to delete.
+        example: 123e4567-e89b-12d3-a456-426614174000
+        explode: false
+        in: path
+        name: chunkId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "200":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-08-31T10:00:00Z
+                message: Operation acknowledged
+              schema:
+                $ref: "#/components/schemas/AckResponse"
+          description: Chunk deleted.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: Delete a chunk
+      tags:
+      - Chunk
+      x-accepts:
+      - application/json
+    get:
+      description: |
+        Fetch one chunk with its text.
+
+        Unlike the listings, `body` is always read here — a single storage round-trip,
+        which is what this endpoint is for. An **empty** `body` on a row that exists is
+        not an error and is worth acting on: it means the stored object is missing, so
+        the chunk still matches vector searches and then contributes nothing to the
+        answer.
+
+        `hash` is the MD5 of the text as it was pushed to storage. Comparing it against
+        the body you just read is the cheapest integrity check there is, and searching
+        it with `GET /v1/chunk/q?hash=…` finds every copy of the same passage in your
+        organization.
+      operationId: get_3
+      parameters:
+      - description: ID of the chunk.
+        example: 123e4567-e89b-12d3-a456-426614174000
+        explode: false
+        in: path
+        name: chunkId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-08-31T10:00:00Z
+                status: 404
+                error: Not Found
+                message: "Chunk not found: 550e8400-e29b-41d4-a716-446655440000"
+                path: /v1/chunk/550e8400-e29b-41d4-a716-446655440000
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "No chunk with this id, or its document has been deleted."
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "200":
+          content:
+            application/json:
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                documentId: 550e8400-e29b-41d4-a716-446655440001
+                corpusId: 550e8400-e29b-41d4-a716-446655440002
+                pages:
+                - 2
+                - 3
+                hash: 9e107d9d372bb6826bd81d3542a419d6
+                metadata:
+                  kind: chunk
+                  section: Article 4
+                body: Article 4 — The supplier shall deliver within thirty (30) days
+                  of the order being acknowledged…
+              schema:
+                $ref: "#/components/schemas/Chunk"
+          description: Chunk found.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: Get a chunk
+      tags:
+      - Chunk
+      x-accepts:
+      - application/json
+    patch:
+      description: |
+        Patch a chunk's page span, metadata or text. Only the fields present in the
+        body are applied; omitted fields keep their current value. Returns the full
+        updated chunk, text included.
+
+        This is a **repair** endpoint. It exists so a chunk that ingestion got wrong
+        can be corrected without re-processing the document, and it is worth knowing
+        exactly what it does and does not do before reaching for it.
+
+        ### Rewriting `body` does not re-embed the chunk
+
+        The vector is the search index and it is not recomputed here. After patching
+        the text, the chunk is still **retrieved for the text it used to hold** and is
+        then handed to the model as the text it holds now. For a mangled character or a
+        name to redact, that is exactly right — the passage means the same thing and is
+        found the same way. For a rewrite, it is wrong: re-ingest the document instead
+        (`PUT /v1/doc/{docId}/content`), which re-splits and re-embeds it.
+
+        `hash` is deliberately **not** recomputed either. It records the MD5 of what
+        was embedded, so leaving it alone is what makes the divergence visible
+        afterwards: a chunk whose `hash` no longer matches its `body` is one that has
+        been patched.
+
+        ### `metadata` replaces, it does not merge
+
+        Send the whole object you want stored. `{}` clears it.
+
+        ### `pages` is a span
+
+        1-based page numbers, sorted and de-duplicated server-side. `[]` clears the
+        span, which is what a chunk belonging to no page in particular carries. A value
+        below 1 is a `400`.
+      operationId: update_3
+      parameters:
+      - description: ID of the chunk to update.
+        example: 123e4567-e89b-12d3-a456-426614174000
+        explode: false
+        in: path
+        name: chunkId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Fix a page span:
+                description: Metadata and text are untouched — they are not in the
+                  body.
+                summary: "The chunk crosses pages 2-4, ingestion recorded only page\
+                  \ 2"
+                value:
+                  pages:
+                  - 2
+                  - 3
+                  - 4
+              Redact a name:
+                description: The vector still describes the previous wording; see
+                  the note above.
+                summary: "Rewrite the text in place, keeping everything else"
+                value:
+                  body: "Article 4 — The supplier ([REDACTED]) shall deliver within\
+                    \ thirty (30) days…"
+              Tag a reviewed chunk:
+                description: '`kind` is resent because metadata replaces rather than
+                  merges — dropping it here would erase it.'
+                summary: Replace the metadata object
+                value:
+                  metadata:
+                    kind: chunk
+                    section: Article 4
+                    reviewed_by: ops@example.com
+            schema:
+              $ref: "#/components/schemas/ChunkUpdateRequest"
+        required: true
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "400":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-08-31T10:00:00Z
+                status: 400
+                error: Bad Request
+                message: "`pages` holds 1-based page numbers, so every entry must\
+                  \ be 1 or greater"
+                path: /v1/chunk/550e8400-e29b-41d4-a716-446655440000
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: A page number is below 1.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "200":
+          content:
+            application/json:
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                documentId: 550e8400-e29b-41d4-a716-446655440001
+                corpusId: 550e8400-e29b-41d4-a716-446655440002
+                pages:
+                - 2
+                - 3
+                hash: 9e107d9d372bb6826bd81d3542a419d6
+                metadata:
+                  kind: chunk
+                  section: Article 4
+                body: Article 4 — The supplier shall deliver within thirty (30) days
+                  of the order being acknowledged…
+              schema:
+                $ref: "#/components/schemas/Chunk"
+          description: Chunk updated.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: Update a chunk
+      tags:
+      - Chunk
+      x-content-type: application/json
+      x-accepts:
+      - application/json
   /v1/agent/{agentId}:
     delete:
       description: |
@@ -3140,7 +3842,7 @@ paths:
         same name straight away.
 
         Core agents (`lock: true`) cannot be deleted — that answers `400`.
-      operationId: delete_3
+      operationId: delete_4
       parameters:
       - description: ID of the agent to delete.
         example: 123e4567-e89b-12d3-a456-426614174000
@@ -3153,6 +3855,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -3170,22 +3888,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -3247,7 +3949,7 @@ paths:
 
         An id belonging to another organization answers `404`, the same as an id that
         does not exist: the two are deliberately indistinguishable.
-      operationId: get_3
+      operationId: get_4
       parameters:
       - description: ID of the agent.
         example: 123e4567-e89b-12d3-a456-426614174000
@@ -3260,6 +3962,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -3277,22 +3995,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -3436,7 +4138,7 @@ paths:
 
         Core agents (`lock: true`) belong to the platform and every organization sees the
         same row — patching one answers `400`.
-      operationId: update_3
+      operationId: update_4
       parameters:
       - description: ID of the agent to update.
         example: 123e4567-e89b-12d3-a456-426614174000
@@ -3476,6 +4178,22 @@ paths:
               $ref: "#/components/schemas/AgentUpdateRequest"
         required: true
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -3493,22 +4211,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -3621,6 +4323,22 @@ paths:
           type: string
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -3638,22 +4356,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -3835,6 +4537,22 @@ paths:
           type: string
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -3852,22 +4570,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -4038,6 +4740,22 @@ paths:
           type: string
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -4055,22 +4773,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -4347,6 +5049,22 @@ paths:
           type: integer
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -4364,22 +5082,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -4490,7 +5192,7 @@ paths:
     delete:
       description: Permanently delete a post and its attachments. Documents and embeddings
         referenced by the attachments are **not** affected.
-      operationId: delete_4
+      operationId: delete_5
       parameters:
       - description: ID of the post to delete.
         example: 123e4567-e89b-12d3-a456-426614174000
@@ -4503,6 +5205,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -4520,22 +5238,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -4621,7 +5323,7 @@ paths:
       description: "Fetch a single post by its identifier. The response carries `attachment`,\
         \ the number of source chunks behind it; the sources themselves come from\
         \ `GET /v1/post/attachment/{postId}`."
-      operationId: get_4
+      operationId: get_5
       parameters:
       - description: ID of the post.
         example: 123e4567-e89b-12d3-a456-426614174000
@@ -4634,6 +5336,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -4651,22 +5369,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -4836,6 +5538,22 @@ paths:
           type: string
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -4853,22 +5571,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -5019,6 +5721,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -5036,22 +5754,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -5228,6 +5930,22 @@ paths:
           default: null
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -5245,22 +5963,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -5397,6 +6099,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -5414,22 +6132,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -5515,8 +6217,35 @@ paths:
       - application/json
   /v1/post/:
     get:
-      description: "Paginate every post (user queries and system answers) in a session,\
-        \ newest first."
+      description: |
+        Paginate every post of a session — the user questions and the system answers
+        alike, interleaved in the order they were written.
+
+        **Ordering.** `order=ASC` (the default) reads the conversation, natural timestamp (lastest post first).
+        Ordering `order=DESC` reads the conversation backwards, most
+        recent first, which is what a client polling for what just happened wants:
+        page `0` is the latest exchange whatever the session has grown to. `order=ASC`
+        reads it forwards, oldest first — the transcript order, and the one to walk when
+        rendering a whole conversation from the beginning.
+
+        Posts are ordered on `createdAt` and the ordering is closed by the post id, so
+        walking `pageIndex` never shows the same post twice nor skips one — the two posts
+        of a single exchange are written microseconds apart and can share a timestamp.
+        Note the consequence of that tie: when they do share one, the question and its
+        answer are ordered by id, which is arbitrary. Read `owner` rather than position
+        to tell them apart.
+
+        **Paging.** `pageSize` is 1–100 and defaults to `25`; `pageIndex` is zero-based.
+        Values outside those bounds are refused with `400`. `total` carries the number of
+        posts in the session across every page, so a client knows how far it has to walk.
+        Soft-deleted posts are excluded from both the page and the count.
+
+        Examples:
+
+        * `?sessionId=…` — the 25 most recent posts of the session, newest first.
+        * `?sessionId=…&order=ASC&pageSize=50` — the conversation from its first post,
+          50 at a time.
+        * `?sessionId=…&pageIndex=1` — the exchange before the latest ones.
       operationId: list_3
       parameters:
       - description: ID of the session.
@@ -5529,7 +6258,7 @@ paths:
           format: uuid
           type: string
         style: form
-      - description: Number of items per page.
+      - description: "Number of items per page, 1-100."
         example: 25
         explode: true
         in: query
@@ -5538,6 +6267,8 @@ paths:
         schema:
           default: 25
           format: int32
+          maximum: 100
+          minimum: 1
           type: integer
         style: form
       - description: Zero-based page index.
@@ -5549,9 +6280,40 @@ paths:
         schema:
           default: 0
           format: int32
+          minimum: 0
           type: integer
         style: form
+      - description: "Direction to read the session in: `DESC` newest first, `ASC`\
+          \ oldest first. Defaults to `DESC`."
+        example: DESC
+        explode: true
+        in: query
+        name: order
+        required: false
+        schema:
+          description: Direction a listing is ordered in.
+          enum:
+          - ASC
+          - DESC
+          type: string
+        style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -5569,22 +6331,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -5620,19 +6366,10 @@ paths:
         "400":
           content:
             application/json:
-              examples:
-                Bad request error:
-                  description: Bad request error
-                  summary: Generic 400 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 400
-                    error: Bad Request
-                    message: pages list must not be empty
-                    path: /v1/doc/id/preview
               schema:
                 $ref: "#/components/schemas/Error"
-          description: The request is malformed or contains invalid parameters.
+          description: "`pageSize` outside 1–100, a negative `pageIndex`, or an `order`\
+            \ other than `ASC` or `DESC`."
         "409":
           content:
             application/json:
@@ -5652,32 +6389,82 @@ paths:
         "200":
           content:
             application/json:
-              example:
-                sessionId: 550e8400-e29b-41d4-a716-446655440000
-                pageIndex: 0
-                items:
-                - id: 550e8400-e29b-41d4-a716-446655440001
-                  sessionId: 550e8400-e29b-41d4-a716-446655440000
-                  body: The corpus mainly covers customer support runbooks for the
-                    Acme product line.
-                  owner: SYSTEM
-                  token: 21
-                  lang: en
-                  metadata: {}
-                  createdAt: 2026-04-23T04:06:52Z
-                  attachment: 1
-                  agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
-                - id: 550e8400-e29b-41d4-a716-446655440000
-                  sessionId: 550e8400-e29b-41d4-a716-446655440000
-                  body: What is the main topic of the corpus?
-                  owner: USER
-                  token: 9
-                  lang: en
-                  metadata:
-                    client: web
-                  createdAt: 2026-04-23T04:06:51Z
-                  attachment: 0
-                  agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
+              examples:
+                Newest first (default):
+                  description: '`?sessionId=550e8400-e29b-41d4-a716-446655440000`
+                    — the answer leads the page because it was written after the question.'
+                  value:
+                    sessionId: 550e8400-e29b-41d4-a716-446655440000
+                    pageIndex: 0
+                    pageSize: 25
+                    total: 2
+                    order: DESC
+                    items:
+                    - id: 550e8400-e29b-41d4-a716-446655440001
+                      sessionId: 550e8400-e29b-41d4-a716-446655440000
+                      body: The corpus mainly covers customer support runbooks for
+                        the Acme product line.
+                      owner: SYSTEM
+                      token: 21
+                      lang: en
+                      metadata: {}
+                      createdAt: 2026-04-23T04:06:52Z
+                      attachment: 1
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
+                    - id: 550e8400-e29b-41d4-a716-446655440000
+                      sessionId: 550e8400-e29b-41d4-a716-446655440000
+                      body: What is the main topic of the corpus?
+                      owner: USER
+                      token: 9
+                      lang: en
+                      metadata:
+                        client: web
+                      createdAt: 2026-04-23T04:06:51Z
+                      attachment: 0
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
+                Transcript order:
+                  description: "`?sessionId=550e8400-e29b-41d4-a716-446655440000&order=ASC`\
+                    \ — the same session read forwards: question, then answer."
+                  value:
+                    sessionId: 550e8400-e29b-41d4-a716-446655440000
+                    pageIndex: 0
+                    pageSize: 25
+                    total: 2
+                    order: ASC
+                    items:
+                    - id: 550e8400-e29b-41d4-a716-446655440000
+                      sessionId: 550e8400-e29b-41d4-a716-446655440000
+                      body: What is the main topic of the corpus?
+                      owner: USER
+                      token: 9
+                      lang: en
+                      metadata:
+                        client: web
+                      createdAt: 2026-04-23T04:06:51Z
+                      attachment: 0
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
+                    - id: 550e8400-e29b-41d4-a716-446655440001
+                      sessionId: 550e8400-e29b-41d4-a716-446655440000
+                      body: The corpus mainly covers customer support runbooks for
+                        the Acme product line.
+                      owner: SYSTEM
+                      token: 21
+                      lang: en
+                      metadata: {}
+                      createdAt: 2026-04-23T04:06:52Z
+                      attachment: 1
+                      agentId: 1234-5b3d-4a2f-8c6e-9d0b3f4xxxx
+                A page past the end:
+                  description: "`?sessionId=…&pageIndex=9` on a session of two posts\
+                    \ — an empty page, not a `404`. `total` still says how far the\
+                    \ session goes."
+                  value:
+                    sessionId: 550e8400-e29b-41d4-a716-446655440000
+                    pageIndex: 9
+                    pageSize: 25
+                    total: 2
+                    order: DESC
+                    items: []
               schema:
                 $ref: "#/components/schemas/PostListResponse"
           description: Page of posts.
@@ -5706,6 +6493,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -5723,22 +6526,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -5841,6 +6628,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -5858,22 +6661,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -6021,6 +6808,22 @@ paths:
           default: null
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -6038,22 +6841,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -6190,6 +6977,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -6207,22 +7010,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -6593,6 +7380,22 @@ paths:
           type: integer
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -6610,22 +7413,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -6770,6 +7557,22 @@ paths:
         to validate files client-side before initializing an upload.
       operationId: listSupportedDocuments
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -6787,22 +7590,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -6965,6 +7752,22 @@ paths:
           type: integer
         style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -6982,22 +7785,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -7108,6 +7895,22 @@ paths:
         the same for every caller.
       operationId: list_5
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -7125,22 +7928,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -7223,18 +8010,190 @@ paths:
       - Configuration
       x-accepts:
       - application/json
-  /v1/auth/whoami:
+  /v1/chunk/q:
     get:
       description: |
-        Return the identity of the caller as resolved from the Bearer token:
-        organization, user id, email and display name.
+        Find chunks of the caller's organization by corpus, document, hash, page and
+        metadata.
 
-        Typical use cases:
+        Every filter is optional and they **narrow together**: a request carrying none
+        of them returns the whole organization — the same answer as `GET /v1/chunk/` —
+        and one carrying several returns only the chunks matching all of them.
 
-        - Bootstrap a UI session after sign-in.
-        - Verify that a token is still valid and which user it belongs to.
-      operationId: whoami
+        The organization is never a parameter. It comes from the JWT and is always
+        applied, so no combination of filters reaches another tenant's chunks.
+
+        ### Corpus and document — `corpusId`, `documentId`
+
+        Both must belong to the caller's organization, and both are checked *before*
+        the search runs — naming one you cannot see answers `403` on the request rather
+        than an empty page.
+
+        ### Hash — `hash`
+
+        Exact match on the MD5 of the chunk text. Equal hashes mean equal text, so this
+        is how the same passage is found across documents: read a chunk, then search
+        its hash with no `documentId` to see every copy of it in your organization.
+        Sent empty (`&hash=`) it is treated as absent.
+
+        ### Page — `page`
+
+        Keeps chunks whose span **covers** that page. A chunk is built from consecutive
+        elements and can cross page boundaries, so one covering pages 3 to 5 answers to
+        `page=3`, `page=4` and `page=5` alike. Pages are 1-based; `page=0` is a `400`,
+        not an empty page. Chunks belonging to no page in particular — the document
+        summary — carry an empty span and match no `page` filter at all.
+
+        ### Metadata — `key`/`value`, or `json`
+
+        Matches chunks whose metadata **contains** the fragment (PostgreSQL's `@>`
+        operator), extra keys on the chunk being fine. Pass `key` and `value` for a
+        single pair — they go together, one without the other is a `400` — or `json`
+        for a raw object when the filter is nested or has several keys. `json` wins
+        when both are supplied. `kind` is the key the platform sets: `chunk` for a
+        piece of the document, `summary` for the generated summary.
+
+        ### Bodies — `body`
+
+        Off by default, because including them costs one storage read per row. With
+        `body=true` the page size is capped at 25.
+
+        ### Examples
+
+        * `?documentId=…` — everything one document was split into, in reading order
+        * `?documentId=…&body=true&pageSize=10` — the same, with the text, ten at a time
+        * `?documentId=…&page=4` — every chunk covering page 4, including one that
+          starts on page 3
+        * `?hash=9e107d9d372bb6826bd81d3542a419d6` — every copy of one passage in the
+          organization, across documents
+        * `?corpusId=…&key=kind&value=summary` — the summary chunk of every document in
+          a corpus
+        * `?json={"section":"Article 4"}` — a metadata fragment
+      operationId: search_2
+      parameters:
+      - description: Keep chunks whose document belongs to this corpus. Must belong
+          to the caller's organization.
+        example: 123e4567-e89b-12d3-a456-426614174000
+        explode: true
+        in: query
+        name: corpusId
+        required: false
+        schema:
+          format: uuid
+          type: string
+        style: form
+      - description: Keep chunks of this document. Must belong to the caller's organization.
+        example: 123e4567-e89b-12d3-a456-426614174000
+        explode: true
+        in: query
+        name: documentId
+        required: false
+        schema:
+          format: uuid
+          type: string
+        style: form
+      - description: "Exact MD5 of the chunk text. Blank or omitted, the hash is not\
+          \ filtered."
+        example: 9e107d9d372bb6826bd81d3542a419d6
+        explode: true
+        in: query
+        name: hash
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Keep chunks whose page span covers this page. 1-based.
+        example: 4
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: Metadata key to filter on. Goes together with `value`.
+        example: kind
+        explode: true
+        in: query
+        name: key
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Metadata value matching `key`.
+        example: summary
+        explode: true
+        in: query
+        name: value
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Raw JSON object used as the containment filter. Wins over `key`/`value`
+          when set.
+        example:
+          section: Article 4
+        explode: true
+        in: query
+        name: json
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Include each chunk's text, read from object storage. One storage\
+          \ read per row — off by default."
+        example: false
+        explode: true
+        in: query
+        name: body
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - description: "Number of items per page, 1-100 — or 1-25 when `body=true`."
+        example: 25
+        explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          default: 25
+          format: int32
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - description: Zero-based page index.
+        example: 0
+        explode: true
+        in: query
+        name: pageIndex
+        required: false
+        schema:
+          default: 0
+          format: int32
+          minimum: 0
+          type: integer
+        style: form
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -7252,6 +8211,204 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "400":
+          content:
+            application/json:
+              examples:
+                Half a metadata pair:
+                  description: Half a metadata pair
+                  summary: '`key` without `value`'
+                  value:
+                    timestamp: 2026-08-31T10:00:00Z
+                    status: 400
+                    error: Bad Request
+                    message: '`key` and `value` must be provided together'
+                    path: /v1/chunk/q
+                Zero page:
+                  description: Zero page
+                  summary: '`page` is 1-based'
+                  value:
+                    timestamp: 2026-08-31T10:00:00Z
+                    status: 400
+                    error: Bad Request
+                    message: "`page` is 1-based, so it must be 1 or greater"
+                    path: /v1/chunk/q
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "A filter is malformed, or a paging parameter is out of bounds."
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "200":
+          content:
+            application/json:
+              examples:
+                One document, with bodies:
+                  description: '`?documentId=…&body=true` — the response echoes the
+                    filters that were applied.'
+                  value:
+                    documentId: 550e8400-e29b-41d4-a716-446655440001
+                    pageIndex: 0
+                    pageSize: 25
+                    total: 2
+                    items:
+                    - id: 550e8400-e29b-41d4-a716-446655440011
+                      documentId: 550e8400-e29b-41d4-a716-446655440001
+                      corpusId: 550e8400-e29b-41d4-a716-446655440002
+                      pages:
+                      - 2
+                      - 3
+                      hash: 9e107d9d372bb6826bd81d3542a419d6
+                      metadata:
+                        kind: chunk
+                        section: Article 4
+                      body: Article 4 — The supplier shall deliver within thirty (30)
+                        days…
+                    - id: 550e8400-e29b-41d4-a716-446655440012
+                      documentId: 550e8400-e29b-41d4-a716-446655440001
+                      corpusId: 550e8400-e29b-41d4-a716-446655440002
+                      pages:
+                      - 3
+                      hash: e2fc714c4727ee9395f324cd2e7f331f
+                      metadata:
+                        kind: chunk
+                        section: Article 5
+                      body: Article 5 — Late delivery entitles the customer to…
+                A broken chunk:
+                  description: "What a chunk whose stored text is missing looks like:\
+                    \ the row is there, `body` comes back empty."
+                  value:
+                    documentId: 550e8400-e29b-41d4-a716-446655440001
+                    pageIndex: 0
+                    pageSize: 25
+                    total: 1
+                    items:
+                    - id: 550e8400-e29b-41d4-a716-446655440013
+                      documentId: 550e8400-e29b-41d4-a716-446655440001
+                      corpusId: 550e8400-e29b-41d4-a716-446655440002
+                      pages:
+                      - 7
+                      hash: d41d8cd98f00b204e9800998ecf8427e
+                      metadata:
+                        kind: chunk
+                      body: ""
+              schema:
+                $ref: "#/components/schemas/ChunkListResponse"
+          description: Page of matching chunks.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: Search chunks
+      tags:
+      - Chunk
+      x-accepts:
+      - application/json
+  /v1/chunk/:
+    get:
+      description: |
+        Paginate every chunk of the caller's organization.
+
+        The organization is resolved from the JWT, so there is nothing to pass and no
+        way to ask for another tenant's chunks. A chunk belongs to an organization
+        through its document's corpus, and it is visible exactly as long as that
+        document is: deleting a document takes its chunks out of this API too.
+
+        Chunks come back in reading order — by document, then by the first page each
+        one covers, then by id — so a document's chunks arrive as a contiguous block in
+        the order they appear in the file, with its summary chunk (the one covering no
+        page) heading the block. The id closes the ordering, so walking `pageIndex`
+        never shows the same chunk twice nor skips one when a page split into several.
+
+        `body` is **not** included: it lives in object storage and would cost one read
+        per row. Pass `body=true` if you want it — the page size is then capped at 25 —
+        or use `GET /v1/chunk/{chunkId}`, which always carries it.
+
+        To narrow the result — by corpus, document, hash, page or metadata — use
+        `GET /v1/chunk/q`, which takes the same paging parameters.
+      operationId: list_6
+      parameters:
+      - description: "Include each chunk's text, read from object storage. One storage\
+          \ read per row — off by default."
+        example: false
+        explode: true
+        in: query
+        name: body
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      - description: "Number of items per page, 1-100 — or 1-25 when `body=true`."
+        example: 25
+        explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          default: 25
+          format: int32
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - description: Zero-based page index.
+        example: 0
+        explode: true
+        in: query
+        name: pageIndex
+        required: false
+        schema:
+          default: 0
+          format: int32
+          minimum: 0
+          type: integer
+        style: form
+      responses:
         "500":
           content:
             application/json:
@@ -7268,6 +8425,168 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "200":
+          content:
+            application/json:
+              example:
+                pageIndex: 0
+                pageSize: 25
+                total: 142
+                items:
+                - id: 550e8400-e29b-41d4-a716-446655440010
+                  documentId: 550e8400-e29b-41d4-a716-446655440001
+                  corpusId: 550e8400-e29b-41d4-a716-446655440002
+                  pages: []
+                  hash: 0cc175b9c0f1b6a831c399e269772661
+                  metadata:
+                    kind: summary
+                - id: 550e8400-e29b-41d4-a716-446655440011
+                  documentId: 550e8400-e29b-41d4-a716-446655440001
+                  corpusId: 550e8400-e29b-41d4-a716-446655440002
+                  pages:
+                  - 2
+                  - 3
+                  hash: 9e107d9d372bb6826bd81d3542a419d6
+                  metadata:
+                    kind: chunk
+                    section: Article 4
+              schema:
+                $ref: "#/components/schemas/ChunkListResponse"
+          description: Page of chunks.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: List chunks
+      tags:
+      - Chunk
+      x-accepts:
+      - application/json
+  /v1/auth/whoami:
+    get:
+      description: |
+        Return the identity of the caller as resolved from the Bearer token:
+        organization, user id, email and display name.
+
+        Typical use cases:
+
+        - Bootstrap a UI session after sign-in.
+        - Verify that a token is still valid and which user it belongs to.
+      operationId: whoami
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
         "403":
           content:
             application/json:
@@ -7366,6 +8685,22 @@ paths:
           type: string
         style: simple
       responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
         "415":
           content:
             application/json:
@@ -7383,22 +8718,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
         "403":
           content:
             application/json:
@@ -7703,9 +9022,9 @@ components:
           format: date-time
           type: string
     SessionCreateRequest:
-      description: "Payload to open a new conversation session. The model, system\
-        \ prompt, temperature and thinking flag are locked at creation time and apply\
-        \ to every post in the session."
+      description: "Payload to open a new conversation session. A session needs only\
+        \ the corpora it searches: how its queries are answered is decided per query\
+        \ by the agent they name, not here. The owner is taken from your token."
       example:
         corpusIds:
         - 550e8400-e29b-41d4-a716-446655440000
@@ -8492,9 +9811,10 @@ components:
             overlap_all: true
           type: object
     CorpusUpdateRequest:
-      description: Payload to patch a corpus. Only the fields you set are updated;
-        omit a field to leave it unchanged. Changing the embedding or summary model
-        does **not** re-process already-ingested documents.
+      description: "Payload to patch a corpus. Only the fields you set are updated;\
+        \ omit a field to leave it unchanged. Everything patchable here is descriptive\
+        \ — nothing on a corpus affects how its documents were ingested or how queries\
+        \ against it are answered, so no edit re-processes anything."
       example:
         name: Support knowledge base
         description: "Tickets, FAQs and runbooks used by the support team."
@@ -8561,6 +9881,132 @@ components:
       - id
       - name
       - updatedAt
+    ChunkUpdateRequest:
+      description: "Patch a chunk. Only the fields present in the body are applied;\
+        \ the rest keep their current value. `id`, `documentId`, `corpusId` and `hash`\
+        \ are not patchable — a chunk cannot be moved to another document, and `hash`\
+        \ describes the text the pipeline embedded."
+      example:
+        pages:
+        - 2
+        - 3
+        - 4
+        metadata:
+          kind: chunk
+          section: Article 4
+        body: Article 4 — The supplier shall deliver within thirty (30) days…
+      properties:
+        pages:
+          description: "Replacement page span: 1-based page numbers the chunk covers.\
+            \ Sent empty (`[]`) it clears the span, which is what a chunk belonging\
+            \ to no page in particular carries. Values are sorted and de-duplicated\
+            \ server-side, and a value below 1 is refused."
+          example:
+          - 2
+          - 3
+          - 4
+          items:
+            format: int32
+            type: integer
+          type: array
+          default: null
+        metadata:
+          additionalProperties:
+            nullable: true
+          description: "Replacement metadata. This **replaces** the object rather\
+            \ than merging into it — send the full map you want stored, and `{}` to\
+            \ clear it."
+          example:
+            kind: chunk
+            section: Article 4
+          type: object
+        body:
+          description: "Replacement chunk text, written to object storage. **The vector\
+            \ is not recomputed**: after this call the stored embedding still describes\
+            \ the previous text, so the chunk keeps being retrieved for the old wording\
+            \ and answers with the new one. That is the intended behaviour for a typo\
+            \ or a redaction, and the wrong tool for a rewrite — re-ingest the document\
+            \ for that."
+          example: Article 4 — The supplier shall deliver within thirty (30) days…
+          type: string
+    Chunk:
+      description: "One embeddable piece of a document: the text that was vectorised,\
+        \ where it came from, and the metadata the ingestion pipeline attached to\
+        \ it."
+      example:
+        id: 550e8400-e29b-41d4-a716-446655440000
+        documentId: 550e8400-e29b-41d4-a716-446655440001
+        corpusId: 550e8400-e29b-41d4-a716-446655440002
+        pages:
+        - 2
+        - 3
+        - 4
+        hash: 9e107d9d372bb6826bd81d3542a419d6
+        metadata:
+          kind: chunk
+          section: Article 4
+        body: Article 4 — The supplier shall deliver within thirty (30) days…
+      properties:
+        id:
+          description: Unique identifier of the chunk (UUIDv4). Same id the `attachment`
+            records of a post point at.
+          example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
+          type: string
+        documentId:
+          description: Document the chunk was cut from.
+          example: 550e8400-e29b-41d4-a716-446655440001
+          format: uuid
+          type: string
+        corpusId:
+          description: Corpus owning the document. Not stored on the chunk — resolved
+            through the document — and reported here because it is half of the storage
+            key of `body`.
+          example: 550e8400-e29b-41d4-a716-446655440002
+          format: uuid
+          type: string
+        pages:
+          description: "1-based page numbers the chunk spans, ascending. A chunk is\
+            \ built from consecutive elements and may cross page boundaries, so this\
+            \ is a span rather than a single page. **Empty** for a chunk that belongs\
+            \ to no page in particular — the document summary is the usual case."
+          example:
+          - 2
+          - 3
+          - 4
+          items:
+            format: int32
+            type: integer
+          type: array
+          default: null
+        hash:
+          description: "MD5 of the chunk body as it was pushed to storage. Equal hashes\
+            \ mean equal text, which is how duplicated content is found across documents.\
+            \ Read-only — it is computed by the ingestion pipeline."
+          example: 9e107d9d372bb6826bd81d3542a419d6
+          type: string
+        metadata:
+          additionalProperties:
+            nullable: true
+          description: "Arbitrary JSON metadata attached by the ingestion pipeline.\
+            \ `kind` is the key the platform itself sets — `chunk` for a piece of\
+            \ the document, `summary` for the generated summary."
+          example:
+            kind: chunk
+            section: Article 4
+          type: object
+        body:
+          description: "The chunk text, read from object storage. Present on `GET\
+            \ /v1/chunk/{chunkId}`, and on the listings only when `body=true` was\
+            \ passed. An empty string means the row exists but its stored body does\
+            \ not — a broken chunk, which is one of the things this API exists to\
+            \ surface."
+          example: Article 4 — The supplier shall deliver within thirty (30) days…
+          type: string
+      required:
+      - corpusId
+      - documentId
+      - id
     AgentUpdateRequest:
       description: |
         Patch a custom agent. Every field is optional; the ones you omit keep their current value.
@@ -9281,6 +10727,9 @@ components:
       example:
         sessionId: 550e8400-e29b-41d4-a716-446655440000
         pageIndex: 0
+        pageSize: 25
+        total: 42
+        order: DESC
         items:
         - id: 550e8400-e29b-41d4-a716-446655440000
           sessionId: 550e8400-e29b-41d4-a716-446655440000
@@ -9315,14 +10764,40 @@ components:
           example: 0
           format: int32
           type: integer
+        pageSize:
+          description: Number of items requested per page. The last page may carry
+            fewer.
+          example: 25
+          format: int32
+          type: integer
+        total:
+          description: "Total number of posts in the session, across every page. Divide\
+            \ by `pageSize` to know how many pages to walk. Soft-deleted posts are\
+            \ not counted."
+          example: 42
+          format: int64
+          type: integer
+        order:
+          description: "Ordering this page was built under — the `order` that was\
+            \ asked for, or `DESC` when it was omitted."
+          enum:
+          - ASC
+          - DESC
+          example: DESC
+          type: string
         items:
-          description: "Posts contained in this page, newest first."
+          description: "Posts contained in this page, in the requested order — newest\
+            \ first unless `order=ASC` was passed."
           items:
             $ref: "#/components/schemas/Post"
           type: array
           default: null
       required:
+      - order
+      - pageIndex
+      - pageSize
       - sessionId
+      - total
     DocumentStatus:
       description: "Lightweight view of a document's ingestion lifecycle. Cheaper\
         \ than fetching the full document, and intended for polling loops between\
@@ -9542,8 +11017,8 @@ components:
       - items
       - pageIndex
     Corpus:
-      description: Knowledge base inside an organization. Bound to an embedding model
-        and a summary LLM.
+      description: "Knowledge base inside an organization: the container documents\
+        \ are ingested into and the scope a query is answered from."
       example:
         id: 550e8400-e29b-41d4-a716-446655440000
         createdAt: 2026-04-23T04:06:51Z
@@ -9657,6 +11132,99 @@ components:
             type: string
           type: array
           default: null
+    ChunkListResponse:
+      description: Paginated list of chunks. Echoes the filters that were actually
+        applied — a filter that was dropped as empty does not appear here.
+      example:
+        corpusId: 550e8400-e29b-41d4-a716-446655440002
+        documentId: 550e8400-e29b-41d4-a716-446655440001
+        hash: 9e107d9d372bb6826bd81d3542a419d6
+        page: 4
+        metadata:
+          kind: chunk
+        pageIndex: 0
+        pageSize: 25
+        total: 142
+        items:
+        - id: 550e8400-e29b-41d4-a716-446655440000
+          documentId: 550e8400-e29b-41d4-a716-446655440001
+          corpusId: 550e8400-e29b-41d4-a716-446655440002
+          pages:
+          - 2
+          - 3
+          - 4
+          hash: 9e107d9d372bb6826bd81d3542a419d6
+          metadata:
+            kind: chunk
+            section: Article 4
+          body: Article 4 — The supplier shall deliver within thirty (30) days…
+        - id: 550e8400-e29b-41d4-a716-446655440000
+          documentId: 550e8400-e29b-41d4-a716-446655440001
+          corpusId: 550e8400-e29b-41d4-a716-446655440002
+          pages:
+          - 2
+          - 3
+          - 4
+          hash: 9e107d9d372bb6826bd81d3542a419d6
+          metadata:
+            kind: chunk
+            section: Article 4
+          body: Article 4 — The supplier shall deliver within thirty (30) days…
+      properties:
+        corpusId:
+          description: "Echo of the corpus filter, when one was applied."
+          example: 550e8400-e29b-41d4-a716-446655440002
+          format: uuid
+          type: string
+        documentId:
+          description: "Echo of the document filter, when one was applied."
+          example: 550e8400-e29b-41d4-a716-446655440001
+          format: uuid
+          type: string
+        hash:
+          description: "Echo of the hash filter, when one was applied."
+          example: 9e107d9d372bb6826bd81d3542a419d6
+          type: string
+        page:
+          description: "Echo of the page filter, when one was applied."
+          example: 4
+          format: int32
+          type: integer
+        metadata:
+          additionalProperties:
+            nullable: true
+          description: "Echo of the metadata fragment used to filter the listing,\
+            \ when applicable."
+          example:
+            kind: chunk
+          type: object
+        pageIndex:
+          description: Zero-based index of the returned page.
+          example: 0
+          format: int32
+          type: integer
+        pageSize:
+          description: Number of items requested per page.
+          example: 25
+          format: int32
+          type: integer
+        total:
+          description: Total number of chunks matching the filters across every page.
+          example: 142
+          format: int64
+          type: integer
+        items:
+          description: "Chunks contained in this page, in reading order: by document,\
+            \ then by the first page each chunk covers, then by id. `body` is present\
+            \ only when `body=true` was passed."
+          items:
+            $ref: "#/components/schemas/Chunk"
+          type: array
+          default: null
+      required:
+      - pageIndex
+      - pageSize
+      - total
     WhoAmI:
       description: "Identity of the authenticated caller, as resolved from the Bearer\
         \ token."

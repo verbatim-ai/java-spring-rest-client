@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -35,6 +35,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @JsonPropertyOrder({
   PostListResponse.JSON_PROPERTY_SESSION_ID,
   PostListResponse.JSON_PROPERTY_PAGE_INDEX,
+  PostListResponse.JSON_PROPERTY_PAGE_SIZE,
+  PostListResponse.JSON_PROPERTY_TOTAL,
+  PostListResponse.JSON_PROPERTY_ORDER,
   PostListResponse.JSON_PROPERTY_ITEMS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
@@ -44,8 +47,55 @@ public class PostListResponse {
   private UUID sessionId;
 
   public static final String JSON_PROPERTY_PAGE_INDEX = "pageIndex";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private Integer pageIndex;
+
+  public static final String JSON_PROPERTY_PAGE_SIZE = "pageSize";
+  @javax.annotation.Nonnull
+  private Integer pageSize;
+
+  public static final String JSON_PROPERTY_TOTAL = "total";
+  @javax.annotation.Nonnull
+  private Long total;
+
+  /**
+   * Ordering this page was built under — the &#x60;order&#x60; that was asked for, or &#x60;DESC&#x60; when it was omitted.
+   */
+  public enum OrderEnum {
+    ASC(String.valueOf("ASC")),
+    
+    DESC(String.valueOf("DESC"));
+
+    private String value;
+
+    OrderEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static OrderEnum fromValue(String value) {
+      for (OrderEnum b : OrderEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_ORDER = "order";
+  @javax.annotation.Nonnull
+  private OrderEnum order;
 
   public static final String JSON_PROPERTY_ITEMS = "items";
   @javax.annotation.Nullable
@@ -79,7 +129,7 @@ public class PostListResponse {
     this.sessionId = sessionId;
   }
 
-  public PostListResponse pageIndex(@javax.annotation.Nullable Integer pageIndex) {
+  public PostListResponse pageIndex(@javax.annotation.Nonnull Integer pageIndex) {
     
     this.pageIndex = pageIndex;
     return this;
@@ -89,19 +139,94 @@ public class PostListResponse {
    * Zero-based index of the returned page.
    * @return pageIndex
    */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_PAGE_INDEX, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_PAGE_INDEX, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
   public Integer getPageIndex() {
     return pageIndex;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_PAGE_INDEX, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPageIndex(@javax.annotation.Nullable Integer pageIndex) {
+  @JsonProperty(value = JSON_PROPERTY_PAGE_INDEX, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPageIndex(@javax.annotation.Nonnull Integer pageIndex) {
     this.pageIndex = pageIndex;
+  }
+
+  public PostListResponse pageSize(@javax.annotation.Nonnull Integer pageSize) {
+    
+    this.pageSize = pageSize;
+    return this;
+  }
+
+  /**
+   * Number of items requested per page. The last page may carry fewer.
+   * @return pageSize
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_PAGE_SIZE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Integer getPageSize() {
+    return pageSize;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_PAGE_SIZE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPageSize(@javax.annotation.Nonnull Integer pageSize) {
+    this.pageSize = pageSize;
+  }
+
+  public PostListResponse total(@javax.annotation.Nonnull Long total) {
+    
+    this.total = total;
+    return this;
+  }
+
+  /**
+   * Total number of posts in the session, across every page. Divide by &#x60;pageSize&#x60; to know how many pages to walk. Soft-deleted posts are not counted.
+   * @return total
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_TOTAL, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Long getTotal() {
+    return total;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TOTAL, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setTotal(@javax.annotation.Nonnull Long total) {
+    this.total = total;
+  }
+
+  public PostListResponse order(@javax.annotation.Nonnull OrderEnum order) {
+    
+    this.order = order;
+    return this;
+  }
+
+  /**
+   * Ordering this page was built under — the &#x60;order&#x60; that was asked for, or &#x60;DESC&#x60; when it was omitted.
+   * @return order
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_ORDER, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public OrderEnum getOrder() {
+    return order;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ORDER, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setOrder(@javax.annotation.Nonnull OrderEnum order) {
+    this.order = order;
   }
 
   public PostListResponse items(@javax.annotation.Nullable List<Post> items) {
@@ -119,7 +244,7 @@ public class PostListResponse {
   }
 
   /**
-   * Posts contained in this page, newest first.
+   * Posts contained in this page, in the requested order — newest first unless &#x60;order&#x3D;ASC&#x60; was passed.
    * @return items
    */
   @javax.annotation.Nullable
@@ -149,12 +274,15 @@ public class PostListResponse {
     PostListResponse postListResponse = (PostListResponse) o;
     return Objects.equals(this.sessionId, postListResponse.sessionId) &&
         Objects.equals(this.pageIndex, postListResponse.pageIndex) &&
+        Objects.equals(this.pageSize, postListResponse.pageSize) &&
+        Objects.equals(this.total, postListResponse.total) &&
+        Objects.equals(this.order, postListResponse.order) &&
         Objects.equals(this.items, postListResponse.items);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(sessionId, pageIndex, items);
+    return Objects.hash(sessionId, pageIndex, pageSize, total, order, items);
   }
 
   @Override
@@ -163,6 +291,9 @@ public class PostListResponse {
     sb.append("class PostListResponse {\n");
     sb.append("    sessionId: ").append(toIndentedString(sessionId)).append("\n");
     sb.append("    pageIndex: ").append(toIndentedString(pageIndex)).append("\n");
+    sb.append("    pageSize: ").append(toIndentedString(pageSize)).append("\n");
+    sb.append("    total: ").append(toIndentedString(total)).append("\n");
+    sb.append("    order: ").append(toIndentedString(order)).append("\n");
     sb.append("    items: ").append(toIndentedString(items)).append("\n");
     sb.append("}");
     return sb.toString();

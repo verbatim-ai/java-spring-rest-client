@@ -2,7 +2,7 @@
 
 # SessionCreateRequest
 
-Payload to open a new conversation session. The model, system prompt, temperature and thinking flag are locked at creation time and apply to every post in the session.
+Payload to open a new conversation session. A session needs only the corpora it searches: how its queries are answered is decided per query by the agent they name, not here. The owner is taken from your token.
 
 ## Properties
 
