@@ -4,17 +4,17 @@ All URIs are relative to *https://api.verbatim-ai.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**create1**](CorpusApi.md#create1) | **POST** /v1/corpus/ | Create a corpus |
-| [**delete2**](CorpusApi.md#delete2) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus |
-| [**get2**](CorpusApi.md#get2) | **GET** /v1/corpus/{corpusId} | Get a corpus |
-| [**list1**](CorpusApi.md#list1) | **GET** /v1/corpus/ | List corpora |
-| [**update2**](CorpusApi.md#update2) | **PATCH** /v1/corpus/{corpusId} | Update a corpus |
+| [**create2**](CorpusApi.md#create2) | **POST** /v1/corpus/ | Create a corpus |
+| [**delete3**](CorpusApi.md#delete3) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus |
+| [**get3**](CorpusApi.md#get3) | **GET** /v1/corpus/{corpusId} | Get a corpus |
+| [**list2**](CorpusApi.md#list2) | **GET** /v1/corpus/ | List corpora |
+| [**update3**](CorpusApi.md#update3) | **PATCH** /v1/corpus/{corpusId} | Update a corpus |
 
 
 
-## create1
+## create2
 
-> CorpusCreateResponse create1(corpusCreateRequest)
+> CorpusCreateResponse create2(corpusCreateRequest)
 
 Create a corpus
 
@@ -49,10 +49,10 @@ public class Example {
         CorpusApi apiInstance = new CorpusApi(defaultClient);
         CorpusCreateRequest corpusCreateRequest = new CorpusCreateRequest(); // CorpusCreateRequest | 
         try {
-            CorpusCreateResponse result = apiInstance.create1(corpusCreateRequest);
+            CorpusCreateResponse result = apiInstance.create2(corpusCreateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#create1");
+            System.err.println("Exception when calling CorpusApi#create2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -95,9 +95,9 @@ public class Example {
 | **200** | Corpus created. |  -  |
 
 
-## delete2
+## delete3
 
-> AckResponse delete2(corpusId)
+> AckResponse delete3(corpusId)
 
 Delete a corpus
 
@@ -132,10 +132,10 @@ public class Example {
         CorpusApi apiInstance = new CorpusApi(defaultClient);
         UUID corpusId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the corpus to delete.
         try {
-            AckResponse result = apiInstance.delete2(corpusId);
+            AckResponse result = apiInstance.delete3(corpusId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#delete2");
+            System.err.println("Exception when calling CorpusApi#delete3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -178,9 +178,9 @@ public class Example {
 | **200** | Corpus and dependencies deleted. |  -  |
 
 
-## get2
+## get3
 
-> CorpusItemResponse get2(corpusId)
+> CorpusItemResponse get3(corpusId)
 
 Get a corpus
 
@@ -215,10 +215,10 @@ public class Example {
         CorpusApi apiInstance = new CorpusApi(defaultClient);
         UUID corpusId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the corpus.
         try {
-            CorpusItemResponse result = apiInstance.get2(corpusId);
+            CorpusItemResponse result = apiInstance.get3(corpusId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#get2");
+            System.err.println("Exception when calling CorpusApi#get3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -261,9 +261,9 @@ public class Example {
 | **200** | Corpus found. |  -  |
 
 
-## list1
+## list2
 
-> CorpusListResponse list1(pageSize, pageIndex)
+> CorpusListResponse list2(pageSize, pageIndex)
 
 List corpora
 
@@ -299,10 +299,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            CorpusListResponse result = apiInstance.list1(pageSize, pageIndex);
+            CorpusListResponse result = apiInstance.list2(pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#list1");
+            System.err.println("Exception when calling CorpusApi#list2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -346,9 +346,9 @@ public class Example {
 | **200** | Page of corpora. |  -  |
 
 
-## update2
+## update3
 
-> CorpusUpdateResponse update2(corpusId, corpusUpdateRequest)
+> CorpusUpdateResponse update3(corpusId, corpusUpdateRequest)
 
 Update a corpus
 
@@ -384,10 +384,10 @@ public class Example {
         UUID corpusId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the corpus to update.
         CorpusUpdateRequest corpusUpdateRequest = new CorpusUpdateRequest(); // CorpusUpdateRequest | 
         try {
-            CorpusUpdateResponse result = apiInstance.update2(corpusId, corpusUpdateRequest);
+            CorpusUpdateResponse result = apiInstance.update3(corpusId, corpusUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling CorpusApi#update2");
+            System.err.println("Exception when calling CorpusApi#update3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());

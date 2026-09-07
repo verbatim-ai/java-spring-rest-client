@@ -51,8 +51,8 @@ public class ConfigurationApi extends BaseApi {
      * @return ModelListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ModelListResponse list5() throws RestClientException {
-        return list5WithHttpInfo().getBody();
+    public ModelListResponse list6() throws RestClientException {
+        return list6WithHttpInfo().getBody();
     }
 
     /**
@@ -68,7 +68,7 @@ public class ConfigurationApi extends BaseApi {
      * @return ResponseEntity&lt;ModelListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<ModelListResponse> list5WithHttpInfo() throws RestClientException {
+    public ResponseEntity<ModelListResponse> list6WithHttpInfo() throws RestClientException {
         Object localVarPostBody = null;
         
 

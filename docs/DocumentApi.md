@@ -5,18 +5,18 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**commitUpload**](DocumentApi.md#commitUpload) | **POST** /v1/doc/{id}/commit | Commit a previously initialized upload |
-| [**delete1**](DocumentApi.md#delete1) | **DELETE** /v1/doc/{id} | Delete a document |
+| [**delete2**](DocumentApi.md#delete2) | **DELETE** /v1/doc/{id} | Delete a document |
 | [**downloadUrl1**](DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL |
-| [**get1**](DocumentApi.md#get1) | **GET** /v1/doc/{id} | Get a document |
+| [**get2**](DocumentApi.md#get2) | **GET** /v1/doc/{id} | Get a document |
 | [**initUpload**](DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload |
-| [**list4**](DocumentApi.md#list4) | **GET** /v1/doc/ | List documents |
+| [**list5**](DocumentApi.md#list5) | **GET** /v1/doc/ | List documents |
 | [**listSupportedDocuments**](DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types |
 | [**previewUrls1**](DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs |
 | [**reinitUpload**](DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload |
-| [**search1**](DocumentApi.md#search1) | **GET** /v1/doc/q | Search documents |
+| [**search2**](DocumentApi.md#search2) | **GET** /v1/doc/q | Search documents |
 | [**status**](DocumentApi.md#status) | **GET** /v1/doc/{id}/status | Get a document&#39;s status |
 | [**summary**](DocumentApi.md#summary) | **GET** /v1/doc/{id}/summary | Get a document summary |
-| [**update1**](DocumentApi.md#update1) | **PATCH** /v1/doc/{id} | Update a document |
+| [**update2**](DocumentApi.md#update2) | **PATCH** /v1/doc/{id} | Update a document |
 
 
 
@@ -103,9 +103,9 @@ public class Example {
 | **202** | Ingestion queued. Document moved to PROCESSING. |  -  |
 
 
-## delete1
+## delete2
 
-> AckResponse delete1(id)
+> AckResponse delete2(id)
 
 Delete a document
 
@@ -140,10 +140,10 @@ public class Example {
         DocumentApi apiInstance = new DocumentApi(defaultClient);
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document to delete.
         try {
-            AckResponse result = apiInstance.delete1(id);
+            AckResponse result = apiInstance.delete2(id);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#delete1");
+            System.err.println("Exception when calling DocumentApi#delete2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -269,9 +269,9 @@ public class Example {
 | **200** | Presigned URL issued. |  -  |
 
 
-## get1
+## get2
 
-> Document get1(id)
+> Document get2(id)
 
 Get a document
 
@@ -306,10 +306,10 @@ public class Example {
         DocumentApi apiInstance = new DocumentApi(defaultClient);
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document.
         try {
-            Document result = apiInstance.get1(id);
+            Document result = apiInstance.get2(id);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#get1");
+            System.err.println("Exception when calling DocumentApi#get2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -435,9 +435,9 @@ public class Example {
 | **200** | Document created in AWAITING_UPLOAD status. PUT the file to &#x60;uploadUrl&#x60;. |  -  |
 
 
-## list4
+## list5
 
-> DocumentListResponse list4(corpusId, status, tags, pageSize, pageIndex)
+> DocumentListResponse list5(corpusId, status, tags, pageSize, pageIndex)
 
 List documents
 
@@ -476,10 +476,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page, 1-100.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            DocumentListResponse result = apiInstance.list4(corpusId, status, tags, pageSize, pageIndex);
+            DocumentListResponse result = apiInstance.list5(corpusId, status, tags, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#list4");
+            System.err.println("Exception when calling DocumentApi#list5");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -773,9 +773,9 @@ public class Example {
 | **200** | Document reset to AWAITING_UPLOAD status. PUT the new file to &#x60;uploadUrl&#x60;. |  -  |
 
 
-## search1
+## search2
 
-> DocumentSearchResponse search1(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex)
+> DocumentSearchResponse search2(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex)
 
 Search documents
 
@@ -825,10 +825,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page, 1-100.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            DocumentSearchResponse result = apiInstance.search1(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
+            DocumentSearchResponse result = apiInstance.search2(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#search1");
+            System.err.println("Exception when calling DocumentApi#search2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -1052,9 +1052,9 @@ public class Example {
 | **200** | Summary returned (may be empty). |  -  |
 
 
-## update1
+## update2
 
-> Document update1(id, documentUpdateRequest)
+> Document update2(id, documentUpdateRequest)
 
 Update a document
 
@@ -1090,10 +1090,10 @@ public class Example {
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document to update.
         DocumentUpdateRequest documentUpdateRequest = new DocumentUpdateRequest(); // DocumentUpdateRequest | 
         try {
-            Document result = apiInstance.update1(id, documentUpdateRequest);
+            Document result = apiInstance.update2(id, documentUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#update1");
+            System.err.println("Exception when calling DocumentApi#update2");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());

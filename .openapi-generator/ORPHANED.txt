@@ -1,0 +1,23 @@
+# Files tracked in this repository that the generator no longer emits.
+#
+# Written by publish_clients.sh in the genai-server build. Delete them by hand
+# and commit; this file disappears on the next publish once they are gone.
+#
+# Not everything here is stale — a file that was always hand-written looks the
+# same from the build's side. Read before removing.
+
+docs/Session.md
+docs/SessionApi.md
+docs/SessionCreateResponse.md
+docs/SessionListResponse.md
+docs/SessionUpdateRequest.md
+src/main/java/com/verbatim/client/springrest/api/SessionApi.java
+src/main/java/com/verbatim/client/springrest/models/Session.java
+src/main/java/com/verbatim/client/springrest/models/SessionCreateResponse.java
+src/main/java/com/verbatim/client/springrest/models/SessionListResponse.java
+src/main/java/com/verbatim/client/springrest/models/SessionUpdateRequest.java
+src/test/java/com/verbatim/client/springrest/api/SessionApiTest.java
+src/test/java/com/verbatim/client/springrest/models/SessionCreateResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/SessionListResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/SessionTest.java
+src/test/java/com/verbatim/client/springrest/models/SessionUpdateRequestTest.java

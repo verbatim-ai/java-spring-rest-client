@@ -4,13 +4,13 @@ All URIs are relative to *https://api.verbatim-ai.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**list5**](ConfigurationApi.md#list5) | **GET** /v1/config/model | List supported LLM models |
+| [**list6**](ConfigurationApi.md#list6) | **GET** /v1/config/model | List supported LLM models |
 
 
 
-## list5
+## list6
 
-> ModelListResponse list5()
+> ModelListResponse list6()
 
 List supported LLM models
 
@@ -44,10 +44,10 @@ public class Example {
 
         ConfigurationApi apiInstance = new ConfigurationApi(defaultClient);
         try {
-            ModelListResponse result = apiInstance.list5();
+            ModelListResponse result = apiInstance.list6();
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ConfigurationApi#list5");
+            System.err.println("Exception when calling ConfigurationApi#list6");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());

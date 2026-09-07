@@ -56,8 +56,8 @@ public class ChunkApi extends BaseApi {
      * @return AckResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AckResponse delete3(UUID chunkId) throws RestClientException {
-        return delete3WithHttpInfo(chunkId).getBody();
+    public AckResponse delete4(UUID chunkId) throws RestClientException {
+        return delete4WithHttpInfo(chunkId).getBody();
     }
 
     /**
@@ -74,12 +74,12 @@ public class ChunkApi extends BaseApi {
      * @return ResponseEntity&lt;AckResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AckResponse> delete3WithHttpInfo(UUID chunkId) throws RestClientException {
+    public ResponseEntity<AckResponse> delete4WithHttpInfo(UUID chunkId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'chunkId' is set
         if (chunkId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkId' when calling delete3");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkId' when calling delete4");
         }
         
         // create path and map variables
@@ -117,8 +117,8 @@ public class ChunkApi extends BaseApi {
      * @return Chunk
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public Chunk get3(UUID chunkId) throws RestClientException {
-        return get3WithHttpInfo(chunkId).getBody();
+    public Chunk get4(UUID chunkId) throws RestClientException {
+        return get4WithHttpInfo(chunkId).getBody();
     }
 
     /**
@@ -135,12 +135,12 @@ public class ChunkApi extends BaseApi {
      * @return ResponseEntity&lt;Chunk&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<Chunk> get3WithHttpInfo(UUID chunkId) throws RestClientException {
+    public ResponseEntity<Chunk> get4WithHttpInfo(UUID chunkId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'chunkId' is set
         if (chunkId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkId' when calling get3");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkId' when calling get4");
         }
         
         // create path and map variables
@@ -180,8 +180,8 @@ public class ChunkApi extends BaseApi {
      * @return ChunkListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ChunkListResponse list6(Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
-        return list6WithHttpInfo(body, pageSize, pageIndex).getBody();
+    public ChunkListResponse list7(Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list7WithHttpInfo(body, pageSize, pageIndex).getBody();
     }
 
     /**
@@ -200,7 +200,7 @@ public class ChunkApi extends BaseApi {
      * @return ResponseEntity&lt;ChunkListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<ChunkListResponse> list6WithHttpInfo(Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<ChunkListResponse> list7WithHttpInfo(Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
 
@@ -249,8 +249,8 @@ public class ChunkApi extends BaseApi {
      * @return ChunkListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ChunkListResponse search2(UUID corpusId, UUID documentId, String hash, Integer page, String key, String value, String json, Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
-        return search2WithHttpInfo(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex).getBody();
+    public ChunkListResponse search3(UUID corpusId, UUID documentId, String hash, Integer page, String key, String value, String json, Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
+        return search3WithHttpInfo(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex).getBody();
     }
 
     /**
@@ -276,7 +276,7 @@ public class ChunkApi extends BaseApi {
      * @return ResponseEntity&lt;ChunkListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<ChunkListResponse> search2WithHttpInfo(UUID corpusId, UUID documentId, String hash, Integer page, String key, String value, String json, Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<ChunkListResponse> search3WithHttpInfo(UUID corpusId, UUID documentId, String hash, Integer page, String key, String value, String json, Boolean body, Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
 
@@ -324,8 +324,8 @@ public class ChunkApi extends BaseApi {
      * @return Chunk
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public Chunk update3(UUID chunkId, ChunkUpdateRequest chunkUpdateRequest) throws RestClientException {
-        return update3WithHttpInfo(chunkId, chunkUpdateRequest).getBody();
+    public Chunk update4(UUID chunkId, ChunkUpdateRequest chunkUpdateRequest) throws RestClientException {
+        return update4WithHttpInfo(chunkId, chunkUpdateRequest).getBody();
     }
 
     /**
@@ -343,17 +343,17 @@ public class ChunkApi extends BaseApi {
      * @return ResponseEntity&lt;Chunk&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<Chunk> update3WithHttpInfo(UUID chunkId, ChunkUpdateRequest chunkUpdateRequest) throws RestClientException {
+    public ResponseEntity<Chunk> update4WithHttpInfo(UUID chunkId, ChunkUpdateRequest chunkUpdateRequest) throws RestClientException {
         Object localVarPostBody = chunkUpdateRequest;
         
         // verify the required parameter 'chunkId' is set
         if (chunkId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkId' when calling update3");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkId' when calling update4");
         }
         
         // verify the required parameter 'chunkUpdateRequest' is set
         if (chunkUpdateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkUpdateRequest' when calling update3");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'chunkUpdateRequest' when calling update4");
         }
         
         // create path and map variables

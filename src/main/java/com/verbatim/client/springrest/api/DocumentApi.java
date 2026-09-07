@@ -124,8 +124,8 @@ public class DocumentApi extends BaseApi {
      * @return AckResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AckResponse delete1(UUID id) throws RestClientException {
-        return delete1WithHttpInfo(id).getBody();
+    public AckResponse delete2(UUID id) throws RestClientException {
+        return delete2WithHttpInfo(id).getBody();
     }
 
     /**
@@ -142,12 +142,12 @@ public class DocumentApi extends BaseApi {
      * @return ResponseEntity&lt;AckResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AckResponse> delete1WithHttpInfo(UUID id) throws RestClientException {
+    public ResponseEntity<AckResponse> delete2WithHttpInfo(UUID id) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'id' when calling delete1");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'id' when calling delete2");
         }
         
         // create path and map variables
@@ -246,8 +246,8 @@ public class DocumentApi extends BaseApi {
      * @return Document
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public Document get1(UUID id) throws RestClientException {
-        return get1WithHttpInfo(id).getBody();
+    public Document get2(UUID id) throws RestClientException {
+        return get2WithHttpInfo(id).getBody();
     }
 
     /**
@@ -264,12 +264,12 @@ public class DocumentApi extends BaseApi {
      * @return ResponseEntity&lt;Document&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<Document> get1WithHttpInfo(UUID id) throws RestClientException {
+    public ResponseEntity<Document> get2WithHttpInfo(UUID id) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'id' when calling get1");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'id' when calling get2");
         }
         
         // create path and map variables
@@ -371,8 +371,8 @@ public class DocumentApi extends BaseApi {
      * @return DocumentListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public DocumentListResponse list4(UUID corpusId, String status, List<String> tags, Integer pageSize, Integer pageIndex) throws RestClientException {
-        return list4WithHttpInfo(corpusId, status, tags, pageSize, pageIndex).getBody();
+    public DocumentListResponse list5(UUID corpusId, String status, List<String> tags, Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list5WithHttpInfo(corpusId, status, tags, pageSize, pageIndex).getBody();
     }
 
     /**
@@ -393,12 +393,12 @@ public class DocumentApi extends BaseApi {
      * @return ResponseEntity&lt;DocumentListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<DocumentListResponse> list4WithHttpInfo(UUID corpusId, String status, List<String> tags, Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<DocumentListResponse> list5WithHttpInfo(UUID corpusId, String status, List<String> tags, Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling list4");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling list5");
         }
         
 
@@ -638,8 +638,8 @@ public class DocumentApi extends BaseApi {
      * @return DocumentSearchResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public DocumentSearchResponse search1(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
-        return search1WithHttpInfo(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex).getBody();
+    public DocumentSearchResponse search2(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
+        return search2WithHttpInfo(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex).getBody();
     }
 
     /**
@@ -671,12 +671,12 @@ public class DocumentApi extends BaseApi {
      * @return ResponseEntity&lt;DocumentSearchResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<DocumentSearchResponse> search1WithHttpInfo(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<DocumentSearchResponse> search2WithHttpInfo(UUID corpusId, String q, List<String> tags, String tagsMatch, List<String> status, List<String> contentType, String lang, String provider, OffsetDateTime createdAfter, OffsetDateTime createdBefore, Long minSize, Long maxSize, String sort, String order, Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling search1");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling search2");
         }
         
 
@@ -852,8 +852,8 @@ public class DocumentApi extends BaseApi {
      * @return Document
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public Document update1(UUID id, DocumentUpdateRequest documentUpdateRequest) throws RestClientException {
-        return update1WithHttpInfo(id, documentUpdateRequest).getBody();
+    public Document update2(UUID id, DocumentUpdateRequest documentUpdateRequest) throws RestClientException {
+        return update2WithHttpInfo(id, documentUpdateRequest).getBody();
     }
 
     /**
@@ -871,17 +871,17 @@ public class DocumentApi extends BaseApi {
      * @return ResponseEntity&lt;Document&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<Document> update1WithHttpInfo(UUID id, DocumentUpdateRequest documentUpdateRequest) throws RestClientException {
+    public ResponseEntity<Document> update2WithHttpInfo(UUID id, DocumentUpdateRequest documentUpdateRequest) throws RestClientException {
         Object localVarPostBody = documentUpdateRequest;
         
         // verify the required parameter 'id' is set
         if (id == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'id' when calling update1");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'id' when calling update2");
         }
         
         // verify the required parameter 'documentUpdateRequest' is set
         if (documentUpdateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'documentUpdateRequest' when calling update1");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'documentUpdateRequest' when calling update2");
         }
         
         // create path and map variables

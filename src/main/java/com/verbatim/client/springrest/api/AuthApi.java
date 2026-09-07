@@ -55,8 +55,8 @@ public class AuthApi extends BaseApi {
      * @return AccessTokenCreateResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AccessTokenCreateResponse create2(AccessTokenCreateRequest accessTokenCreateRequest) throws RestClientException {
-        return create2WithHttpInfo(accessTokenCreateRequest).getBody();
+    public AccessTokenCreateResponse create3(AccessTokenCreateRequest accessTokenCreateRequest) throws RestClientException {
+        return create3WithHttpInfo(accessTokenCreateRequest).getBody();
     }
 
     /**
@@ -73,12 +73,12 @@ public class AuthApi extends BaseApi {
      * @return ResponseEntity&lt;AccessTokenCreateResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AccessTokenCreateResponse> create2WithHttpInfo(AccessTokenCreateRequest accessTokenCreateRequest) throws RestClientException {
+    public ResponseEntity<AccessTokenCreateResponse> create3WithHttpInfo(AccessTokenCreateRequest accessTokenCreateRequest) throws RestClientException {
         Object localVarPostBody = accessTokenCreateRequest;
         
         // verify the required parameter 'accessTokenCreateRequest' is set
         if (accessTokenCreateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'accessTokenCreateRequest' when calling create2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'accessTokenCreateRequest' when calling create3");
         }
         
 

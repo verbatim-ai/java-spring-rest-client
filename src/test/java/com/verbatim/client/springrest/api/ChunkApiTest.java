@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -48,10 +48,10 @@ class ChunkApiTest {
      *          if the Api call fails
      */
     @Test
-    void delete3Test() {
+    void delete4Test() {
         UUID chunkId = null;
 
-        AckResponse response = api.delete3(chunkId);
+        AckResponse response = api.delete4(chunkId);
 
         // TODO: test validations
     }
@@ -65,10 +65,10 @@ class ChunkApiTest {
      *          if the Api call fails
      */
     @Test
-    void get3Test() {
+    void get4Test() {
         UUID chunkId = null;
 
-        Chunk response = api.get3(chunkId);
+        Chunk response = api.get4(chunkId);
 
         // TODO: test validations
     }
@@ -82,12 +82,12 @@ class ChunkApiTest {
      *          if the Api call fails
      */
     @Test
-    void list6Test() {
+    void list7Test() {
         Boolean body = null;
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        ChunkListResponse response = api.list6(body, pageSize, pageIndex);
+        ChunkListResponse response = api.list7(body, pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -101,7 +101,7 @@ class ChunkApiTest {
      *          if the Api call fails
      */
     @Test
-    void search2Test() {
+    void search3Test() {
         UUID corpusId = null;
         UUID documentId = null;
         String hash = null;
@@ -113,7 +113,7 @@ class ChunkApiTest {
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        ChunkListResponse response = api.search2(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex);
+        ChunkListResponse response = api.search3(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -127,11 +127,11 @@ class ChunkApiTest {
      *          if the Api call fails
      */
     @Test
-    void update3Test() {
+    void update4Test() {
         UUID chunkId = null;
         ChunkUpdateRequest chunkUpdateRequest = null;
 
-        Chunk response = api.update3(chunkId, chunkUpdateRequest);
+        Chunk response = api.update4(chunkId, chunkUpdateRequest);
 
         // TODO: test validations
     }

@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -72,10 +72,10 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void delete1Test() {
+    void delete2Test() {
         UUID id = null;
 
-        AckResponse response = api.delete1(id);
+        AckResponse response = api.delete2(id);
 
         // TODO: test validations
     }
@@ -106,10 +106,10 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void get1Test() {
+    void get2Test() {
         UUID id = null;
 
-        Document response = api.get1(id);
+        Document response = api.get2(id);
 
         // TODO: test validations
     }
@@ -140,14 +140,14 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void list4Test() {
+    void list5Test() {
         UUID corpusId = null;
         String status = null;
         List<String> tags = null;
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        DocumentListResponse response = api.list4(corpusId, status, tags, pageSize, pageIndex);
+        DocumentListResponse response = api.list5(corpusId, status, tags, pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -212,7 +212,7 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void search1Test() {
+    void search2Test() {
         UUID corpusId = null;
         String q = null;
         List<String> tags = null;
@@ -230,7 +230,7 @@ class DocumentApiTest {
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        DocumentSearchResponse response = api.search1(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
+        DocumentSearchResponse response = api.search2(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
 
         // TODO: test validations
     }
@@ -278,11 +278,11 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void update1Test() {
+    void update2Test() {
         UUID id = null;
         DocumentUpdateRequest documentUpdateRequest = null;
 
-        Document response = api.update1(id, documentUpdateRequest);
+        Document response = api.update2(id, documentUpdateRequest);
 
         // TODO: test validations
     }

@@ -4,17 +4,17 @@ All URIs are relative to *https://api.verbatim-ai.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**delete3**](ChunkApi.md#delete3) | **DELETE** /v1/chunk/{chunkId} | Delete a chunk |
-| [**get3**](ChunkApi.md#get3) | **GET** /v1/chunk/{chunkId} | Get a chunk |
-| [**list6**](ChunkApi.md#list6) | **GET** /v1/chunk/ | List chunks |
-| [**search2**](ChunkApi.md#search2) | **GET** /v1/chunk/q | Search chunks |
-| [**update3**](ChunkApi.md#update3) | **PATCH** /v1/chunk/{chunkId} | Update a chunk |
+| [**delete4**](ChunkApi.md#delete4) | **DELETE** /v1/chunk/{chunkId} | Delete a chunk |
+| [**get4**](ChunkApi.md#get4) | **GET** /v1/chunk/{chunkId} | Get a chunk |
+| [**list7**](ChunkApi.md#list7) | **GET** /v1/chunk/ | List chunks |
+| [**search3**](ChunkApi.md#search3) | **GET** /v1/chunk/q | Search chunks |
+| [**update4**](ChunkApi.md#update4) | **PATCH** /v1/chunk/{chunkId} | Update a chunk |
 
 
 
-## delete3
+## delete4
 
-> AckResponse delete3(chunkId)
+> AckResponse delete4(chunkId)
 
 Delete a chunk
 
@@ -49,10 +49,10 @@ public class Example {
         ChunkApi apiInstance = new ChunkApi(defaultClient);
         UUID chunkId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the chunk to delete.
         try {
-            AckResponse result = apiInstance.delete3(chunkId);
+            AckResponse result = apiInstance.delete4(chunkId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ChunkApi#delete3");
+            System.err.println("Exception when calling ChunkApi#delete4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -95,9 +95,9 @@ public class Example {
 | **200** | Chunk deleted. |  -  |
 
 
-## get3
+## get4
 
-> Chunk get3(chunkId)
+> Chunk get4(chunkId)
 
 Get a chunk
 
@@ -132,10 +132,10 @@ public class Example {
         ChunkApi apiInstance = new ChunkApi(defaultClient);
         UUID chunkId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the chunk.
         try {
-            Chunk result = apiInstance.get3(chunkId);
+            Chunk result = apiInstance.get4(chunkId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ChunkApi#get3");
+            System.err.println("Exception when calling ChunkApi#get4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -178,9 +178,9 @@ public class Example {
 | **200** | Chunk found. |  -  |
 
 
-## list6
+## list7
 
-> ChunkListResponse list6(body, pageSize, pageIndex)
+> ChunkListResponse list7(body, pageSize, pageIndex)
 
 List chunks
 
@@ -217,10 +217,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page, 1-100 — or 1-25 when `body=true`.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            ChunkListResponse result = apiInstance.list6(body, pageSize, pageIndex);
+            ChunkListResponse result = apiInstance.list7(body, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ChunkApi#list6");
+            System.err.println("Exception when calling ChunkApi#list7");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -265,9 +265,9 @@ public class Example {
 | **200** | Page of chunks. |  -  |
 
 
-## search2
+## search3
 
-> ChunkListResponse search2(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex)
+> ChunkListResponse search3(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex)
 
 Search chunks
 
@@ -311,10 +311,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page, 1-100 — or 1-25 when `body=true`.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            ChunkListResponse result = apiInstance.search2(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex);
+            ChunkListResponse result = apiInstance.search3(corpusId, documentId, hash, page, key, value, json, body, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ChunkApi#search2");
+            System.err.println("Exception when calling ChunkApi#search3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -366,9 +366,9 @@ public class Example {
 | **200** | Page of matching chunks. |  -  |
 
 
-## update3
+## update4
 
-> Chunk update3(chunkId, chunkUpdateRequest)
+> Chunk update4(chunkId, chunkUpdateRequest)
 
 Update a chunk
 
@@ -404,10 +404,10 @@ public class Example {
         UUID chunkId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the chunk to update.
         ChunkUpdateRequest chunkUpdateRequest = new ChunkUpdateRequest(); // ChunkUpdateRequest | 
         try {
-            Chunk result = apiInstance.update3(chunkId, chunkUpdateRequest);
+            Chunk result = apiInstance.update4(chunkId, chunkUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ChunkApi#update3");
+            System.err.println("Exception when calling ChunkApi#update4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());

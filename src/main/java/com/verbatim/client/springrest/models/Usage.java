@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -48,6 +48,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
   Usage.JSON_PROPERTY_TOKENS,
   Usage.JSON_PROPERTY_CORPORA,
   Usage.JSON_PROPERTY_SESSIONS,
+  Usage.JSON_PROPERTY_THREADS,
   Usage.JSON_PROPERTY_POSTS,
   Usage.JSON_PROPERTY_STORAGE,
   Usage.JSON_PROPERTY_SERIES,
@@ -129,6 +130,10 @@ public class Usage {
   public static final String JSON_PROPERTY_SESSIONS = "sessions";
   @javax.annotation.Nonnull
   private UsageCount sessions;
+
+  public static final String JSON_PROPERTY_THREADS = "threads";
+  @javax.annotation.Nonnull
+  private UsageCount threads;
 
   public static final String JSON_PROPERTY_POSTS = "posts";
   @javax.annotation.Nonnull
@@ -374,7 +379,9 @@ public class Usage {
   /**
    * Session counts within the scope.
    * @return sessions
+   * @deprecated
    */
+  @Deprecated
   @javax.annotation.Nonnull
   @JsonProperty(value = JSON_PROPERTY_SESSIONS, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -388,6 +395,31 @@ public class Usage {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setSessions(@javax.annotation.Nonnull UsageCount sessions) {
     this.sessions = sessions;
+  }
+
+  public Usage threads(@javax.annotation.Nonnull UsageCount threads) {
+    
+    this.threads = threads;
+    return this;
+  }
+
+  /**
+   * Thread counts within the scope.
+   * @return threads
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_THREADS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public UsageCount getThreads() {
+    return threads;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_THREADS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setThreads(@javax.annotation.Nonnull UsageCount threads) {
+    this.threads = threads;
   }
 
   public Usage posts(@javax.annotation.Nonnull UsageCount posts) {
@@ -517,6 +549,7 @@ public class Usage {
         Objects.equals(this.tokens, usage.tokens) &&
         Objects.equals(this.corpora, usage.corpora) &&
         Objects.equals(this.sessions, usage.sessions) &&
+        Objects.equals(this.threads, usage.threads) &&
         Objects.equals(this.posts, usage.posts) &&
         Objects.equals(this.storage, usage.storage) &&
         Objects.equals(this.series, usage.series) &&
@@ -529,7 +562,7 @@ public class Usage {
 
   @Override
   public int hashCode() {
-    return Objects.hash(timeframe, from, to, organizationId, hashCodeNullable(corpusId), hashCodeNullable(userId), tokens, corpora, sessions, posts, storage, series, timestamp);
+    return Objects.hash(timeframe, from, to, organizationId, hashCodeNullable(corpusId), hashCodeNullable(userId), tokens, corpora, sessions, threads, posts, storage, series, timestamp);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -552,6 +585,7 @@ public class Usage {
     sb.append("    tokens: ").append(toIndentedString(tokens)).append("\n");
     sb.append("    corpora: ").append(toIndentedString(corpora)).append("\n");
     sb.append("    sessions: ").append(toIndentedString(sessions)).append("\n");
+    sb.append("    threads: ").append(toIndentedString(threads)).append("\n");
     sb.append("    posts: ").append(toIndentedString(posts)).append("\n");
     sb.append("    storage: ").append(toIndentedString(storage)).append("\n");
     sb.append("    series: ").append(toIndentedString(series)).append("\n");

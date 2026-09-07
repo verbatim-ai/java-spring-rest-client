@@ -4,17 +4,17 @@ All URIs are relative to *https://api.verbatim-ai.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**create3**](AgentApi.md#create3) | **POST** /v1/agent/ | Create an agent |
-| [**delete4**](AgentApi.md#delete4) | **DELETE** /v1/agent/{agentId} | Delete an agent |
-| [**get4**](AgentApi.md#get4) | **GET** /v1/agent/{agentId} | Get an agent |
-| [**list2**](AgentApi.md#list2) | **GET** /v1/agent/ | List agents |
-| [**update4**](AgentApi.md#update4) | **PATCH** /v1/agent/{agentId} | Update an agent |
+| [**create4**](AgentApi.md#create4) | **POST** /v1/agent/ | Create an agent |
+| [**delete5**](AgentApi.md#delete5) | **DELETE** /v1/agent/{agentId} | Delete an agent |
+| [**get5**](AgentApi.md#get5) | **GET** /v1/agent/{agentId} | Get an agent |
+| [**list3**](AgentApi.md#list3) | **GET** /v1/agent/ | List agents |
+| [**update5**](AgentApi.md#update5) | **PATCH** /v1/agent/{agentId} | Update an agent |
 
 
 
-## create3
+## create4
 
-> Agent create3(agentCreateRequest)
+> Agent create4(agentCreateRequest)
 
 Create an agent
 
@@ -49,10 +49,10 @@ public class Example {
         AgentApi apiInstance = new AgentApi(defaultClient);
         AgentCreateRequest agentCreateRequest = new AgentCreateRequest(); // AgentCreateRequest | 
         try {
-            Agent result = apiInstance.create3(agentCreateRequest);
+            Agent result = apiInstance.create4(agentCreateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#create3");
+            System.err.println("Exception when calling AgentApi#create4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -95,9 +95,9 @@ public class Example {
 | **200** | Agent created. |  -  |
 
 
-## delete4
+## delete5
 
-> AckResponse delete4(agentId)
+> AckResponse delete5(agentId)
 
 Delete an agent
 
@@ -132,10 +132,10 @@ public class Example {
         AgentApi apiInstance = new AgentApi(defaultClient);
         UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the agent to delete.
         try {
-            AckResponse result = apiInstance.delete4(agentId);
+            AckResponse result = apiInstance.delete5(agentId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#delete4");
+            System.err.println("Exception when calling AgentApi#delete5");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -178,9 +178,9 @@ public class Example {
 | **200** | Agent deleted. |  -  |
 
 
-## get4
+## get5
 
-> Agent get4(agentId)
+> Agent get5(agentId)
 
 Get an agent
 
@@ -215,10 +215,10 @@ public class Example {
         AgentApi apiInstance = new AgentApi(defaultClient);
         UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the agent.
         try {
-            Agent result = apiInstance.get4(agentId);
+            Agent result = apiInstance.get5(agentId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#get4");
+            System.err.println("Exception when calling AgentApi#get5");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -261,9 +261,9 @@ public class Example {
 | **200** | Agent found. |  -  |
 
 
-## list2
+## list3
 
-> AgentListResponse list2(pageSize, pageIndex)
+> AgentListResponse list3(pageSize, pageIndex)
 
 List agents
 
@@ -299,10 +299,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            AgentListResponse result = apiInstance.list2(pageSize, pageIndex);
+            AgentListResponse result = apiInstance.list3(pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#list2");
+            System.err.println("Exception when calling AgentApi#list3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -346,9 +346,9 @@ public class Example {
 | **200** | Page of agents. |  -  |
 
 
-## update4
+## update5
 
-> Agent update4(agentId, agentUpdateRequest)
+> Agent update5(agentId, agentUpdateRequest)
 
 Update an agent
 
@@ -384,10 +384,10 @@ public class Example {
         UUID agentId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the agent to update.
         AgentUpdateRequest agentUpdateRequest = new AgentUpdateRequest(); // AgentUpdateRequest | 
         try {
-            Agent result = apiInstance.update4(agentId, agentUpdateRequest);
+            Agent result = apiInstance.update5(agentId, agentUpdateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#update4");
+            System.err.println("Exception when calling AgentApi#update5");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());

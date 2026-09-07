@@ -57,8 +57,8 @@ public class AgentApi extends BaseApi {
      * @return Agent
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public Agent create3(AgentCreateRequest agentCreateRequest) throws RestClientException {
-        return create3WithHttpInfo(agentCreateRequest).getBody();
+    public Agent create4(AgentCreateRequest agentCreateRequest) throws RestClientException {
+        return create4WithHttpInfo(agentCreateRequest).getBody();
     }
 
     /**
@@ -75,12 +75,12 @@ public class AgentApi extends BaseApi {
      * @return ResponseEntity&lt;Agent&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<Agent> create3WithHttpInfo(AgentCreateRequest agentCreateRequest) throws RestClientException {
+    public ResponseEntity<Agent> create4WithHttpInfo(AgentCreateRequest agentCreateRequest) throws RestClientException {
         Object localVarPostBody = agentCreateRequest;
         
         // verify the required parameter 'agentCreateRequest' is set
         if (agentCreateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentCreateRequest' when calling create3");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentCreateRequest' when calling create4");
         }
         
 
@@ -117,8 +117,8 @@ public class AgentApi extends BaseApi {
      * @return AckResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AckResponse delete4(UUID agentId) throws RestClientException {
-        return delete4WithHttpInfo(agentId).getBody();
+    public AckResponse delete5(UUID agentId) throws RestClientException {
+        return delete5WithHttpInfo(agentId).getBody();
     }
 
     /**
@@ -135,12 +135,12 @@ public class AgentApi extends BaseApi {
      * @return ResponseEntity&lt;AckResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AckResponse> delete4WithHttpInfo(UUID agentId) throws RestClientException {
+    public ResponseEntity<AckResponse> delete5WithHttpInfo(UUID agentId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'agentId' is set
         if (agentId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentId' when calling delete4");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentId' when calling delete5");
         }
         
         // create path and map variables
@@ -178,8 +178,8 @@ public class AgentApi extends BaseApi {
      * @return Agent
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public Agent get4(UUID agentId) throws RestClientException {
-        return get4WithHttpInfo(agentId).getBody();
+    public Agent get5(UUID agentId) throws RestClientException {
+        return get5WithHttpInfo(agentId).getBody();
     }
 
     /**
@@ -196,12 +196,12 @@ public class AgentApi extends BaseApi {
      * @return ResponseEntity&lt;Agent&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<Agent> get4WithHttpInfo(UUID agentId) throws RestClientException {
+    public ResponseEntity<Agent> get5WithHttpInfo(UUID agentId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'agentId' is set
         if (agentId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentId' when calling get4");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentId' when calling get5");
         }
         
         // create path and map variables
@@ -240,8 +240,8 @@ public class AgentApi extends BaseApi {
      * @return AgentListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AgentListResponse list2(Integer pageSize, Integer pageIndex) throws RestClientException {
-        return list2WithHttpInfo(pageSize, pageIndex).getBody();
+    public AgentListResponse list3(Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list3WithHttpInfo(pageSize, pageIndex).getBody();
     }
 
     /**
@@ -259,7 +259,7 @@ public class AgentApi extends BaseApi {
      * @return ResponseEntity&lt;AgentListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AgentListResponse> list2WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<AgentListResponse> list3WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
 
@@ -299,8 +299,8 @@ public class AgentApi extends BaseApi {
      * @return Agent
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public Agent update4(UUID agentId, AgentUpdateRequest agentUpdateRequest) throws RestClientException {
-        return update4WithHttpInfo(agentId, agentUpdateRequest).getBody();
+    public Agent update5(UUID agentId, AgentUpdateRequest agentUpdateRequest) throws RestClientException {
+        return update5WithHttpInfo(agentId, agentUpdateRequest).getBody();
     }
 
     /**
@@ -318,17 +318,17 @@ public class AgentApi extends BaseApi {
      * @return ResponseEntity&lt;Agent&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<Agent> update4WithHttpInfo(UUID agentId, AgentUpdateRequest agentUpdateRequest) throws RestClientException {
+    public ResponseEntity<Agent> update5WithHttpInfo(UUID agentId, AgentUpdateRequest agentUpdateRequest) throws RestClientException {
         Object localVarPostBody = agentUpdateRequest;
         
         // verify the required parameter 'agentId' is set
         if (agentId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentId' when calling update4");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentId' when calling update5");
         }
         
         // verify the required parameter 'agentUpdateRequest' is set
         if (agentUpdateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentUpdateRequest' when calling update4");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'agentUpdateRequest' when calling update5");
         }
         
         // create path and map variables

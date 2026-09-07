@@ -4,15 +4,15 @@ All URIs are relative to *https://api.verbatim-ai.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**create2**](AuthApi.md#create2) | **POST** /v1/auth/access-token | Create an access token |
+| [**create3**](AuthApi.md#create3) | **POST** /v1/auth/access-token | Create an access token |
 | [**revoke**](AuthApi.md#revoke) | **DELETE** /v1/auth/access-token/{token} | Revoke an access token |
 | [**whoami**](AuthApi.md#whoami) | **GET** /v1/auth/whoami | Who am I |
 
 
 
-## create2
+## create3
 
-> AccessTokenCreateResponse create2(accessTokenCreateRequest)
+> AccessTokenCreateResponse create3(accessTokenCreateRequest)
 
 Create an access token
 
@@ -41,10 +41,10 @@ public class Example {
         AuthApi apiInstance = new AuthApi(defaultClient);
         AccessTokenCreateRequest accessTokenCreateRequest = new AccessTokenCreateRequest(); // AccessTokenCreateRequest | 
         try {
-            AccessTokenCreateResponse result = apiInstance.create2(accessTokenCreateRequest);
+            AccessTokenCreateResponse result = apiInstance.create3(accessTokenCreateRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AuthApi#create2");
+            System.err.println("Exception when calling AuthApi#create3");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());

@@ -1,6 +1,6 @@
 /*
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -30,14 +30,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Pair of posts produced by a query: the user message and the corresponding system answer.
  */
 @JsonPropertyOrder({
+  PostItemResponse.JSON_PROPERTY_THREAD_ID,
   PostItemResponse.JSON_PROPERTY_SESSION_ID,
   PostItemResponse.JSON_PROPERTY_QUERY,
   PostItemResponse.JSON_PROPERTY_ANSWER
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class PostItemResponse {
-  public static final String JSON_PROPERTY_SESSION_ID = "sessionId";
+  public static final String JSON_PROPERTY_THREAD_ID = "threadId";
   @javax.annotation.Nonnull
+  private UUID threadId;
+
+  public static final String JSON_PROPERTY_SESSION_ID = "sessionId";
+  @javax.annotation.Nullable
   private UUID sessionId;
 
   public static final String JSON_PROPERTY_QUERY = "query";
@@ -51,28 +56,55 @@ public class PostItemResponse {
   public PostItemResponse() {
   }
 
-  public PostItemResponse sessionId(@javax.annotation.Nonnull UUID sessionId) {
+  public PostItemResponse threadId(@javax.annotation.Nonnull UUID threadId) {
+    
+    this.threadId = threadId;
+    return this;
+  }
+
+  /**
+   * ID of the thread the posts belong to (UUIDv4).
+   * @return threadId
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_THREAD_ID, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public UUID getThreadId() {
+    return threadId;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_THREAD_ID, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setThreadId(@javax.annotation.Nonnull UUID threadId) {
+    this.threadId = threadId;
+  }
+
+  public PostItemResponse sessionId(@javax.annotation.Nullable UUID sessionId) {
     
     this.sessionId = sessionId;
     return this;
   }
 
   /**
-   * ID of the session the posts belong to (UUIDv4).
+   * Get sessionId
    * @return sessionId
+   * @deprecated
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_SESSION_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @Deprecated
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_SESSION_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public UUID getSessionId() {
     return sessionId;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_SESSION_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setSessionId(@javax.annotation.Nonnull UUID sessionId) {
+  @JsonProperty(value = JSON_PROPERTY_SESSION_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setSessionId(@javax.annotation.Nullable UUID sessionId) {
     this.sessionId = sessionId;
   }
 
@@ -136,20 +168,22 @@ public class PostItemResponse {
       return false;
     }
     PostItemResponse postItemResponse = (PostItemResponse) o;
-    return Objects.equals(this.sessionId, postItemResponse.sessionId) &&
+    return Objects.equals(this.threadId, postItemResponse.threadId) &&
+        Objects.equals(this.sessionId, postItemResponse.sessionId) &&
         Objects.equals(this.query, postItemResponse.query) &&
         Objects.equals(this.answer, postItemResponse.answer);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(sessionId, query, answer);
+    return Objects.hash(threadId, sessionId, query, answer);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class PostItemResponse {\n");
+    sb.append("    threadId: ").append(toIndentedString(threadId)).append("\n");
     sb.append("    sessionId: ").append(toIndentedString(sessionId)).append("\n");
     sb.append("    query: ").append(toIndentedString(query)).append("\n");
     sb.append("    answer: ").append(toIndentedString(answer)).append("\n");

@@ -59,8 +59,8 @@ public class CorpusApi extends BaseApi {
      * @return CorpusCreateResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public CorpusCreateResponse create1(CorpusCreateRequest corpusCreateRequest) throws RestClientException {
-        return create1WithHttpInfo(corpusCreateRequest).getBody();
+    public CorpusCreateResponse create2(CorpusCreateRequest corpusCreateRequest) throws RestClientException {
+        return create2WithHttpInfo(corpusCreateRequest).getBody();
     }
 
     /**
@@ -77,12 +77,12 @@ public class CorpusApi extends BaseApi {
      * @return ResponseEntity&lt;CorpusCreateResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<CorpusCreateResponse> create1WithHttpInfo(CorpusCreateRequest corpusCreateRequest) throws RestClientException {
+    public ResponseEntity<CorpusCreateResponse> create2WithHttpInfo(CorpusCreateRequest corpusCreateRequest) throws RestClientException {
         Object localVarPostBody = corpusCreateRequest;
         
         // verify the required parameter 'corpusCreateRequest' is set
         if (corpusCreateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusCreateRequest' when calling create1");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusCreateRequest' when calling create2");
         }
         
 
@@ -119,8 +119,8 @@ public class CorpusApi extends BaseApi {
      * @return AckResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public AckResponse delete2(UUID corpusId) throws RestClientException {
-        return delete2WithHttpInfo(corpusId).getBody();
+    public AckResponse delete3(UUID corpusId) throws RestClientException {
+        return delete3WithHttpInfo(corpusId).getBody();
     }
 
     /**
@@ -137,12 +137,12 @@ public class CorpusApi extends BaseApi {
      * @return ResponseEntity&lt;AckResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<AckResponse> delete2WithHttpInfo(UUID corpusId) throws RestClientException {
+    public ResponseEntity<AckResponse> delete3WithHttpInfo(UUID corpusId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling delete2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling delete3");
         }
         
         // create path and map variables
@@ -180,8 +180,8 @@ public class CorpusApi extends BaseApi {
      * @return CorpusItemResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public CorpusItemResponse get2(UUID corpusId) throws RestClientException {
-        return get2WithHttpInfo(corpusId).getBody();
+    public CorpusItemResponse get3(UUID corpusId) throws RestClientException {
+        return get3WithHttpInfo(corpusId).getBody();
     }
 
     /**
@@ -198,12 +198,12 @@ public class CorpusApi extends BaseApi {
      * @return ResponseEntity&lt;CorpusItemResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<CorpusItemResponse> get2WithHttpInfo(UUID corpusId) throws RestClientException {
+    public ResponseEntity<CorpusItemResponse> get3WithHttpInfo(UUID corpusId) throws RestClientException {
         Object localVarPostBody = null;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling get2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling get3");
         }
         
         // create path and map variables
@@ -242,8 +242,8 @@ public class CorpusApi extends BaseApi {
      * @return CorpusListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public CorpusListResponse list1(Integer pageSize, Integer pageIndex) throws RestClientException {
-        return list1WithHttpInfo(pageSize, pageIndex).getBody();
+    public CorpusListResponse list2(Integer pageSize, Integer pageIndex) throws RestClientException {
+        return list2WithHttpInfo(pageSize, pageIndex).getBody();
     }
 
     /**
@@ -261,7 +261,7 @@ public class CorpusApi extends BaseApi {
      * @return ResponseEntity&lt;CorpusListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<CorpusListResponse> list1WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
+    public ResponseEntity<CorpusListResponse> list2WithHttpInfo(Integer pageSize, Integer pageIndex) throws RestClientException {
         Object localVarPostBody = null;
         
 
@@ -301,8 +301,8 @@ public class CorpusApi extends BaseApi {
      * @return CorpusUpdateResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public CorpusUpdateResponse update2(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
-        return update2WithHttpInfo(corpusId, corpusUpdateRequest).getBody();
+    public CorpusUpdateResponse update3(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
+        return update3WithHttpInfo(corpusId, corpusUpdateRequest).getBody();
     }
 
     /**
@@ -320,17 +320,17 @@ public class CorpusApi extends BaseApi {
      * @return ResponseEntity&lt;CorpusUpdateResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<CorpusUpdateResponse> update2WithHttpInfo(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
+    public ResponseEntity<CorpusUpdateResponse> update3WithHttpInfo(UUID corpusId, CorpusUpdateRequest corpusUpdateRequest) throws RestClientException {
         Object localVarPostBody = corpusUpdateRequest;
         
         // verify the required parameter 'corpusId' is set
         if (corpusId == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling update2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusId' when calling update3");
         }
         
         // verify the required parameter 'corpusUpdateRequest' is set
         if (corpusUpdateRequest == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusUpdateRequest' when calling update2");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'corpusUpdateRequest' when calling update3");
         }
         
         // create path and map variables

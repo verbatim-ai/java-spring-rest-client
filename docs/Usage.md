@@ -17,6 +17,7 @@ Aggregated usage metrics over a timeframe, with a per-bucket time series. Return
 |**tokens** | [**UsageTokens**](UsageTokens.md) | Token usage. At organization and user scope, sum of &#x60;post.token&#x60; + &#x60;document.token&#x60;. At corpus scope, sum of &#x60;post.token&#x60; only (vectorization tokens are billed at organization level). |  |
 |**corpora** | [**UsageCount**](UsageCount.md) | Corpus counts. Populated at organization scope only; &#x60;null&#x60; at corpus and user scopes. |  |
 |**sessions** | [**UsageCount**](UsageCount.md) | Session counts within the scope. |  |
+|**threads** | [**UsageCount**](UsageCount.md) | Thread counts within the scope. |  |
 |**posts** | [**UsageCount**](UsageCount.md) | Post counts within the scope. |  |
 |**storage** | [**UsageCount**](UsageCount.md) | Storage footprint of documents within the scope. &#x60;total&#x60;/&#x60;created&#x60;/&#x60;removed&#x60; are **bytes**, not item counts. |  |
 |**series** | [**List&lt;UsageBucket&gt;**](UsageBucket.md) | Per-bucket breakdown over &#x60;[from, to)&#x60;, oldest first — 30 daily, 12 weekly, 12 monthly or 5 yearly entries depending on &#x60;timeframe&#x60;. Contiguous and gapless: a bucket with no activity is present with zeros, and the last entry is the newest **completed** bucket — the one in progress is not reported. The buckets sum to the top-level &#x60;created&#x60;/&#x60;removed&#x60;/&#x60;inPeriod&#x60;. |  |
