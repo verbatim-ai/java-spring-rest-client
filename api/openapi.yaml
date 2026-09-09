@@ -11701,14 +11701,14 @@ components:
       description: "Presigned URL granting direct client GET access to a single rendered\
         \ preview image of one page of a document, at one rendering size."
       example:
-        page: 0
+        page: 1
         size: SMALL
         url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/preview/<doc>/small/0.jpg?X-Amz-Algorithm=...
         expiresAt: 2026-05-21T10:15:00Z
       properties:
         page:
-          description: Zero-based page index this preview represents.
-          example: 0
+          description: One-based page index this preview represents.
+          example: 1
           format: int32
           type: integer
         size:
@@ -11739,11 +11739,11 @@ components:
       example:
         id: 550e8400-e29b-41d4-a716-446655440000
         items:
-        - page: 0
+        - page: 1
           size: SMALL
           url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/preview/<doc>/small/0.jpg?X-Amz-Algorithm=...
           expiresAt: 2026-05-21T10:15:00Z
-        - page: 0
+        - page: 1
           size: SMALL
           url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/preview/<doc>/small/0.jpg?X-Amz-Algorithm=...
           expiresAt: 2026-05-21T10:15:00Z

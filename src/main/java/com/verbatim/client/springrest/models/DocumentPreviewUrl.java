@@ -97,7 +97,7 @@ public class DocumentPreviewUrl {
   }
 
   /**
-   * Zero-based page index this preview represents.
+   * One-based page index this preview represents.
    * @return page
    */
   @javax.annotation.Nullable
