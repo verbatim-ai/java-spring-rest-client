@@ -298,8 +298,13 @@ paths:
       description: |
         Replace the **content** of an existing document while keeping its identity: same
         `id`, same `filename`, `userId`, `provider`, `lang`, `metadata`, `tags`, `chunk`
-        and source dates. Use `PATCH /v1/doc/{id}` to change those attributes — this
+        and `docCreate`. Use `PATCH /v1/doc/{id}` to change those attributes — this
         endpoint only touches the file behind them.
+
+        The one exception is `docUpdate`, the **source** document's last-modified date:
+        it described the bytes you are replacing, so it is re-stamped with the moment of
+        this call. `PATCH /v1/doc/{id}` it afterwards if you know the new file's real
+        modification date — patching it before this call would be overwritten.
 
         The document must be in `READY` or `FAILED` status; any other status is rejected
         with `409`, since there is either nothing ingested yet or an ingestion in flight.
@@ -3443,7 +3448,10 @@ paths:
 
         `docCreate` and `docUpdate` describe the **source** document, not the platform row:
         they are yours to correct, while `createdAt` and `updatedAt` remain server-managed
-        and cannot be set here.
+        and cannot be set here. Both are always set — a document uploaded without them
+        carries the upload instant rather than a null — so this is the endpoint that
+        replaces a guessed date with a real one. Neither can be cleared: omitting a field
+        means *leave it alone*, and there is no value that means *unset*.
 
         Every attribute is descriptive: renaming a document does not move the stored file
         nor re-trigger ingestion, so embeddings and previews are left untouched. Changing
@@ -9978,14 +9986,19 @@ components:
             combine_text_under_n_chars: 1000
           type: object
         docCreate:
-          description: "Original creation date of the source document (ISO-8601, UTC).\
-            \ Falls back to upload time when unknown."
+          description: "Creation date of the **source** document — the file — as opposed\
+            \ to `createdAt`, which is when the platform first saw it (ISO-8601, UTC).\
+            \ Always present: when the upload declared no date, this is the upload\
+            \ instant."
           example: 2026-01-15T10:30:00Z
           format: date-time
           type: string
         docUpdate:
-          description: "Original last-modified date of the source document (ISO-8601,\
-            \ UTC). Falls back to upload time when unknown."
+          description: "Last-modified date of the **source** document (ISO-8601, UTC),\
+            \ on the same terms as `docCreate`. Always present, and the one of the\
+            \ two that moves: replacing the content with `PUT /v1/doc/{id}/init` re-stamps\
+            \ it with the moment of that call. Correct it with `PATCH /v1/doc/{id}`\
+            \ when the new file's real modification date is known."
           example: 2026-04-01T08:00:00Z
           format: date-time
           type: string
@@ -10048,6 +10061,8 @@ components:
       - contentType
       - corpusId
       - createdAt
+      - docCreate
+      - docUpdate
       - filename
       - id
       - status
@@ -10218,13 +10233,18 @@ components:
           example: 550e8400-e29b-41d4-a716-446655440099
           type: string
         docCreate:
-          description: "Original creation date of the source document (ISO-8601, UTC)."
+          description: "Creation date of the **source** document — the file you are\
+            \ uploading, not the platform row (ISO-8601, UTC). Optional: omit it when\
+            \ you have no file metadata to read it from, and the upload instant is\
+            \ stored instead. The stored value is never null, so the response always\
+            \ carries a date; correct it later with `PATCH /v1/doc/{id}`."
           example: 2026-01-15T10:30:00Z
           format: date-time
           type: string
         docUpdate:
-          description: "Original last-modified date of the source document (ISO-8601,\
-            \ UTC)."
+          description: "Last-modified date of the **source** document (ISO-8601, UTC).\
+            \ Optional, with the same fallback as `docCreate` — and the two fall back\
+            \ independently, so sending one does not fill in the other."
           example: 2026-04-01T08:00:00Z
           format: date-time
           type: string
@@ -10809,14 +10829,20 @@ components:
         docCreate:
           description: "New creation date of the **source** document (ISO-8601, UTC).\
             \ Describes the original file, not the platform row — `createdAt` is not\
-            \ affected. Omit to keep the current value."
+            \ affected. Omit to keep the current value. This is how you correct a\
+            \ date the platform had to guess at: a document uploaded without `docCreate`\
+            \ carries the upload instant, not null. `null` cannot be stored — sending\
+            \ it means *leave it alone*, not *clear it*."
           example: 2026-01-15T10:30:00Z
           format: date-time
           type: string
         docUpdate:
           description: "New last-modified date of the **source** document (ISO-8601,\
             \ UTC). Describes the original file, not the platform row — `updatedAt`\
-            \ is not affected. Omit to keep the current value."
+            \ is not affected. Omit to keep the current value; it cannot be cleared,\
+            \ on the same terms as `docCreate`. Note that `PUT /v1/doc/{id}/init`\
+            \ re-stamps it on its own, so patch it *after* replacing the content,\
+            \ not before."
           example: 2026-04-01T08:00:00Z
           format: date-time
           type: string

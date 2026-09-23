@@ -102,7 +102,7 @@ public class DocumentUpdateRequest {
   }
 
   /**
-   * New creation date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — &#x60;createdAt&#x60; is not affected. Omit to keep the current value.
+   * New creation date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — &#x60;createdAt&#x60; is not affected. Omit to keep the current value. This is how you correct a date the platform had to guess at: a document uploaded without &#x60;docCreate&#x60; carries the upload instant, not null. &#x60;null&#x60; cannot be stored — sending it means *leave it alone*, not *clear it*.
    * @return docCreate
    */
   @javax.annotation.Nullable
@@ -127,7 +127,7 @@ public class DocumentUpdateRequest {
   }
 
   /**
-   * New last-modified date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — &#x60;updatedAt&#x60; is not affected. Omit to keep the current value.
+   * New last-modified date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — &#x60;updatedAt&#x60; is not affected. Omit to keep the current value; it cannot be cleared, on the same terms as &#x60;docCreate&#x60;. Note that &#x60;PUT /v1/doc/{id}/init&#x60; re-stamps it on its own, so patch it *after* replacing the content, not before.
    * @return docUpdate
    */
   @javax.annotation.Nullable

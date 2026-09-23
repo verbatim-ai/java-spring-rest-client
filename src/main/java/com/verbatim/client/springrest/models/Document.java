@@ -150,11 +150,11 @@ public class Document {
   private Map<String, Object> chunk = new HashMap<>();
 
   public static final String JSON_PROPERTY_DOC_CREATE = "docCreate";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private OffsetDateTime docCreate;
 
   public static final String JSON_PROPERTY_DOC_UPDATE = "docUpdate";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private OffsetDateTime docUpdate;
 
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
@@ -516,53 +516,53 @@ public class Document {
     this.chunk = chunk;
   }
 
-  public Document docCreate(@javax.annotation.Nullable OffsetDateTime docCreate) {
+  public Document docCreate(@javax.annotation.Nonnull OffsetDateTime docCreate) {
     
     this.docCreate = docCreate;
     return this;
   }
 
   /**
-   * Original creation date of the source document (ISO-8601, UTC). Falls back to upload time when unknown.
+   * Creation date of the **source** document — the file — as opposed to &#x60;createdAt&#x60;, which is when the platform first saw it (ISO-8601, UTC). Always present: when the upload declared no date, this is the upload instant.
    * @return docCreate
    */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_DOC_CREATE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_DOC_CREATE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
   public OffsetDateTime getDocCreate() {
     return docCreate;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_DOC_CREATE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setDocCreate(@javax.annotation.Nullable OffsetDateTime docCreate) {
+  @JsonProperty(value = JSON_PROPERTY_DOC_CREATE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setDocCreate(@javax.annotation.Nonnull OffsetDateTime docCreate) {
     this.docCreate = docCreate;
   }
 
-  public Document docUpdate(@javax.annotation.Nullable OffsetDateTime docUpdate) {
+  public Document docUpdate(@javax.annotation.Nonnull OffsetDateTime docUpdate) {
     
     this.docUpdate = docUpdate;
     return this;
   }
 
   /**
-   * Original last-modified date of the source document (ISO-8601, UTC). Falls back to upload time when unknown.
+   * Last-modified date of the **source** document (ISO-8601, UTC), on the same terms as &#x60;docCreate&#x60;. Always present, and the one of the two that moves: replacing the content with &#x60;PUT /v1/doc/{id}/init&#x60; re-stamps it with the moment of that call. Correct it with &#x60;PATCH /v1/doc/{id}&#x60; when the new file&#39;s real modification date is known.
    * @return docUpdate
    */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_DOC_UPDATE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_DOC_UPDATE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
   public OffsetDateTime getDocUpdate() {
     return docUpdate;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_DOC_UPDATE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setDocUpdate(@javax.annotation.Nullable OffsetDateTime docUpdate) {
+  @JsonProperty(value = JSON_PROPERTY_DOC_UPDATE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setDocUpdate(@javax.annotation.Nonnull OffsetDateTime docUpdate) {
     this.docUpdate = docUpdate;
   }
 
