@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.verbatim.client.springrest.models.Model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,18 +29,86 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * LLM models supported by the platform.
+ * LLM models supported by the platform, everything a client needs to let someone choose one.  Not paginated — the catalog is a handful of entries and &#x60;models&#x60; always holds all of them, in the order the platform means them to be offered. &#x60;total&#x60; is their number, so a client can size a picker without walking the list.  &#x60;items&#x60; is the same list reduced to its identifiers, kept for clients written against the first version of this endpoint. It is deprecated and derived from &#x60;models&#x60;, so the two can never disagree: read &#x60;models[].id&#x60; instead. 
  */
 @JsonPropertyOrder({
+  ModelListResponse.JSON_PROPERTY_TOTAL,
+  ModelListResponse.JSON_PROPERTY_MODELS,
   ModelListResponse.JSON_PROPERTY_ITEMS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
 public class ModelListResponse {
+  public static final String JSON_PROPERTY_TOTAL = "total";
+  @javax.annotation.Nonnull
+  private Integer total;
+
+  public static final String JSON_PROPERTY_MODELS = "models";
+  @javax.annotation.Nullable
+  private List<Model> models = new ArrayList<>();
+
   public static final String JSON_PROPERTY_ITEMS = "items";
   @javax.annotation.Nullable
   private List<String> items = new ArrayList<>();
 
   public ModelListResponse() {
+  }
+
+  public ModelListResponse total(@javax.annotation.Nonnull Integer total) {
+    
+    this.total = total;
+    return this;
+  }
+
+  /**
+   * Number of models in &#x60;models&#x60;.
+   * @return total
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_TOTAL, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Integer getTotal() {
+    return total;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TOTAL, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setTotal(@javax.annotation.Nonnull Integer total) {
+    this.total = total;
+  }
+
+  public ModelListResponse models(@javax.annotation.Nullable List<Model> models) {
+    
+    this.models = models;
+    return this;
+  }
+
+  public ModelListResponse addModelsItem(Model modelsItem) {
+    if (this.models == null) {
+      this.models = new ArrayList<>();
+    }
+    this.models.add(modelsItem);
+    return this;
+  }
+
+  /**
+   * Supported models, in the order they are meant to be offered. The first is the one to preselect.
+   * @return models
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MODELS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public List<Model> getModels() {
+    return models;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_MODELS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setModels(@javax.annotation.Nullable List<Model> models) {
+    this.models = models;
   }
 
   public ModelListResponse items(@javax.annotation.Nullable List<String> items) {
@@ -57,9 +126,11 @@ public class ModelListResponse {
   }
 
   /**
-   * Identifiers of the supported LLM models.
+   * **Deprecated** — identifiers of the supported models, without the display fields. Superseded by &#x60;models[].id&#x60;, which carries the same values in the same order. Still served for existing clients; it will be removed in a future release.
    * @return items
+   * @deprecated
    */
+  @Deprecated
   @javax.annotation.Nullable
   @JsonProperty(value = JSON_PROPERTY_ITEMS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
@@ -85,18 +156,22 @@ public class ModelListResponse {
       return false;
     }
     ModelListResponse modelListResponse = (ModelListResponse) o;
-    return Objects.equals(this.items, modelListResponse.items);
+    return Objects.equals(this.total, modelListResponse.total) &&
+        Objects.equals(this.models, modelListResponse.models) &&
+        Objects.equals(this.items, modelListResponse.items);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(items);
+    return Objects.hash(total, models, items);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ModelListResponse {\n");
+    sb.append("    total: ").append(toIndentedString(total)).append("\n");
+    sb.append("    models: ").append(toIndentedString(models)).append("\n");
     sb.append("    items: ").append(toIndentedString(items)).append("\n");
     sb.append("}");
     return sb.toString();

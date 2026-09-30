@@ -41,6 +41,7 @@ docs/DocumentSearchResponse.md
 docs/DocumentStatus.md
 docs/DocumentUpdateRequest.md
 docs/Error.md
+docs/Model.md
 docs/ModelListResponse.md
 docs/Post.md
 docs/PostApi.md
@@ -119,6 +120,7 @@ src/main/java/com/verbatim/client/springrest/models/DocumentSearchResponse.java
 src/main/java/com/verbatim/client/springrest/models/DocumentStatus.java
 src/main/java/com/verbatim/client/springrest/models/DocumentUpdateRequest.java
 src/main/java/com/verbatim/client/springrest/models/Error.java
+src/main/java/com/verbatim/client/springrest/models/Model.java
 src/main/java/com/verbatim/client/springrest/models/ModelListResponse.java
 src/main/java/com/verbatim/client/springrest/models/Post.java
 src/main/java/com/verbatim/client/springrest/models/PostAttachmentResponse.java
@@ -174,6 +176,7 @@ src/test/java/com/verbatim/client/springrest/models/DocumentTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentUpdateRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/ErrorTest.java
 src/test/java/com/verbatim/client/springrest/models/ModelListResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/ModelTest.java
 src/test/java/com/verbatim/client/springrest/models/PostAttachmentResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/PostItemResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/PostListResponseTest.java

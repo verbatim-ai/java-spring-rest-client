@@ -89,24 +89,6 @@ tags:
     `GET /v1/post/q` replaces it.
   name: Post
 - description: |
-    What this deployment is configured to serve, so a client can discover it instead of
-    hard-coding it.
-
-    `GET /v1/config/model` returns the LLM identifiers accepted anywhere a model is named —
-    today that is an agent's `baseModel` and `rerankModel`. The names are short aliases
-    (`gemma4`, `mistral`) mapped server-side to concrete provider models, so the mapping can
-    change under you without breaking a stored agent.
-
-    The list is the same for every caller and moves with the deployment, which is the reason to
-    read it rather than embed it: agents validate model names **at write time**, so a name that
-    is not in this list is a `400` on the request that set it rather than a failure on every
-    query the agent later runs. Populating a picker from this endpoint is what keeps the two in
-    step.
-
-    Accepted document content types are **not** here — they belong to ingestion and live at
-    `GET /v1/doc/accept`.
-  name: Configuration
-- description: |
     A **document** is a file ingested into a corpus. Ask `GET /v1/doc/accept` for the content
     types accepted rather than hard-coding a list — it is configuration, and it changes.
 
@@ -223,6 +205,26 @@ tags:
 
     `corpora` is absent at user and corpus scope, where its cardinality is meaningless.
   name: Usage
+- description: |
+    What this deployment is configured to serve, so a client can discover it instead of
+    hard-coding it.
+
+    `GET /v1/config/model` returns the LLM models accepted anywhere a model is named — today
+    that is an agent's `baseModel` and `rerankModel`. Each carries the `id` to send plus the
+    display name, description and icon URL to render it with, so a model picker is this
+    endpoint's response and nothing else. The ids are short aliases (`gemma4`, `mistral`) mapped
+    server-side to concrete provider models, so the mapping can change under you without
+    breaking a stored agent.
+
+    The list is the same for every caller and moves with the deployment, which is the reason to
+    read it rather than embed it: agents validate model names **at write time**, so a name that
+    is not in this list is a `400` on the request that set it rather than a failure on every
+    query the agent later runs. Populating a picker from this endpoint is what keeps the two in
+    step.
+
+    Accepted document content types are **not** here — they belong to ingestion and live at
+    `GET /v1/doc/accept`.
+  name: Configuration
 - description: |
     An **agent** is the setup a RAG query runs on: how many chunks the vector search returns,
     whether an LLM re-ranks them, what system instruction the model is given, how much of the
@@ -351,10 +353,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
-        "415":
-          content: {}
-          description: The document's content type is no longer accepted — see `GET
-            /v1/doc/accept`.
         "403":
           content:
             application/json:
@@ -371,6 +369,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "415":
+          content: {}
+          description: The document's content type is no longer accepted — see `GET
+            /v1/doc/accept`.
         "404":
           content:
             application/json:
@@ -512,6 +514,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -529,22 +547,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -666,6 +668,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -683,22 +701,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -831,6 +833,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -848,22 +866,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -985,6 +987,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -1002,22 +1020,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -1134,6 +1136,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -1151,22 +1169,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -1379,6 +1381,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -1396,22 +1414,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -1550,6 +1552,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -1567,22 +1585,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -1695,6 +1697,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -1712,22 +1730,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -1846,6 +1848,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -1863,22 +1881,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -2002,6 +2004,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -2019,22 +2037,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -2219,6 +2221,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -2236,22 +2254,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -2340,6 +2342,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -2357,22 +2375,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -2470,6 +2472,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -2487,22 +2505,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -2621,6 +2623,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -2638,22 +2656,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -2760,6 +2762,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -2777,22 +2795,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -2890,6 +2892,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -2907,22 +2925,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -3041,6 +3043,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -3058,22 +3076,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -3189,6 +3191,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -3206,22 +3224,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -3319,6 +3321,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -3336,22 +3354,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -3553,6 +3555,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -3570,22 +3588,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -3699,6 +3701,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -3716,22 +3734,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -3828,6 +3830,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -3845,22 +3863,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -3987,6 +3989,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -4004,22 +4022,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -4145,6 +4147,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -4162,22 +4180,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -4286,6 +4288,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -4303,22 +4321,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -4485,6 +4487,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -4502,22 +4520,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -4639,6 +4641,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -4656,22 +4674,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content: {}
           description: No agent with this id is visible to your organization.
@@ -4746,6 +4748,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -4763,22 +4781,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content: {}
           description: No agent with this id is visible to your organization.
@@ -4962,6 +4964,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -4979,22 +4997,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content: {}
           description: No agent with this id is visible to your organization.
@@ -5107,6 +5109,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -5124,22 +5142,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -5321,6 +5323,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -5338,22 +5356,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -5524,6 +5526,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -5541,22 +5559,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -5833,6 +5835,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -5850,22 +5868,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -6097,6 +6099,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -6114,22 +6132,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -6253,6 +6255,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -6270,22 +6288,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -6384,6 +6386,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -6401,22 +6419,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -6595,6 +6597,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -6612,22 +6630,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -6778,6 +6780,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -6795,22 +6813,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -6987,6 +6989,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -7004,22 +7022,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -7152,6 +7154,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -7169,22 +7187,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -7360,6 +7362,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -7377,22 +7395,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -7555,6 +7557,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -7572,22 +7590,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -7690,6 +7692,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -7707,22 +7725,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -7870,6 +7872,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -7887,22 +7905,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -8035,6 +8037,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -8052,22 +8070,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -8438,6 +8440,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -8455,22 +8473,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -8615,6 +8617,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -8632,22 +8650,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -8810,6 +8812,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -8827,22 +8845,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -8932,9 +8934,17 @@ paths:
       - application/json
   /v1/config/model:
     get:
-      description: Return the identifiers of the LLM models the platform is configured
-        to serve. The list is driven by the `app.ai.model` server property and is
-        the same for every caller.
+      description: |
+        Return the LLM models the platform is configured to serve, each with the `id` to
+        send and the display name, description and icon URL to present it with.
+
+        The list is the same for every caller and is not paginated: `models` holds the
+        whole catalog, in the order it is meant to be offered, and `total` is how many
+        that is. Preselect the first entry.
+
+        `items` repeats the same ids without the display fields, for clients written
+        against the first version of this endpoint. It is deprecated — read
+        `models[].id`.
       operationId: list_6
       responses:
         "500":
@@ -8953,6 +8963,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -8970,22 +8996,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -9038,6 +9048,20 @@ paths:
           content:
             application/json:
               example:
+                total: 2
+                models:
+                - id: gemma4
+                  name: Gemma 4
+                  description: "Google's open lightweight model. The platform default:\
+                    \ quick to answer and inexpensive, a good fit for everyday questions\
+                    \ over a corpus."
+                  iconUrl: https://cdn.simpleicons.org/google
+                - id: mistral
+                  name: Mistral Small 3.2
+                  description: "Mistral AI's 24B instruction-tuned model. Stronger\
+                    \ on European languages and on long, nuanced answers, for a higher\
+                    \ cost per query."
+                  iconUrl: https://cdn.simpleicons.org/mistralai
                 items:
                 - gemma4
                 - mistral
@@ -9236,6 +9260,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -9253,22 +9293,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -9467,6 +9491,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -9484,22 +9524,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -9612,6 +9636,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -9629,22 +9669,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -9743,6 +9767,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
         "415":
           content:
             application/json:
@@ -9760,22 +9800,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
         "404":
           content:
             application/json:
@@ -12217,22 +12241,105 @@ components:
         orgId:
           deprecated: true
           type: string
-    ModelListResponse:
-      description: LLM models supported by the platform.
+    Model:
+      description: |
+        One LLM the platform is configured to serve, with what a client needs to present it.
+
+        `id` is the contract: it is the value an agent's `baseModel` or `rerankModel` is set to, and
+        the only field the server reads back. The other three exist to be rendered — a picker built
+        from this endpoint shows `name`, `description` and `iconUrl` and sends `id`.
+
+        `name` and `description` are editorial and may be reworded at any time; do not match on
+        them. Which concrete provider model an `id` runs on is deliberately absent — it changes
+        under you without the `id` changing, which is the point of naming the alias.
       example:
+        id: gemma4
+        name: Gemma 4
+        description: "Google's open lightweight model. The platform default: quick\
+          \ to answer and inexpensive, a good fit for everyday questions over a corpus."
+        iconUrl: https://cdn.simpleicons.org/google
+      properties:
+        id:
+          description: Identifier of the model — the value to send anywhere a model
+            is named.
+          example: gemma4
+          type: string
+        name:
+          description: "Display name, for a model picker or the header of an answer."
+          example: Gemma 4
+          type: string
+        description:
+          description: "One-line description of what the model is good for, for a\
+            \ tooltip or a line under the name."
+          example: "Google's open lightweight model. The platform default: quick to\
+            \ answer and inexpensive, a good fit for everyday questions over a corpus."
+          type: string
+        iconUrl:
+          description: "Absolute URL of the model's icon — the provider's own logo,\
+            \ an SVG. Hosted off-platform, so render it as a remote image and keep\
+            \ a fallback for the request failing."
+          example: https://cdn.simpleicons.org/google
+          type: string
+      required:
+      - id
+    ModelListResponse:
+      description: |
+        LLM models supported by the platform, everything a client needs to let someone choose one.
+
+        Not paginated — the catalog is a handful of entries and `models` always holds all of them,
+        in the order the platform means them to be offered. `total` is their number, so a client can
+        size a picker without walking the list.
+
+        `items` is the same list reduced to its identifiers, kept for clients written against the
+        first version of this endpoint. It is deprecated and derived from `models`, so the two can
+        never disagree: read `models[].id` instead.
+      example:
+        total: 2
+        models:
+        - id: gemma4
+          name: Gemma 4
+          description: "Google's open lightweight model. The platform default: quick\
+            \ to answer and inexpensive, a good fit for everyday questions over a\
+            \ corpus."
+          iconUrl: https://cdn.simpleicons.org/google
+        - id: gemma4
+          name: Gemma 4
+          description: "Google's open lightweight model. The platform default: quick\
+            \ to answer and inexpensive, a good fit for everyday questions over a\
+            \ corpus."
+          iconUrl: https://cdn.simpleicons.org/google
         items:
         - gemma4
         - mistral
       properties:
+        total:
+          description: Number of models in `models`.
+          example: 2
+          format: int32
+          type: integer
+        models:
+          description: "Supported models, in the order they are meant to be offered.\
+            \ The first is the one to preselect."
+          items:
+            $ref: "#/components/schemas/Model"
+          type: array
+          default: null
         items:
-          description: Identifiers of the supported LLM models.
+          deprecated: true
+          description: "**Deprecated** — identifiers of the supported models, without\
+            \ the display fields. Superseded by `models[].id`, which carries the same\
+            \ values in the same order. Still served for existing clients; it will\
+            \ be removed in a future release."
           example:
           - gemma4
           - mistral
           items:
+            deprecated: true
             type: string
           type: array
           default: null
+      required:
+      - total
     ChunkListResponse:
       description: Paginated list of chunks. Echoes the filters that were actually
         applied — a filter that was dropped as empty does not appear here.

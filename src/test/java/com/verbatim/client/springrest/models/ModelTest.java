@@ -18,50 +18,54 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.verbatim.client.springrest.models.Model;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Model tests for ModelListResponse
+ * Model tests for Model
  */
-class ModelListResponseTest {
-    private final ModelListResponse model = new ModelListResponse();
+class ModelTest {
+    private final Model model = new Model();
 
     /**
-     * Model tests for ModelListResponse
+     * Model tests for Model
      */
     @Test
-    void testModelListResponse() {
-        // TODO: test ModelListResponse
+    void testModel() {
+        // TODO: test Model
     }
 
     /**
-     * Test the property 'total'
+     * Test the property 'id'
      */
     @Test
-    void totalTest() {
-        // TODO: test total
+    void idTest() {
+        // TODO: test id
     }
 
     /**
-     * Test the property 'models'
+     * Test the property 'name'
      */
     @Test
-    void modelsTest() {
-        // TODO: test models
+    void nameTest() {
+        // TODO: test name
     }
 
     /**
-     * Test the property 'items'
+     * Test the property 'description'
      */
     @Test
-    void itemsTest() {
-        // TODO: test items
+    void descriptionTest() {
+        // TODO: test description
+    }
+
+    /**
+     * Test the property 'iconUrl'
+     */
+    @Test
+    void iconUrlTest() {
+        // TODO: test iconUrl
     }
 
 }

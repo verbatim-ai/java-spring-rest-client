@@ -240,6 +240,7 @@ Class | Method | HTTP request | Description
  - [DocumentStatus](docs/DocumentStatus.md)
  - [DocumentUpdateRequest](docs/DocumentUpdateRequest.md)
  - [Error](docs/Error.md)
+ - [Model](docs/Model.md)
  - [ModelListResponse](docs/ModelListResponse.md)
  - [Post](docs/Post.md)
  - [PostAttachmentResponse](docs/PostAttachmentResponse.md)
