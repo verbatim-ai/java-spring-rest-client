@@ -48,6 +48,7 @@ public class UsageApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Organization usage report. The example&#39;s &#x60;series&#x60; is trimmed to three buckets for readability; a real &#x60;Day&#x60; report carries 30.
      * @param timeframe Bucket size to aggregate by, and with it how far back the report reaches. Defaults to &#x60;Day&#x60; (30 daily buckets). (optional)
      * @return Usage
@@ -66,6 +67,7 @@ public class UsageApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Organization usage report. The example&#39;s &#x60;series&#x60; is trimmed to three buckets for readability; a real &#x60;Day&#x60; report carries 30.
      * @param timeframe Bucket size to aggregate by, and with it how far back the report reaches. Defaults to &#x60;Day&#x60; (30 daily buckets). (optional)
      * @return ResponseEntity&lt;Usage&gt;
@@ -104,6 +106,7 @@ public class UsageApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus usage report. The example&#39;s &#x60;series&#x60; is trimmed to two buckets for readability; a real &#x60;Week&#x60; report carries 12.
      * @param corpusId ID of the corpus to compute usage for. (required)
      * @param timeframe Bucket size to aggregate by, and with it how far back the report reaches. Defaults to &#x60;Day&#x60; (30 daily buckets). (optional)
@@ -123,6 +126,7 @@ public class UsageApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus usage report. The example&#39;s &#x60;series&#x60; is trimmed to two buckets for readability; a real &#x60;Week&#x60; report carries 12.
      * @param corpusId ID of the corpus to compute usage for. (required)
      * @param timeframe Bucket size to aggregate by, and with it how far back the report reaches. Defaults to &#x60;Day&#x60; (30 daily buckets). (optional)
@@ -170,6 +174,7 @@ public class UsageApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - User usage report. The example&#39;s &#x60;series&#x60; is trimmed to two buckets for readability; a real &#x60;Month&#x60; report carries 12.
      * @param userId ID of the user to compute usage for. Free-form string (max 256 chars), matched against &#x60;thread.user_id&#x60; and &#x60;document.user_id&#x60;. (required)
      * @param timeframe Bucket size to aggregate by, and with it how far back the report reaches. Defaults to &#x60;Day&#x60; (30 daily buckets). (optional)
@@ -189,6 +194,7 @@ public class UsageApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - User usage report. The example&#39;s &#x60;series&#x60; is trimmed to two buckets for readability; a real &#x60;Month&#x60; report carries 12.
      * @param userId ID of the user to compute usage for. Free-form string (max 256 chars), matched against &#x60;thread.user_id&#x60; and &#x60;document.user_id&#x60;. (required)
      * @param timeframe Bucket size to aggregate by, and with it how far back the report reaches. Defaults to &#x60;Day&#x60; (30 daily buckets). (optional)

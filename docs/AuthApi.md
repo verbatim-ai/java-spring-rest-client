@@ -84,6 +84,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Access token created. |  -  |
 
 
@@ -161,6 +162,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Token revoked. |  -  |
 
 
@@ -234,5 +236,6 @@ This endpoint does not need any parameter.
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Identity of the authenticated user. |  -  |
 

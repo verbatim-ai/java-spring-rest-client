@@ -5,6 +5,7 @@ import com.verbatim.client.springrest.invoker.BaseApi;
 
 import com.verbatim.client.springrest.models.AckResponse;
 import com.verbatim.client.springrest.models.Document;
+import com.verbatim.client.springrest.models.DocumentConvertResponse;
 import com.verbatim.client.springrest.models.DocumentDownloadUrl;
 import com.verbatim.client.springrest.models.DocumentInit;
 import com.verbatim.client.springrest.models.DocumentInitRequest;
@@ -14,6 +15,7 @@ import com.verbatim.client.springrest.models.DocumentSearchResponse;
 import com.verbatim.client.springrest.models.DocumentStatus;
 import com.verbatim.client.springrest.models.DocumentUpdateRequest;
 import com.verbatim.client.springrest.models.Error;
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -58,6 +60,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>202</b> - Ingestion queued. Document moved to PROCESSING.
      * @param id ID of the document returned by &#x60;POST /v1/doc/init&#x60;. (required)
      * @return Document
@@ -76,6 +79,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>202</b> - Ingestion queued. Document moved to PROCESSING.
      * @param id ID of the document returned by &#x60;POST /v1/doc/init&#x60;. (required)
      * @return ResponseEntity&lt;Document&gt;
@@ -111,6 +115,73 @@ public class DocumentApi extends BaseApi {
         return apiClient.invokeAPI("/v1/doc/{id}/commit", HttpMethod.POST, uriVariables, localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
     }
     /**
+     * Convert a document to Markdown
+     * Convert a document — PDF, Word, Excel, PowerPoint, OpenDocument, EPUB, HTML, e-mail, … — to Markdown and return it in the response, typically to feed it to an LLM as context.  **Synchronous and stateless.** The conversion runs during the call and nothing is kept: no document is created, no corpus is involved, nothing is ingested. Use the &#x60;init&#x60; → &#x60;commit&#x60; flow to add a document to a corpus.  **The body is the file itself**, sent as &#x60;application/octet-stream&#x60; — not JSON, not multipart. This is the one endpoint the file bytes go through, so it is bounded: a body above 25 MB is refused with &#x60;413&#x60;.  **No format to declare.** The format is detected from the file&#39;s content; &#x60;filename&#x60; is optional and only helps when the content alone is ambiguous — plain-text formats such as Markdown or CSV. The format found is returned in &#x60;contentType&#x60;.  Readable: PDF (with a text layer), &#x60;.docx&#x60; &#x60;.doc&#x60; &#x60;.xlsx&#x60; &#x60;.xls&#x60; &#x60;.pptx&#x60; &#x60;.ppt&#x60;, &#x60;.odt&#x60; &#x60;.ods&#x60; &#x60;.odp&#x60;, &#x60;.rtf&#x60;, &#x60;.epub&#x60;, &#x60;.html&#x60;, &#x60;.xml&#x60;, &#x60;.md&#x60;, &#x60;.txt&#x60;, &#x60;.csv&#x60;, &#x60;.eml&#x60; &#x60;.msg&#x60;, and most other office and text formats. A format no parser recognises — an image, an archive of unknown content, random bytes — answers &#x60;415&#x60;.  **Output.** Markdown with headings, emphasis, lists and pipe tables; a spreadsheet gives one section per sheet. Images are not described, so a scanned PDF converts to no text: the call still succeeds, with an empty &#x60;markdown&#x60; and a &#x60;warnings&#x60; entry saying so. &#x60;warnings&#x60; also reports parts the converter skipped — a &#x60;200&#x60; with warnings is still a usable conversion.  A document that cannot be read — corrupt, truncated, password-protected — is a &#x60;400&#x60; explaining why.  Scope: &#x60;doc:create&#x60;. 
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
+     * <p><b>200</b> - Document converted.
+     * @param body The document&#39;s raw bytes. (required)
+     * @param filename Original file name. Its extension helps detect the format of plain-text files (&#x60;.md&#x60;, &#x60;.csv&#x60;, …); it is echoed back in the response. (optional)
+     * @return DocumentConvertResponse
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public DocumentConvertResponse convert(File body, String filename) throws RestClientException {
+        return convertWithHttpInfo(body, filename).getBody();
+    }
+
+    /**
+     * Convert a document to Markdown
+     * Convert a document — PDF, Word, Excel, PowerPoint, OpenDocument, EPUB, HTML, e-mail, … — to Markdown and return it in the response, typically to feed it to an LLM as context.  **Synchronous and stateless.** The conversion runs during the call and nothing is kept: no document is created, no corpus is involved, nothing is ingested. Use the &#x60;init&#x60; → &#x60;commit&#x60; flow to add a document to a corpus.  **The body is the file itself**, sent as &#x60;application/octet-stream&#x60; — not JSON, not multipart. This is the one endpoint the file bytes go through, so it is bounded: a body above 25 MB is refused with &#x60;413&#x60;.  **No format to declare.** The format is detected from the file&#39;s content; &#x60;filename&#x60; is optional and only helps when the content alone is ambiguous — plain-text formats such as Markdown or CSV. The format found is returned in &#x60;contentType&#x60;.  Readable: PDF (with a text layer), &#x60;.docx&#x60; &#x60;.doc&#x60; &#x60;.xlsx&#x60; &#x60;.xls&#x60; &#x60;.pptx&#x60; &#x60;.ppt&#x60;, &#x60;.odt&#x60; &#x60;.ods&#x60; &#x60;.odp&#x60;, &#x60;.rtf&#x60;, &#x60;.epub&#x60;, &#x60;.html&#x60;, &#x60;.xml&#x60;, &#x60;.md&#x60;, &#x60;.txt&#x60;, &#x60;.csv&#x60;, &#x60;.eml&#x60; &#x60;.msg&#x60;, and most other office and text formats. A format no parser recognises — an image, an archive of unknown content, random bytes — answers &#x60;415&#x60;.  **Output.** Markdown with headings, emphasis, lists and pipe tables; a spreadsheet gives one section per sheet. Images are not described, so a scanned PDF converts to no text: the call still succeeds, with an empty &#x60;markdown&#x60; and a &#x60;warnings&#x60; entry saying so. &#x60;warnings&#x60; also reports parts the converter skipped — a &#x60;200&#x60; with warnings is still a usable conversion.  A document that cannot be read — corrupt, truncated, password-protected — is a &#x60;400&#x60; explaining why.  Scope: &#x60;doc:create&#x60;. 
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Not authorized. Access not granted for this request
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
+     * <p><b>200</b> - Document converted.
+     * @param body The document&#39;s raw bytes. (required)
+     * @param filename Original file name. Its extension helps detect the format of plain-text files (&#x60;.md&#x60;, &#x60;.csv&#x60;, …); it is echoed back in the response. (optional)
+     * @return ResponseEntity&lt;DocumentConvertResponse&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<DocumentConvertResponse> convertWithHttpInfo(File body, String filename) throws RestClientException {
+        Object localVarPostBody = body;
+        
+        // verify the required parameter 'body' is set
+        if (body == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling convert");
+        }
+        
+
+        final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<String, String>();
+        final HttpHeaders localVarHeaderParams = new HttpHeaders();
+        final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<String, String>();
+        final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<String, Object>();
+
+        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "filename", filename));
+        
+
+        final String[] localVarAccepts = { 
+            "application/json"
+         };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
+            "application/octet-stream"
+         };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+
+        String[] localVarAuthNames = new String[] { "JWT", "AccessToken" };
+
+        ParameterizedTypeReference<DocumentConvertResponse> localReturnType = new ParameterizedTypeReference<DocumentConvertResponse>() {};
+        return apiClient.invokeAPI("/v1/doc/convert", HttpMethod.POST, Collections.<String, Object>emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
+    }
+    /**
      * Delete a document
      * Remove a document from its corpus.  **This is a soft delete, and it cascades to the document&#39;s chunks.** The document and every chunk it was split into disappear from the API together and stop being retrievable as context, so no answer produced from now on can be built on them. Nothing is destroyed underneath: the archived file and the chunks&#39; stored text are kept. There is no endpoint that undoes it.  Posts that cited this document keep their text and **lose the citations** pointing at it. 
      * <p><b>500</b> - Internal error. Check body to get more info
@@ -119,6 +190,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document and dependencies deleted.
      * @param id ID of the document to delete. (required)
      * @return AckResponse
@@ -137,6 +209,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document and dependencies deleted.
      * @param id ID of the document to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -180,6 +253,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Presigned URL issued.
      * @param id ID of the document. (required)
      * @return DocumentDownloadUrl
@@ -198,6 +272,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Presigned URL issued.
      * @param id ID of the document. (required)
      * @return ResponseEntity&lt;DocumentDownloadUrl&gt;
@@ -241,6 +316,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document found.
      * @param id ID of the document. (required)
      * @return Document
@@ -259,6 +335,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document found.
      * @param id ID of the document. (required)
      * @return ResponseEntity&lt;Document&gt;
@@ -302,6 +379,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document created in AWAITING_UPLOAD status. PUT the file to &#x60;uploadUrl&#x60;.
      * @param documentInitRequest  (required)
      * @return DocumentInit
@@ -320,6 +398,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document created in AWAITING_UPLOAD status. PUT the file to &#x60;uploadUrl&#x60;.
      * @param documentInitRequest  (required)
      * @return ResponseEntity&lt;DocumentInit&gt;
@@ -362,6 +441,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of documents.
      * @param corpusId ID of the corpus. (required)
      * @param status Optional lifecycle filter. When omitted, documents of all statuses are returned. (optional)
@@ -384,6 +464,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of documents.
      * @param corpusId ID of the corpus. (required)
      * @param status Optional lifecycle filter. When omitted, documents of all statuses are returned. (optional)
@@ -435,6 +516,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - List of accepted MIME types.
      * @return String
      * @throws RestClientException if an error occurs while attempting to invoke the API
@@ -452,6 +534,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - List of accepted MIME types.
      * @return ResponseEntity&lt;String&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
@@ -486,6 +569,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Presigned preview URLs issued.
      * @param id ID of the document. (required)
      * @param pages One-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;1&amp;pages&#x3D;2&#x60;. (required)
@@ -505,6 +589,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Presigned preview URLs issued.
      * @param id ID of the document. (required)
      * @param pages One-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;1&amp;pages&#x3D;2&#x60;. (required)
@@ -557,6 +642,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - Document is not in &#x60;READY&#x60; or &#x60;FAILED&#x60; status — nothing to replace, or an ingestion is in flight.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document reset to AWAITING_UPLOAD status. PUT the new file to &#x60;uploadUrl&#x60;.
      * @param id ID of the document whose content is being replaced. (required)
      * @return DocumentInit
@@ -575,6 +661,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - Document is not in &#x60;READY&#x60; or &#x60;FAILED&#x60; status — nothing to replace, or an ingestion is in flight.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document reset to AWAITING_UPLOAD status. PUT the new file to &#x60;uploadUrl&#x60;.
      * @param id ID of the document whose content is being replaced. (required)
      * @return ResponseEntity&lt;DocumentInit&gt;
@@ -618,6 +705,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A filter or paging parameter is out of bounds, or the date window is empty.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching documents.
      * @param corpusId ID of the corpus to search. (required)
      * @param q Filename pattern, case-insensitive and anchored at the start of the name: &#x60;annual&#x60; matches &#x60;Annual-Report-2025.pdf&#x60;, &#x60;report&#x60; does not. Add &#x60;*&#x60; anywhere to match elsewhere (&#x60;*report*&#x60;), at the cost of a scan over the corpus. &#x60;%&#x60; and &#x60;_&#x60; match themselves. Blank or omitted, filenames are not filtered. (optional)
@@ -651,6 +739,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A filter or paging parameter is out of bounds, or the date window is empty.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching documents.
      * @param corpusId ID of the corpus to search. (required)
      * @param q Filename pattern, case-insensitive and anchored at the start of the name: &#x60;annual&#x60; matches &#x60;Annual-Report-2025.pdf&#x60;, &#x60;report&#x60; does not. Add &#x60;*&#x60; anywhere to match elsewhere (&#x60;*report*&#x60;), at the cost of a scan over the corpus. &#x60;%&#x60; and &#x60;_&#x60; match themselves. Blank or omitted, filenames are not filtered. (optional)
@@ -724,6 +813,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Status returned.
      * @param id ID of the document. (required)
      * @return DocumentStatus
@@ -742,6 +832,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Status returned.
      * @param id ID of the document. (required)
      * @return ResponseEntity&lt;DocumentStatus&gt;
@@ -785,6 +876,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Summary returned (may be empty).
      * @param id ID of the document. (required)
      * @return String
@@ -803,6 +895,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Summary returned (may be empty).
      * @param id ID of the document. (required)
      * @return ResponseEntity&lt;String&gt;
@@ -846,6 +939,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - &#x60;filename&#x60; is blank or longer than 256 characters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document updated.
      * @param id ID of the document to update. (required)
      * @param documentUpdateRequest  (required)
@@ -865,6 +959,7 @@ public class DocumentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - &#x60;filename&#x60; is blank or longer than 256 characters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Document updated.
      * @param id ID of the document to update. (required)
      * @param documentUpdateRequest  (required)

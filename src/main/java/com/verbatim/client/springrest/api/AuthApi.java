@@ -50,6 +50,7 @@ public class AuthApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Access token created.
      * @param accessTokenCreateRequest  (required)
      * @return AccessTokenCreateResponse
@@ -68,6 +69,7 @@ public class AuthApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Access token created.
      * @param accessTokenCreateRequest  (required)
      * @return ResponseEntity&lt;AccessTokenCreateResponse&gt;
@@ -110,6 +112,7 @@ public class AuthApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Token revoked.
      * @param token access token to revoke. (required)
      * @return AckResponse
@@ -128,6 +131,7 @@ public class AuthApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Token revoked.
      * @param token access token to revoke. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -171,6 +175,7 @@ public class AuthApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Identity of the authenticated user.
      * @return WhoAmI
      * @throws RestClientException if an error occurs while attempting to invoke the API
@@ -188,6 +193,7 @@ public class AuthApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Identity of the authenticated user.
      * @return ResponseEntity&lt;WhoAmI&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API

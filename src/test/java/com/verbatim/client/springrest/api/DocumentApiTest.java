@@ -15,6 +15,7 @@ package com.verbatim.client.springrest.api;
 
 import com.verbatim.client.springrest.models.AckResponse;
 import com.verbatim.client.springrest.models.Document;
+import com.verbatim.client.springrest.models.DocumentConvertResponse;
 import com.verbatim.client.springrest.models.DocumentDownloadUrl;
 import com.verbatim.client.springrest.models.DocumentInit;
 import com.verbatim.client.springrest.models.DocumentInitRequest;
@@ -24,6 +25,7 @@ import com.verbatim.client.springrest.models.DocumentSearchResponse;
 import com.verbatim.client.springrest.models.DocumentStatus;
 import com.verbatim.client.springrest.models.DocumentUpdateRequest;
 import com.verbatim.client.springrest.models.Error;
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Disabled;
@@ -59,6 +61,24 @@ class DocumentApiTest {
         UUID id = null;
 
         Document response = api.commitUpload(id);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * Convert a document to Markdown
+     *
+     * Convert a document — PDF, Word, Excel, PowerPoint, OpenDocument, EPUB, HTML, e-mail, … — to Markdown and return it in the response, typically to feed it to an LLM as context.  **Synchronous and stateless.** The conversion runs during the call and nothing is kept: no document is created, no corpus is involved, nothing is ingested. Use the &#x60;init&#x60; → &#x60;commit&#x60; flow to add a document to a corpus.  **The body is the file itself**, sent as &#x60;application/octet-stream&#x60; — not JSON, not multipart. This is the one endpoint the file bytes go through, so it is bounded: a body above 25 MB is refused with &#x60;413&#x60;.  **No format to declare.** The format is detected from the file&#39;s content; &#x60;filename&#x60; is optional and only helps when the content alone is ambiguous — plain-text formats such as Markdown or CSV. The format found is returned in &#x60;contentType&#x60;.  Readable: PDF (with a text layer), &#x60;.docx&#x60; &#x60;.doc&#x60; &#x60;.xlsx&#x60; &#x60;.xls&#x60; &#x60;.pptx&#x60; &#x60;.ppt&#x60;, &#x60;.odt&#x60; &#x60;.ods&#x60; &#x60;.odp&#x60;, &#x60;.rtf&#x60;, &#x60;.epub&#x60;, &#x60;.html&#x60;, &#x60;.xml&#x60;, &#x60;.md&#x60;, &#x60;.txt&#x60;, &#x60;.csv&#x60;, &#x60;.eml&#x60; &#x60;.msg&#x60;, and most other office and text formats. A format no parser recognises — an image, an archive of unknown content, random bytes — answers &#x60;415&#x60;.  **Output.** Markdown with headings, emphasis, lists and pipe tables; a spreadsheet gives one section per sheet. Images are not described, so a scanned PDF converts to no text: the call still succeeds, with an empty &#x60;markdown&#x60; and a &#x60;warnings&#x60; entry saying so. &#x60;warnings&#x60; also reports parts the converter skipped — a &#x60;200&#x60; with warnings is still a usable conversion.  A document that cannot be read — corrupt, truncated, password-protected — is a &#x60;400&#x60; explaining why.  Scope: &#x60;doc:create&#x60;. 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void convertTest() {
+        File body = null;
+        String filename = null;
+
+        DocumentConvertResponse response = api.convert(body, filename);
 
         // TODO: test validations
     }

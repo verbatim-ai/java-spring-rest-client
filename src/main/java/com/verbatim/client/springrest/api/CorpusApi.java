@@ -54,6 +54,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus created.
      * @param corpusCreateRequest  (required)
      * @return CorpusCreateResponse
@@ -72,6 +73,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus created.
      * @param corpusCreateRequest  (required)
      * @return ResponseEntity&lt;CorpusCreateResponse&gt;
@@ -114,6 +116,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus and dependencies deleted.
      * @param corpusId ID of the corpus to delete. (required)
      * @return AckResponse
@@ -132,6 +135,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus and dependencies deleted.
      * @param corpusId ID of the corpus to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -175,6 +179,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus found.
      * @param corpusId ID of the corpus. (required)
      * @return CorpusItemResponse
@@ -193,6 +198,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus found.
      * @param corpusId ID of the corpus. (required)
      * @return ResponseEntity&lt;CorpusItemResponse&gt;
@@ -236,6 +242,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of corpora.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -255,6 +262,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of corpora.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -295,6 +303,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus updated.
      * @param corpusId ID of the corpus to update. (required)
      * @param corpusUpdateRequest  (required)
@@ -314,6 +323,7 @@ public class CorpusApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Corpus updated.
      * @param corpusId ID of the corpus to update. (required)
      * @param corpusUpdateRequest  (required)

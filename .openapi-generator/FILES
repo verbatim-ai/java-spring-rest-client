@@ -31,6 +31,7 @@ docs/CorpusUpdateRequest.md
 docs/CorpusUpdateResponse.md
 docs/Document.md
 docs/DocumentApi.md
+docs/DocumentConvertResponse.md
 docs/DocumentDownloadUrl.md
 docs/DocumentInit.md
 docs/DocumentInitRequest.md
@@ -110,6 +111,7 @@ src/main/java/com/verbatim/client/springrest/models/CorpusListResponse.java
 src/main/java/com/verbatim/client/springrest/models/CorpusUpdateRequest.java
 src/main/java/com/verbatim/client/springrest/models/CorpusUpdateResponse.java
 src/main/java/com/verbatim/client/springrest/models/Document.java
+src/main/java/com/verbatim/client/springrest/models/DocumentConvertResponse.java
 src/main/java/com/verbatim/client/springrest/models/DocumentDownloadUrl.java
 src/main/java/com/verbatim/client/springrest/models/DocumentInit.java
 src/main/java/com/verbatim/client/springrest/models/DocumentInitRequest.java
@@ -164,6 +166,7 @@ src/test/java/com/verbatim/client/springrest/models/CorpusListResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/CorpusTest.java
 src/test/java/com/verbatim/client/springrest/models/CorpusUpdateRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/CorpusUpdateResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/DocumentConvertResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentDownloadUrlTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentInitRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentInitTest.java

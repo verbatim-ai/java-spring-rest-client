@@ -52,6 +52,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - Missing or over-long &#x60;name&#x60;, a non-positive &#x60;topK&#x60; / &#x60;rerankTopK&#x60; / &#x60;historySize&#x60;, a &#x60;temperature&#x60; outside 0–1, or a model name &#x60;GET /v1/config/model&#x60; does not advertise.
      * <p><b>409</b> - This &#x60;name&#x60; is taken — by one of your agents, or by a platform agent.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent created.
      * @param agentCreateRequest  (required)
      * @return Agent
@@ -70,6 +71,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - Missing or over-long &#x60;name&#x60;, a non-positive &#x60;topK&#x60; / &#x60;rerankTopK&#x60; / &#x60;historySize&#x60;, a &#x60;temperature&#x60; outside 0–1, or a model name &#x60;GET /v1/config/model&#x60; does not advertise.
      * <p><b>409</b> - This &#x60;name&#x60; is taken — by one of your agents, or by a platform agent.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent created.
      * @param agentCreateRequest  (required)
      * @return ResponseEntity&lt;Agent&gt;
@@ -112,6 +114,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - No agent with this id is visible to your organization.
      * <p><b>400</b> - The agent is a core agent (&#x60;lock: true&#x60;).
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent deleted.
      * @param agentId ID of the agent to delete. (required)
      * @return AckResponse
@@ -130,6 +133,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - No agent with this id is visible to your organization.
      * <p><b>400</b> - The agent is a core agent (&#x60;lock: true&#x60;).
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent deleted.
      * @param agentId ID of the agent to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -173,6 +177,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - No agent with this id is visible to your organization.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent found.
      * @param agentId ID of the agent. (required)
      * @return Agent
@@ -191,6 +196,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - No agent with this id is visible to your organization.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent found.
      * @param agentId ID of the agent. (required)
      * @return ResponseEntity&lt;Agent&gt;
@@ -234,6 +240,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of agents.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -253,6 +260,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of agents.
      * @param pageSize Number of items per page. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -293,6 +301,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - No agent with this id is visible to your organization.
      * <p><b>400</b> - The agent is a core agent (&#x60;lock: true&#x60;), &#x60;reset&#x60; names a field that has no platform default, or a value fails validation.
      * <p><b>409</b> - The requested &#x60;name&#x60; is carried by another of your agents, or by a platform agent.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent updated.
      * @param agentId ID of the agent to update. (required)
      * @param agentUpdateRequest  (required)
@@ -312,6 +321,7 @@ public class AgentApi extends BaseApi {
      * <p><b>404</b> - No agent with this id is visible to your organization.
      * <p><b>400</b> - The agent is a core agent (&#x60;lock: true&#x60;), &#x60;reset&#x60; names a field that has no platform default, or a value fails validation.
      * <p><b>409</b> - The requested &#x60;name&#x60; is carried by another of your agents, or by a platform agent.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Agent updated.
      * @param agentId ID of the agent to update. (required)
      * @param agentUpdateRequest  (required)

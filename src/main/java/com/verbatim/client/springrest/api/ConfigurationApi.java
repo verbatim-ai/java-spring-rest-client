@@ -47,6 +47,7 @@ public class ConfigurationApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Supported models.
      * @return ModelListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
@@ -64,6 +65,7 @@ public class ConfigurationApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Supported models.
      * @return ResponseEntity&lt;ModelListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API

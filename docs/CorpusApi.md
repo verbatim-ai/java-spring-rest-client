@@ -92,6 +92,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Corpus created. |  -  |
 
 
@@ -175,6 +176,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Corpus and dependencies deleted. |  -  |
 
 
@@ -258,6 +260,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Corpus found. |  -  |
 
 
@@ -343,6 +346,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of corpora. |  -  |
 
 
@@ -428,5 +432,6 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Corpus updated. |  -  |
 

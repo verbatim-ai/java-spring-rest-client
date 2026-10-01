@@ -101,6 +101,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of threads. |  -  |
 
 
@@ -184,6 +185,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread created. |  -  |
 
 
@@ -267,6 +269,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread created. |  -  |
 
 
@@ -350,6 +353,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread and posts deleted. |  -  |
 
 
@@ -433,6 +437,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread and posts deleted. |  -  |
 
 
@@ -516,6 +521,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread found. |  -  |
 
 
@@ -599,6 +605,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread found. |  -  |
 
 
@@ -684,6 +691,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of threads. |  -  |
 
 
@@ -779,6 +787,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | A metadata filter is malformed, or a paging parameter is out of bounds. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of matching threads. |  -  |
 
 
@@ -874,6 +883,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | A metadata filter is malformed, or a paging parameter is out of bounds. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of matching threads. |  -  |
 
 
@@ -959,6 +969,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread updated. |  -  |
 
 
@@ -1044,5 +1055,6 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Thread updated. |  -  |
 

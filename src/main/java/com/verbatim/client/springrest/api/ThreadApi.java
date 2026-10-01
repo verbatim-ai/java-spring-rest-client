@@ -53,6 +53,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of threads.
      * @param pageSize Number of items per page, 1-100. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -72,6 +73,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of threads.
      * @param pageSize Number of items per page, 1-100. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -112,6 +114,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread created.
      * @param sessionCreateRequest  (required)
      * @return ThreadCreateResponse
@@ -130,6 +133,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread created.
      * @param sessionCreateRequest  (required)
      * @return ResponseEntity&lt;ThreadCreateResponse&gt;
@@ -172,6 +176,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread created.
      * @param sessionCreateRequest  (required)
      * @return ThreadCreateResponse
@@ -190,6 +195,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread created.
      * @param sessionCreateRequest  (required)
      * @return ResponseEntity&lt;ThreadCreateResponse&gt;
@@ -232,6 +238,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread and posts deleted.
      * @param threadId ID of the thread to delete. (required)
      * @return AckResponse
@@ -250,6 +257,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread and posts deleted.
      * @param threadId ID of the thread to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -293,6 +301,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread and posts deleted.
      * @param threadId ID of the thread to delete. (required)
      * @return AckResponse
@@ -311,6 +320,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread and posts deleted.
      * @param threadId ID of the thread to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -354,6 +364,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread found.
      * @param threadId ID of the thread. (required)
      * @return Thread
@@ -372,6 +383,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread found.
      * @param threadId ID of the thread. (required)
      * @return ResponseEntity&lt;Thread&gt;
@@ -415,6 +427,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread found.
      * @param threadId ID of the thread. (required)
      * @return Thread
@@ -433,6 +446,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread found.
      * @param threadId ID of the thread. (required)
      * @return ResponseEntity&lt;Thread&gt;
@@ -476,6 +490,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of threads.
      * @param pageSize Number of items per page, 1-100. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -495,6 +510,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of threads.
      * @param pageSize Number of items per page, 1-100. (optional, default to 25)
      * @param pageIndex Zero-based page index. (optional, default to 0)
@@ -535,6 +551,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A metadata filter is malformed, or a paging parameter is out of bounds.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching threads.
      * @param userId Exact identifier of the user who opened the thread. Blank or omitted, the owner is not filtered. (optional)
      * @param corpusId Keep threads bound to this corpus. Must belong to the caller&#39;s organization. (optional)
@@ -559,6 +576,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A metadata filter is malformed, or a paging parameter is out of bounds.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching threads.
      * @param userId Exact identifier of the user who opened the thread. Blank or omitted, the owner is not filtered. (optional)
      * @param corpusId Keep threads bound to this corpus. Must belong to the caller&#39;s organization. (optional)
@@ -609,6 +627,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A metadata filter is malformed, or a paging parameter is out of bounds.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching threads.
      * @param userId Exact identifier of the user who opened the thread. Blank or omitted, the owner is not filtered. (optional)
      * @param corpusId Keep threads bound to this corpus. Must belong to the caller&#39;s organization. (optional)
@@ -633,6 +652,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A metadata filter is malformed, or a paging parameter is out of bounds.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching threads.
      * @param userId Exact identifier of the user who opened the thread. Blank or omitted, the owner is not filtered. (optional)
      * @param corpusId Keep threads bound to this corpus. Must belong to the caller&#39;s organization. (optional)
@@ -683,6 +703,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread updated.
      * @param threadId ID of the thread to update. (required)
      * @param threadUpdateRequest  (required)
@@ -702,6 +723,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread updated.
      * @param threadId ID of the thread to update. (required)
      * @param threadUpdateRequest  (required)
@@ -753,6 +775,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread updated.
      * @param threadId ID of the thread to update. (required)
      * @param threadUpdateRequest  (required)
@@ -772,6 +795,7 @@ public class ThreadApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Thread updated.
      * @param threadId ID of the thread to update. (required)
      * @param threadUpdateRequest  (required)

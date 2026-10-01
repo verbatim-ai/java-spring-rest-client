@@ -51,6 +51,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Chunk deleted.
      * @param chunkId ID of the chunk to delete. (required)
      * @return AckResponse
@@ -69,6 +70,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Chunk deleted.
      * @param chunkId ID of the chunk to delete. (required)
      * @return ResponseEntity&lt;AckResponse&gt;
@@ -112,6 +114,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - No chunk with this id, or its document has been deleted.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Chunk found.
      * @param chunkId ID of the chunk. (required)
      * @return Chunk
@@ -130,6 +133,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - No chunk with this id, or its document has been deleted.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Chunk found.
      * @param chunkId ID of the chunk. (required)
      * @return ResponseEntity&lt;Chunk&gt;
@@ -173,6 +177,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of chunks.
      * @param body Include each chunk&#39;s text, read from object storage. One storage read per row — off by default. (optional, default to false)
      * @param pageSize Number of items per page, 1-100 — or 1-25 when &#x60;body&#x3D;true&#x60;. (optional, default to 25)
@@ -193,6 +198,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of chunks.
      * @param body Include each chunk&#39;s text, read from object storage. One storage read per row — off by default. (optional, default to false)
      * @param pageSize Number of items per page, 1-100 — or 1-25 when &#x60;body&#x3D;true&#x60;. (optional, default to 25)
@@ -235,6 +241,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A filter is malformed, or a paging parameter is out of bounds.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching chunks.
      * @param corpusId Keep chunks whose document belongs to this corpus. Must belong to the caller&#39;s organization. (optional)
      * @param documentId Keep chunks of this document. Must belong to the caller&#39;s organization. (optional)
@@ -262,6 +269,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A filter is malformed, or a paging parameter is out of bounds.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Page of matching chunks.
      * @param corpusId Keep chunks whose document belongs to this corpus. Must belong to the caller&#39;s organization. (optional)
      * @param documentId Keep chunks of this document. Must belong to the caller&#39;s organization. (optional)
@@ -318,6 +326,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A page number is below 1.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Chunk updated.
      * @param chunkId ID of the chunk to update. (required)
      * @param chunkUpdateRequest  (required)
@@ -337,6 +346,7 @@ public class ChunkApi extends BaseApi {
      * <p><b>404</b> - The resource referenced by the request does not exist.
      * <p><b>400</b> - A page number is below 1.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
      * <p><b>200</b> - Chunk updated.
      * @param chunkId ID of the chunk to update. (required)
      * @param chunkUpdateRequest  (required)

@@ -48,6 +48,54 @@ servers:
   url: https://staging-api.verbatim-ai.com
 tags:
 - description: |
+    A **document** is a file ingested into a corpus. Ask `GET /v1/doc/accept` for the content
+    types accepted rather than hard-coding a list — it is configuration, and it changes.
+
+    **File bytes never travel through this API.** An upload is three calls and one direct
+    transfer: `POST /v1/doc/init` registers the document and returns a presigned `PUT` URL, your
+    client PUTs the bytes straight to object storage, and `POST /v1/doc/{id}/commit` confirms the
+    upload and queues ingestion. The signature is bound to the `contentType` declared at `init`,
+    so the PUT has to send that same one or storage rejects it.
+
+    The one exception is `POST /v1/doc/convert`, which belongs to no corpus: it takes a file in
+    the request body, converts it to Markdown and returns the result, storing nothing.
+
+    Ingestion — conversion to Markdown, summarization, chunking, embedding — is **asynchronous**,
+    and `status` is how you follow it:
+
+    | Status | Meaning |
+    |---|---|
+    | `AWAITING_UPLOAD` | Registered; the bytes have not been committed yet |
+    | `PENDING` | Committed and queued for the next processing batch |
+    | `PROCESSING` | Ingestion is running |
+    | `READY` | Ingested and searchable |
+    | `FAILED` | Ingestion failed — the reason is in `statusMsg` |
+
+    Poll `GET /v1/doc/{id}/status` for that, and expect `AWAITING_UPLOAD` to be an ordinary state
+    rather than an error: it is where a document sits between `init` and `commit`. Only a `READY`
+    document can be retrieved by a query, and the counters `size`, `tokens`, `nbWords` and
+    `nbPages` are filled in by ingestion, so they are absent until it finishes.
+
+    What ingestion produced is readable elsewhere: the generated summary at
+    `GET /v1/doc/{id}/summary`, and the pieces the file was split into under `/v1/chunk` — which
+    is where to look when an answer cites something surprising.
+
+    Two typed attributes are worth setting, both at `init` and patchable afterwards. `tags` is a
+    list of labels you can filter listings on. `chunk` overrides how ingestion splits *this*
+    document; it applies to the **next** ingestion and never retroactively, so changing it on an
+    ingested document does nothing until you replace its content.
+
+    Replacing content is `PUT /v1/doc/{id}/init` → PUT the bytes → `commit`, and it **drops
+    everything derived from the previous file** — its chunks, its summary and its counters. Posts
+    that cited the old chunks lose those attachments. Note also that the previous file stays in
+    storage until your PUT overwrites it, so committing without uploading re-ingests the old
+    content.
+
+    `DELETE` is a soft delete and cascades to the document's chunks, which are soft-deleted with
+    it; the archived file and the chunks' stored text are kept rather than destroyed, but no
+    public endpoint restores any of it.
+  name: Document
+- description: |
     A **post** is one message inside a thread: either a user question (`owner: USER`) or the
     answer the platform produced for it (`owner: SYSTEM`). They are created in pairs — one
     exchange is two posts — and the rest of this domain follows from that.
@@ -88,51 +136,6 @@ tags:
     `POST /v1/post/` is the deprecated spelling of the query endpoint; it still works and
     `GET /v1/post/q` replaces it.
   name: Post
-- description: |
-    A **document** is a file ingested into a corpus. Ask `GET /v1/doc/accept` for the content
-    types accepted rather than hard-coding a list — it is configuration, and it changes.
-
-    **File bytes never travel through this API.** An upload is three calls and one direct
-    transfer: `POST /v1/doc/init` registers the document and returns a presigned `PUT` URL, your
-    client PUTs the bytes straight to object storage, and `POST /v1/doc/{id}/commit` confirms the
-    upload and queues ingestion. The signature is bound to the `contentType` declared at `init`,
-    so the PUT has to send that same one or storage rejects it.
-
-    Ingestion — conversion to Markdown, summarization, chunking, embedding — is **asynchronous**,
-    and `status` is how you follow it:
-
-    | Status | Meaning |
-    |---|---|
-    | `AWAITING_UPLOAD` | Registered; the bytes have not been committed yet |
-    | `PENDING` | Committed and queued for the next processing batch |
-    | `PROCESSING` | Ingestion is running |
-    | `READY` | Ingested and searchable |
-    | `FAILED` | Ingestion failed — the reason is in `statusMsg` |
-
-    Poll `GET /v1/doc/{id}/status` for that, and expect `AWAITING_UPLOAD` to be an ordinary state
-    rather than an error: it is where a document sits between `init` and `commit`. Only a `READY`
-    document can be retrieved by a query, and the counters `size`, `tokens`, `nbWords` and
-    `nbPages` are filled in by ingestion, so they are absent until it finishes.
-
-    What ingestion produced is readable elsewhere: the generated summary at
-    `GET /v1/doc/{id}/summary`, and the pieces the file was split into under `/v1/chunk` — which
-    is where to look when an answer cites something surprising.
-
-    Two typed attributes are worth setting, both at `init` and patchable afterwards. `tags` is a
-    list of labels you can filter listings on. `chunk` overrides how ingestion splits *this*
-    document; it applies to the **next** ingestion and never retroactively, so changing it on an
-    ingested document does nothing until you replace its content.
-
-    Replacing content is `PUT /v1/doc/{id}/init` → PUT the bytes → `commit`, and it **drops
-    everything derived from the previous file** — its chunks, its summary and its counters. Posts
-    that cited the old chunks lose those attachments. Note also that the previous file stays in
-    storage until your PUT overwrites it, so committing without uploading re-ingests the old
-    content.
-
-    `DELETE` is a soft delete and cascades to the document's chunks, which are soft-deleted with
-    it; the archived file and the chunks' stored text are kept rather than destroyed, but no
-    public endpoint restores any of it.
-  name: Document
 - description: |
     A **corpus** is a knowledge base: the container documents are ingested into and the scope a
     query is answered from. It is also the unit ownership is checked against — every document,
@@ -409,6 +412,22 @@ paths:
           content: {}
           description: "Document is not in `READY` or `FAILED` status — nothing to\
             \ replace, or an ingestion is in flight."
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -595,6 +614,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -749,6 +784,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -914,6 +965,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -1068,6 +1135,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -1217,6 +1300,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "202":
           content:
             application/json:
@@ -1462,6 +1561,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -1506,6 +1621,241 @@ paths:
       tags:
       - Document
       x-content-type: application/json
+      x-accepts:
+      - application/json
+  /v1/doc/convert:
+    post:
+      description: |
+        Convert a document — PDF, Word, Excel, PowerPoint, OpenDocument, EPUB, HTML, e-mail, … —
+        to Markdown and return it in the response, typically to feed it to an LLM as context.
+
+        **Synchronous and stateless.** The conversion runs during the call and nothing is
+        kept: no document is created, no corpus is involved, nothing is ingested. Use the
+        `init` → `commit` flow to add a document to a corpus.
+
+        **The body is the file itself**, sent as `application/octet-stream` — not JSON, not
+        multipart. This is the one endpoint the file bytes go through, so it is bounded:
+        a body above 25 MB is refused with `413`.
+
+        **No format to declare.** The format is detected from the file's content; `filename`
+        is optional and only helps when the content alone is ambiguous — plain-text formats
+        such as Markdown or CSV. The format found is returned in `contentType`.
+
+        Readable: PDF (with a text layer), `.docx` `.doc` `.xlsx` `.xls` `.pptx` `.ppt`,
+        `.odt` `.ods` `.odp`, `.rtf`, `.epub`, `.html`, `.xml`, `.md`, `.txt`, `.csv`,
+        `.eml` `.msg`, and most other office and text formats. A format no parser
+        recognises — an image, an archive of unknown content, random bytes — answers `415`.
+
+        **Output.** Markdown with headings, emphasis, lists and pipe tables; a spreadsheet
+        gives one section per sheet. Images are not described, so a scanned PDF converts to
+        no text: the call still succeeds, with an empty `markdown` and a `warnings` entry
+        saying so. `warnings` also reports parts the converter skipped — a `200` with
+        warnings is still a usable conversion.
+
+        A document that cannot be read — corrupt, truncated, password-protected — is a `400`
+        explaining why.
+
+        Scope: `doc:create`.
+      operationId: convert
+      parameters:
+      - description: "Original file name. Its extension helps detect the format of\
+          \ plain-text files (`.md`, `.csv`, …); it is echoed back in the response."
+        example: annual-report-2025.docx
+        explode: true
+        in: query
+        name: filename
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              format: binary
+              type: string
+        description: The document's raw bytes.
+        required: true
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
+        "200":
+          content:
+            application/json:
+              examples:
+                Word document:
+                  description: Word document
+                  summary: A .docx converted cleanly
+                  value:
+                    contentType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+                    filename: annual-report-2025.docx
+                    size: 48213
+                    pages: 3
+                    markdown: |-
+                      # Annual report 2025
+
+                      Revenue grew **12%** over the year, driven by the new subscription offer.
+
+                      ## Results by quarter
+
+                      |Quarter|Revenue|Margin|
+                      |---|---|---|
+                      |Q1|4.2 M€|18%|
+                      |Q2|4.6 M€|19%|
+                    warnings: []
+                Spreadsheet:
+                  description: Spreadsheet
+                  summary: "An .xlsx, one section per sheet, no filename sent"
+                  value:
+                    contentType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+                    size: 9120
+                    markdown: |-
+                      # Budget
+
+                      |Item|Amount|
+                      |---|---|
+                      |Hosting|1200|
+                      |Licences|800|
+
+                      # Forecast
+
+                      |Year|Total|
+                      |---|---|
+                      |2026|2400|
+                    warnings: []
+                Scanned PDF:
+                  description: Scanned PDF
+                  summary: "A PDF without a text layer: no text, and a warning"
+                  value:
+                    contentType: application/pdf
+                    filename: signed-contract.pdf
+                    size: 1834092
+                    pages: 12
+                    markdown: ""
+                    warnings:
+                    - "No text could be extracted: the document is empty, or holds\
+                      \ only images (a scan, a photo)."
+              schema:
+                $ref: "#/components/schemas/DocumentConvertResponse"
+          description: Document converted.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: Convert a document to Markdown
+      tags:
+      - Document
+      x-content-type: application/octet-stream
       x-accepts:
       - application/json
   /v1/corpus/:
@@ -1633,6 +1983,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -1778,6 +2144,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -1929,6 +2311,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -2085,6 +2483,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -2279,6 +2693,22 @@ paths:
           content: {}
           description: "This `name` is taken — by one of your agents, or by a platform\
             \ agent."
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -2423,6 +2853,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -2553,6 +2999,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -2704,6 +3166,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -2843,6 +3321,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -2973,6 +3467,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -3124,6 +3634,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -3272,6 +3798,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -3402,6 +3944,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -3623,6 +4181,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -3782,6 +4356,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -3911,6 +4501,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -4070,6 +4676,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -4228,6 +4850,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -4365,6 +5003,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -4565,6 +5219,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -4696,6 +5366,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -4816,6 +5502,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -5008,6 +5710,22 @@ paths:
           content: {}
           description: "The requested `name` is carried by another of your agents,\
             \ or by a platform agent."
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -5190,6 +5908,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -5404,6 +6138,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -5607,6 +6357,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -5926,6 +6692,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -6190,6 +6972,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -6336,6 +7134,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -6467,6 +7281,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -6678,6 +7508,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -6861,6 +7707,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -7092,6 +7954,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -7235,6 +8113,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -7434,6 +8328,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -7638,6 +8548,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             text/markdown:
@@ -7773,6 +8699,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -7975,6 +8917,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -8118,6 +9076,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -8550,6 +9524,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -8698,6 +9688,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -8893,6 +9899,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -9044,6 +10066,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -9350,6 +10388,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -9572,6 +10626,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -9717,6 +10787,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -9848,6 +10934,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
         "200":
           content:
             application/json:
@@ -10337,6 +11439,76 @@ components:
       - contentType
       - corpusId
       - filename
+    DocumentConvertResponse:
+      description: |
+        A document converted to Markdown by `POST /v1/doc/convert`. Nothing is stored: this payload is
+        the whole result.
+      example:
+        contentType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+        filename: annual-report-2025.docx
+        size: 48213
+        pages: 4
+        markdown: |-
+          # Annual report 2025
+
+          Revenue grew **12%** over the year.
+
+          |Quarter|Revenue|
+          |---|---|
+          |Q1|4.2 M€|
+        warnings:
+        - "No text could be extracted: the document is empty, or holds only images\
+          \ (a scan, a photo)."
+        - "No text could be extracted: the document is empty, or holds only images\
+          \ (a scan, a photo)."
+      properties:
+        contentType:
+          description: "Format the document was recognised as, detected from its content\
+            \ (and the extension of `filename`, when sent)."
+          example: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+          type: string
+        filename:
+          description: "The `filename` sent, echoed back. Absent when none was sent."
+          example: annual-report-2025.docx
+          type: string
+        size:
+          description: "Size of the converted document, in bytes."
+          example: 48213
+          format: int64
+          type: integer
+        pages:
+          description: "Number of pages, for formats that have pages (PDF, Word, PowerPoint,\
+            \ …). Absent otherwise."
+          example: 4
+          format: int32
+          type: integer
+        markdown:
+          description: "The document as Markdown. Tables are pipe tables, a spreadsheet\
+            \ gives one section per sheet. Images are not described — a scanned PDF\
+            \ yields no text."
+          example: |-
+            # Annual report 2025
+
+            Revenue grew **12%** over the year.
+
+            |Quarter|Revenue|
+            |---|---|
+            |Q1|4.2 M€|
+          type: string
+        warnings:
+          description: "Problems the converter recovered from — an embedded file it\
+            \ could not read, a damaged part it skipped — and a note when no text\
+            \ could be extracted at all. Empty when the conversion was clean."
+          items:
+            example: "No text could be extracted: the document is empty, or holds\
+              \ only images (a scan, a photo)."
+            type: string
+          type: array
+          default: null
+      required:
+      - contentType
+      - markdown
+      - size
     CorpusCreateRequest:
       description: Payload to create a new corpus inside an organization.
       example:

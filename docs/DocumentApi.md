@@ -5,6 +5,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**commitUpload**](DocumentApi.md#commitUpload) | **POST** /v1/doc/{id}/commit | Commit a previously initialized upload |
+| [**convert**](DocumentApi.md#convert) | **POST** /v1/doc/convert | Convert a document to Markdown |
 | [**delete2**](DocumentApi.md#delete2) | **DELETE** /v1/doc/{id} | Delete a document |
 | [**downloadUrl1**](DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL |
 | [**get2**](DocumentApi.md#get2) | **GET** /v1/doc/{id} | Get a document |
@@ -100,7 +101,94 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **202** | Ingestion queued. Document moved to PROCESSING. |  -  |
+
+
+## convert
+
+> DocumentConvertResponse convert(body, filename)
+
+Convert a document to Markdown
+
+Convert a document — PDF, Word, Excel, PowerPoint, OpenDocument, EPUB, HTML, e-mail, … — to Markdown and return it in the response, typically to feed it to an LLM as context.  **Synchronous and stateless.** The conversion runs during the call and nothing is kept: no document is created, no corpus is involved, nothing is ingested. Use the &#x60;init&#x60; → &#x60;commit&#x60; flow to add a document to a corpus.  **The body is the file itself**, sent as &#x60;application/octet-stream&#x60; — not JSON, not multipart. This is the one endpoint the file bytes go through, so it is bounded: a body above 25 MB is refused with &#x60;413&#x60;.  **No format to declare.** The format is detected from the file&#39;s content; &#x60;filename&#x60; is optional and only helps when the content alone is ambiguous — plain-text formats such as Markdown or CSV. The format found is returned in &#x60;contentType&#x60;.  Readable: PDF (with a text layer), &#x60;.docx&#x60; &#x60;.doc&#x60; &#x60;.xlsx&#x60; &#x60;.xls&#x60; &#x60;.pptx&#x60; &#x60;.ppt&#x60;, &#x60;.odt&#x60; &#x60;.ods&#x60; &#x60;.odp&#x60;, &#x60;.rtf&#x60;, &#x60;.epub&#x60;, &#x60;.html&#x60;, &#x60;.xml&#x60;, &#x60;.md&#x60;, &#x60;.txt&#x60;, &#x60;.csv&#x60;, &#x60;.eml&#x60; &#x60;.msg&#x60;, and most other office and text formats. A format no parser recognises — an image, an archive of unknown content, random bytes — answers &#x60;415&#x60;.  **Output.** Markdown with headings, emphasis, lists and pipe tables; a spreadsheet gives one section per sheet. Images are not described, so a scanned PDF converts to no text: the call still succeeds, with an empty &#x60;markdown&#x60; and a &#x60;warnings&#x60; entry saying so. &#x60;warnings&#x60; also reports parts the converter skipped — a &#x60;200&#x60; with warnings is still a usable conversion.  A document that cannot be read — corrupt, truncated, password-protected — is a &#x60;400&#x60; explaining why.  Scope: &#x60;doc:create&#x60;. 
+
+### Example
+
+```java
+// Import classes:
+import com.verbatim.client.springrest.invoker.ApiClient;
+import com.verbatim.client.springrest.invoker.ApiException;
+import com.verbatim.client.springrest.invoker.Configuration;
+import com.verbatim.client.springrest.invoker.auth.*;
+import com.verbatim.client.springrest.invoker.models.*;
+import com.verbatim.client.springrest.api.DocumentApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
+        
+        // Configure HTTP bearer authorization: JWT
+        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
+        JWT.setBearerToken("BEARER TOKEN");
+
+        // Configure API key authorization: AccessToken
+        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
+        AccessToken.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //AccessToken.setApiKeyPrefix("Token");
+
+        DocumentApi apiInstance = new DocumentApi(defaultClient);
+        File body = new File("/path/to/file"); // File | The document's raw bytes.
+        String filename = "annual-report-2025.docx"; // String | Original file name. Its extension helps detect the format of plain-text files (`.md`, `.csv`, …); it is echoed back in the response.
+        try {
+            DocumentConvertResponse result = apiInstance.convert(body, filename);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling DocumentApi#convert");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **body** | **File**| The document&#39;s raw bytes. | |
+| **filename** | **String**| Original file name. Its extension helps detect the format of plain-text files (&#x60;.md&#x60;, &#x60;.csv&#x60;, …); it is echoed back in the response. | [optional] |
+
+### Return type
+
+[**DocumentConvertResponse**](DocumentConvertResponse.md)
+
+### Authorization
+
+[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
+
+### HTTP request headers
+
+- **Content-Type**: application/octet-stream
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **500** | Internal error. Check body to get more info |  -  |
+| **403** | Not authorized. Access not granted for this request |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
+| **404** | The resource referenced by the request does not exist. |  -  |
+| **400** | The request is malformed or contains invalid parameters. |  -  |
+| **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
+| **200** | Document converted. |  -  |
 
 
 ## delete2
@@ -183,6 +271,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Document and dependencies deleted. |  -  |
 
 
@@ -266,6 +355,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Presigned URL issued. |  -  |
 
 
@@ -349,6 +439,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Document found. |  -  |
 
 
@@ -432,6 +523,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Document created in AWAITING_UPLOAD status. PUT the file to &#x60;uploadUrl&#x60;. |  -  |
 
 
@@ -523,6 +615,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of documents. |  -  |
 
 
@@ -602,6 +695,7 @@ This endpoint does not need any parameter.
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | List of accepted MIME types. |  -  |
 
 
@@ -687,6 +781,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Presigned preview URLs issued. |  -  |
 
 
@@ -770,6 +865,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | Document is not in &#x60;READY&#x60; or &#x60;FAILED&#x60; status — nothing to replace, or an ingestion is in flight. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Document reset to AWAITING_UPLOAD status. PUT the new file to &#x60;uploadUrl&#x60;. |  -  |
 
 
@@ -883,6 +979,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | A filter or paging parameter is out of bounds, or the date window is empty. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of matching documents. |  -  |
 
 
@@ -966,6 +1063,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Status returned. |  -  |
 
 
@@ -1049,6 +1147,7 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Summary returned (may be empty). |  -  |
 
 
@@ -1134,5 +1233,6 @@ public class Example {
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **400** | &#x60;filename&#x60; is blank or longer than 256 characters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Document updated. |  -  |
 
