@@ -160,14 +160,14 @@ class DocumentApiTest {
      *          if the Api call fails
      */
     @Test
-    void list5Test() {
+    void list6Test() {
         UUID corpusId = null;
         String status = null;
         List<String> tags = null;
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        DocumentListResponse response = api.list5(corpusId, status, tags, pageSize, pageIndex);
+        DocumentListResponse response = api.list6(corpusId, status, tags, pageSize, pageIndex);
 
         // TODO: test validations
     }

@@ -82,12 +82,12 @@ class ChunkApiTest {
      *          if the Api call fails
      */
     @Test
-    void list7Test() {
+    void list8Test() {
         Boolean body = null;
         Integer pageSize = null;
         Integer pageIndex = null;
 
-        ChunkListResponse response = api.list7(body, pageSize, pageIndex);
+        ChunkListResponse response = api.list8(body, pageSize, pageIndex);
 
         // TODO: test validations
     }

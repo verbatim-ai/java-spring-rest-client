@@ -11,44 +11,58 @@
  */
 
 
-package com.verbatim.client.springrest.api;
+package com.verbatim.client.springrest.models;
 
-import com.verbatim.client.springrest.models.Error;
-import com.verbatim.client.springrest.models.ModelListResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.verbatim.client.springrest.models.AccessTokenScopeAction;
+import com.verbatim.client.springrest.models.AccessTokenScopeDomain;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.client.RestClientException;
-
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
- * API tests for ConfigurationApi
+ * Model tests for AccessTokenScopesResponse
  */
-@Disabled
-class ConfigurationApiTest {
+class AccessTokenScopesResponseTest {
+    private final AccessTokenScopesResponse model = new AccessTokenScopesResponse();
 
-    private final ConfigurationApi api = new ConfigurationApi();
-
-    
     /**
-     * List supported LLM models
-     *
-     * Return the LLM models the platform is configured to serve, each with the &#x60;id&#x60; to send and the display name, description and icon URL to present it with.  The list is the same for every caller and is not paginated: &#x60;models&#x60; holds the whole catalog, in the order it is meant to be offered, and &#x60;total&#x60; is how many that is. Preselect the first entry.  &#x60;items&#x60; repeats the same ids without the display fields, for clients written against the first version of this endpoint. It is deprecated — read &#x60;models[].id&#x60;. 
-     *
-     * @throws RestClientException
-     *          if the Api call fails
+     * Model tests for AccessTokenScopesResponse
      */
     @Test
-    void list7Test() {
-
-        ModelListResponse response = api.list7();
-
-        // TODO: test validations
+    void testAccessTokenScopesResponse() {
+        // TODO: test AccessTokenScopesResponse
     }
-    
+
+    /**
+     * Test the property 'domains'
+     */
+    @Test
+    void domainsTest() {
+        // TODO: test domains
+    }
+
+    /**
+     * Test the property 'actions'
+     */
+    @Test
+    void actionsTest() {
+        // TODO: test actions
+    }
+
+    /**
+     * Test the property 'scopes'
+     */
+    @Test
+    void scopesTest() {
+        // TODO: test scopes
+    }
+
 }

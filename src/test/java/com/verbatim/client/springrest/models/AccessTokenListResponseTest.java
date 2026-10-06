@@ -11,44 +11,49 @@
  */
 
 
-package com.verbatim.client.springrest.api;
+package com.verbatim.client.springrest.models;
 
-import com.verbatim.client.springrest.models.Error;
-import com.verbatim.client.springrest.models.ModelListResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.verbatim.client.springrest.models.AccessTokenItem;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.client.RestClientException;
-
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
- * API tests for ConfigurationApi
+ * Model tests for AccessTokenListResponse
  */
-@Disabled
-class ConfigurationApiTest {
+class AccessTokenListResponseTest {
+    private final AccessTokenListResponse model = new AccessTokenListResponse();
 
-    private final ConfigurationApi api = new ConfigurationApi();
-
-    
     /**
-     * List supported LLM models
-     *
-     * Return the LLM models the platform is configured to serve, each with the &#x60;id&#x60; to send and the display name, description and icon URL to present it with.  The list is the same for every caller and is not paginated: &#x60;models&#x60; holds the whole catalog, in the order it is meant to be offered, and &#x60;total&#x60; is how many that is. Preselect the first entry.  &#x60;items&#x60; repeats the same ids without the display fields, for clients written against the first version of this endpoint. It is deprecated — read &#x60;models[].id&#x60;. 
-     *
-     * @throws RestClientException
-     *          if the Api call fails
+     * Model tests for AccessTokenListResponse
      */
     @Test
-    void list7Test() {
-
-        ModelListResponse response = api.list7();
-
-        // TODO: test validations
+    void testAccessTokenListResponse() {
+        // TODO: test AccessTokenListResponse
     }
-    
+
+    /**
+     * Test the property 'pageIndex'
+     */
+    @Test
+    void pageIndexTest() {
+        // TODO: test pageIndex
+    }
+
+    /**
+     * Test the property 'items'
+     */
+    @Test
+    void itemsTest() {
+        // TODO: test items
+    }
+
 }

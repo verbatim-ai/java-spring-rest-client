@@ -188,6 +188,38 @@ tags:
     cascades to its posts**; the documents and chunks they cited are untouched.
   name: Thread
 - description: |
+    Mint the credentials untrusted clients use, and check who a token belongs to.
+
+    The platform accepts two credentials. An **RSA JWT** is signed by your backend with a key you
+    published, carries your organization in its `oid` claim, and is the one you keep server-side.
+    An **access token** is a short-lived opaque string minted from that JWT and safe to hand to
+    code you do not control — a browser widget, a mobile client.
+
+    The flow is always one direction: **your backend holds the JWT → mints an access token → the
+    untrusted client uses the access token.** These endpoints are themselves reachable with a JWT
+    only, so an access token can never mint or revoke another — a leaked one cannot extend its
+    own life or widen its own reach.
+
+    Two things bound what a leaked token can do. It **expires** — one hour by default, settable
+    at creation up to a ceiling the platform sets (24 hours unless configured otherwise) — and it carries a mandatory **scope**, a list of `DOMAIN:ACTION` entries such as
+    `corpus:read` or `post:create`. Unlike a JWT, where an empty scope means unrestricted, an
+    access token with no scope is refused at creation, so browser-facing credentials are always
+    least-privilege. `ACTION` is derived from the HTTP method — `GET` is `read`, `POST` is
+    `create`, `PUT`/`PATCH` are `update`, `DELETE` is `delete` — which is worth checking against
+    the endpoint you mean to allow: running a RAG query is `GET /v1/post/q`, so it needs
+    `post:read`.
+
+    The token value is returned **once**, by the create call, and never again: the listing
+    `GET /v1/auth/access-token` shows each token's attributes with its value cut down to the first
+    characters (`er12GggT...`), enough to recognise it in a console. There is no update — to change
+    a token's scope or lifetime, mint a new one and revoke the old.
+
+    Revocation is immediate, either by id (`DELETE /v1/auth/access-token/id/{id}`, the id coming
+    from the listing) or by token value. `GET /v1/auth/whoami` resolves whichever
+    credential you sent back to its organization and user, which is the cheap way to confirm a
+    token is still live and what it is bound to.
+  name: Auth
+- description: |
     What your organization has consumed — tokens, corpora, threads, posts and storage — at three
     scopes: the whole organization, one of its users, or one of its corpora.
 
@@ -257,32 +289,6 @@ tags:
     within that list: it must be free among your own agents *and* among the core agents you see
     alongside them. Creating or renaming onto a name either of those holds answers `409`.
   name: Agent
-- description: |
-    Mint the credentials untrusted clients use, and check who a token belongs to.
-
-    The platform accepts two credentials. An **RSA JWT** is signed by your backend with a key you
-    published, carries your organization in its `oid` claim, and is the one you keep server-side.
-    An **access token** is a short-lived opaque string minted from that JWT and safe to hand to
-    code you do not control — a browser widget, a mobile client.
-
-    The flow is always one direction: **your backend holds the JWT → mints an access token → the
-    untrusted client uses the access token.** These endpoints are themselves reachable with a JWT
-    only, so an access token can never mint or revoke another — a leaked one cannot extend its
-    own life or widen its own reach.
-
-    Two things bound what a leaked token can do. It **expires** — one hour by default, settable
-    at creation — and it carries a mandatory **scope**, a list of `DOMAIN:ACTION` entries such as
-    `corpus:read` or `post:create`. Unlike a JWT, where an empty scope means unrestricted, an
-    access token with no scope is refused at creation, so browser-facing credentials are always
-    least-privilege. `ACTION` is derived from the HTTP method — `GET` is `read`, `POST` is
-    `create`, `PUT`/`PATCH` are `update`, `DELETE` is `delete` — which is worth checking against
-    the endpoint you mean to allow: running a RAG query is `GET /v1/post/q`, so it needs
-    `post:read`.
-
-    Revocation is immediate and by token value. `GET /v1/auth/whoami` resolves whichever
-    credential you sent back to its organization and user, which is the cheap way to confirm a
-    token is still live and what it is bound to.
-  name: Auth
 - description: |
     A **chunk** is one embeddable piece of a document: the text that was vectorised, the pages
     it came from, and the metadata ingestion attached to it. It is the unit RAG actually
@@ -372,10 +378,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
-        "415":
-          content: {}
-          description: The document's content type is no longer accepted — see `GET
-            /v1/doc/accept`.
         "404":
           content:
             application/json:
@@ -392,6 +394,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The resource referenced by the request does not exist.
+        "415":
+          content: {}
+          description: The document's content type is no longer accepted — see `GET
+            /v1/doc/accept`.
         "400":
           content:
             application/json:
@@ -549,6 +555,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -566,22 +588,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -719,6 +725,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -736,22 +758,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -900,6 +906,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -917,22 +939,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -1070,6 +1076,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -1087,22 +1109,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -1235,6 +1241,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -1252,22 +1274,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -1496,6 +1502,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -1513,22 +1535,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -1709,6 +1715,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -1726,22 +1748,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -1918,6 +1924,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -1935,22 +1957,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -2079,6 +2085,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -2096,22 +2118,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -2183,184 +2189,17 @@ paths:
       x-content-type: application/json
       x-accepts:
       - application/json
-  /v1/auth/access-token:
-    post:
-      description: "Generate a new short-lived opaque access token for the caller's\
-        \ organization. The token can be used as the `X-Access-Token` header on `/v1/`\
-        \ API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit\
-        \ privileges over all the domains. To limit access, defined a list of scope,\
-        \ where each must be compliant with the regex (config|auth|session|doc|chunk|corpus|post|usage|agent):(create|read|update|delete)"
-      operationId: create_3
-      requestBody:
-        content:
-          application/json:
-            examples:
-              simple request with restricted access to CREATE document:
-                description: simple request with restricted access to CREATE document
-                value:
-                  scope:
-                  - doc:create
-              "1-hour token for widget with restricted access to READ corpus and CREATE document":
-                description: 1-hour token for widget with restricted access to READ
-                  corpus and CREATE document
-                value:
-                  ttl: 3600
-                  issuer: widget-frontend
-                  email: user@example.com
-                  scope:
-                  - corpus:read
-                  - doc:create
-            schema:
-              $ref: "#/components/schemas/AccessTokenCreateRequest"
-        required: true
-      responses:
-        "500":
-          content:
-            application/json:
-              examples:
-                Internal error:
-                  description: Internal error
-                  summary: Generic 500 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 500
-                    error: Internal Server Error
-                    message: corpus not found
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Internal error. Check body to get more info
-        "403":
-          content:
-            application/json:
-              examples:
-                Forbidden error:
-                  description: Forbidden error
-                  summary: Generic 403 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 403
-                    error: Access forbidden
-                    message: Access not granted for this resource
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
-        "415":
-          content:
-            application/json:
-              examples:
-                Invalid content type error:
-                  description: Invalid content type error
-                  summary: Generic 415 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 415
-                    error: invalid content type
-                    message: application/json is not supported
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
-            for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
-        "400":
-          content:
-            application/json:
-              examples:
-                Bad request error:
-                  description: Bad request error
-                  summary: Generic 400 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 400
-                    error: Bad Request
-                    message: pages list must not be empty
-                    path: /v1/doc/id/preview
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request is malformed or contains invalid parameters.
-        "409":
-          content:
-            application/json:
-              examples:
-                Conflicts error:
-                  description: Conflicts error
-                  summary: Generic 409 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 409
-                    error: conflicts on ressource
-                    message: state not match with request
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request conflicts with the current state of the resource.
-        "413":
-          content:
-            application/json:
-              examples:
-                Payload too large error:
-                  description: Payload too large error
-                  summary: Generic 413 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 413
-                    error: Content Too Large
-                    message: document exceeds the 26214400 bytes conversion limit
-                    path: /v1/doc/convert
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The request body exceeds the size accepted by the endpoint.
-        "200":
-          content:
-            application/json:
-              example: |
-                {
-                  "id": "550e8400-e29b-41d4-a716-446655440000",
-                  "token": "abc123...",
-                  "orgId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                  "createdAt": "2026-07-07T10:00:00Z",
-                  "expiresAt": "2026-07-07T11:00:00Z",
-                  "scope": ["corpus:read"],
-                }
-              schema:
-                $ref: "#/components/schemas/AccessTokenCreateResponse"
-          description: Access token created.
-      security:
-      - JWT: []
-      summary: Create an access token
-      tags:
-      - Auth
-      x-content-type: application/json
-      x-accepts:
-      - application/json
-  /v1/agent/:
+  /v1/auth/access-token/:
     get:
       description: |
-        Paginate every agent your organization can query with: the platform's core agents
-        merged with your own custom ones, **core first**, then by name.
+        List the access tokens of the caller's organization, newest first, with every attribute
+        stored for them — **except the token value**, which is cut down to its first characters
+        followed by `...`. The full value is only returned by the create call.
 
-        There is no separate endpoint for the core catalogue — the merge is the point.
-        Tell the two apart by `lock`: `true` is a platform agent you can read and use but
-        not modify. A brand-new organization sees six of them, one per use case, and the
-        single agent carrying `default: true` is the one a query that names no agent runs
-        on.
+        Expired tokens stay listed (compare `expiresAt` with the current time) until they are
+        revoked. Use an item's `id` with `DELETE /v1/auth/access-token/id/{id}` to revoke it.
+
+        Only reachable with a JWT.
       operationId: list_3
       parameters:
       - description: Number of items per page.
@@ -2417,7 +2256,23 @@ paths:
                     path: /v1/corpus/id
               schema:
                 $ref: "#/components/schemas/Error"
-          description: Not authorized. Access not granted for this request
+          description: "No JWT, or the call was made with an access token."
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -2435,6 +2290,153 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: '`pageSize` below 1 or `pageIndex` below 0.'
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
+        "200":
+          content:
+            application/json:
+              example:
+                pageIndex: 0
+                items:
+                - id: 550e8400-e29b-41d4-a716-446655440000
+                  token: er12GggT...
+                  orgId: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                  createdAt: 2026-07-07T10:00:00Z
+                  expiresAt: 2026-07-07T11:00:00Z
+                  issuer: widget-frontend
+                  email: user@example.com
+                  scope:
+                  - corpus:read
+                  - doc:create
+              schema:
+                $ref: "#/components/schemas/AccessTokenListResponse"
+          description: One page of access tokens.
+      security:
+      - JWT: []
+      summary: List access tokens
+      tags:
+      - Auth
+      x-accepts:
+      - application/json
+    post:
+      description: |
+        Mint a short-lived opaque access token for the caller's organization. Send it as the
+        `X-Access-Token` header on `/v1/` API calls.
+
+        **The `token` value is only ever returned here.** Store it or hand it over now: the
+        listing shows only its first characters, and no call returns it again.
+
+        - `scope` is mandatory and non-empty — a list of `DOMAIN:ACTION` entries such as
+          `corpus:read`. `GET /v1/auth/access-token/scopes` lists every valid entry.
+        - `ttl` is in seconds: 3600 (1 hour) when omitted, at least 10, and no more than the
+          ceiling the platform sets (`app.access-token.max-ttl-seconds`, 86400 — 24 hours — by
+          default). A longer `ttl` is refused with a 400, not shortened.
+        - `issuer`, `email` and `userId` are free labels stored with the token and shown in the
+          listing; `userId` and `email` are also what `GET /v1/auth/whoami` answers for it.
+
+        Only reachable with a JWT: an access token cannot mint another.
+      operationId: create_3
+      requestBody:
+        content:
+          application/json:
+            examples:
+              simple request with restricted access to CREATE document:
+                description: simple request with restricted access to CREATE document
+                value:
+                  scope:
+                  - doc:create
+              "1-hour token for widget with restricted access to READ corpus and CREATE document":
+                description: 1-hour token for widget with restricted access to READ
+                  corpus and CREATE document
+                value:
+                  ttl: 3600
+                  issuer: widget-frontend
+                  email: user@example.com
+                  scope:
+                  - corpus:read
+                  - doc:create
+            schema:
+              $ref: "#/components/schemas/AccessTokenCreateRequest"
+        required: true
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "No JWT, or the call was made with an access token."
         "404":
           content:
             application/json:
@@ -2451,6 +2453,186 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: The resource referenced by the request does not exist.
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "400":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-07-07T10:00:00Z
+                message: "invalid ttl: 604800. Value must not exceed 86400 seconds"
+          description: "Missing or invalid `scope`, or `ttl` below 10 seconds or above\
+            \ the platform ceiling."
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
+        "200":
+          content:
+            application/json:
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                token: abc123...
+                orgId: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                createdAt: 2026-07-07T10:00:00Z
+                expiresAt: 2026-07-07T11:00:00Z
+                scope:
+                - corpus:read
+              schema:
+                $ref: "#/components/schemas/AccessTokenCreateResponse"
+          description: Access token created.
+      security:
+      - JWT: []
+      summary: Create an access token
+      tags:
+      - Auth
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /v1/agent/:
+    get:
+      description: |
+        Paginate every agent your organization can query with: the platform's core agents
+        merged with your own custom ones, **core first**, then by name.
+
+        There is no separate endpoint for the core catalogue — the merge is the point.
+        Tell the two apart by `lock`: `true` is a platform agent you can read and use but
+        not modify. A brand-new organization sees six of them, one per use case, and the
+        single agent carrying `default: true` is the one a query that names no agent runs
+        on.
+      operationId: list_4
+      parameters:
+      - description: Number of items per page.
+        example: 25
+        explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          default: 25
+          format: int32
+          type: integer
+        style: form
+      - description: Zero-based page index.
+        example: 0
+        explode: true
+        in: query
+        name: pageIndex
+        required: false
+        schema:
+          default: 0
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
         "400":
           content:
             application/json:
@@ -2651,6 +2833,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -2668,22 +2866,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content: {}
           description: "Missing or over-long `name`, a non-positive `topK` / `rerankTopK`\
@@ -2788,6 +2970,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -2805,22 +3003,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -2934,6 +3116,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -2951,22 +3149,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -3101,6 +3283,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -3118,22 +3316,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -3256,6 +3438,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -3273,22 +3471,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -3402,6 +3584,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -3419,22 +3617,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -3569,6 +3751,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -3586,22 +3784,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -3733,6 +3915,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -3750,22 +3948,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -3879,6 +4061,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -3896,22 +4094,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -4129,6 +4311,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -4146,22 +4344,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content: {}
           description: '`filename` is blank or longer than 256 characters.'
@@ -4291,6 +4473,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -4308,22 +4506,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -4436,6 +4618,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -4453,22 +4651,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -4611,6 +4793,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -4628,22 +4826,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -4785,6 +4967,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -4802,22 +5000,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -4942,6 +5124,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-08-31T10:00:00Z
+                status: 404
+                error: Not Found
+                message: "Chunk not found: 550e8400-e29b-41d4-a716-446655440000"
+                path: /v1/chunk/550e8400-e29b-41d4-a716-446655440000
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "No chunk with this id, or its document has been deleted."
         "415":
           content:
             application/json:
@@ -4959,18 +5153,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              example:
-                timestamp: 2026-08-31T10:00:00Z
-                status: 404
-                error: Not Found
-                message: "Chunk not found: 550e8400-e29b-41d4-a716-446655440000"
-                path: /v1/chunk/550e8400-e29b-41d4-a716-446655440000
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: "No chunk with this id, or its document has been deleted."
         "400":
           content:
             application/json:
@@ -5157,6 +5339,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -5174,22 +5372,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -5327,6 +5509,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content: {}
+          description: No agent with this id is visible to your organization.
         "415":
           content:
             application/json:
@@ -5344,9 +5529,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content: {}
-          description: No agent with this id is visible to your organization.
         "400":
           content: {}
           description: "The agent is a core agent (`lock: true`)."
@@ -5450,6 +5632,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content: {}
+          description: No agent with this id is visible to your organization.
         "415":
           content:
             application/json:
@@ -5467,9 +5652,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content: {}
-          description: No agent with this id is visible to your organization.
         "400":
           content:
             application/json:
@@ -5682,6 +5864,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content: {}
+          description: No agent with this id is visible to your organization.
         "415":
           content:
             application/json:
@@ -5699,9 +5884,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content: {}
-          description: No agent with this id is visible to your organization.
         "400":
           content: {}
           description: "The agent is a core agent (`lock: true`), `reset` names a\
@@ -5843,6 +6025,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -5860,22 +6058,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -6073,6 +6255,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -6090,22 +6288,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -6292,6 +6474,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -6309,22 +6507,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -6617,6 +6799,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -6634,22 +6832,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -6897,6 +7079,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -6914,22 +7112,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -7069,6 +7251,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -7086,22 +7284,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -7216,6 +7398,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -7233,22 +7431,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -7443,6 +7625,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -7460,22 +7658,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -7642,6 +7824,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -7659,22 +7857,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -7867,6 +8049,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -7884,22 +8082,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -8048,6 +8230,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -8065,22 +8263,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -8179,7 +8361,7 @@ paths:
         * `?threadId=…&order=ASC&pageSize=50` — the conversation from its first post,
           50 at a time.
         * `?threadId=…&pageIndex=1` — the exchange before the latest ones.
-      operationId: list_4
+      operationId: list_5
       parameters:
       - deprecated: true
         explode: true
@@ -8272,6 +8454,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -8289,22 +8487,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -8483,6 +8665,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -8500,22 +8698,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -8634,6 +8816,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -8651,22 +8849,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -8830,6 +9012,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -8847,22 +9045,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -9011,6 +9193,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -9028,22 +9226,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -9430,6 +9612,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -9447,22 +9645,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -9623,6 +9805,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -9640,22 +9838,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -9734,7 +9916,7 @@ paths:
         Pass `tags` to keep only documents carrying **at least one** of the given tags
         (repeat the parameter for several: `tags=legal&tags=2026`). Combining `status` and
         `tags` narrows on both.
-      operationId: list_5
+      operationId: list_6
       parameters:
       - description: ID of the corpus.
         example: 123e4567-e89b-12d3-a456-426614174000
@@ -9834,6 +10016,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -9851,22 +10049,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -9967,7 +10149,7 @@ paths:
         `items` repeats the same ids without the display fields, for clients written
         against the first version of this endpoint. It is deprecated — read
         `models[].id`.
-      operationId: list_6
+      operationId: list_7
       responses:
         "500":
           content:
@@ -10001,6 +10183,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -10018,22 +10216,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -10314,6 +10496,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -10331,22 +10529,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -10490,7 +10672,7 @@ paths:
 
         To narrow the result — by corpus, document, hash, page or metadata — use
         `GET /v1/chunk/q`, which takes the same paging parameters.
-      operationId: list_7
+      operationId: list_8
       parameters:
       - description: "Include each chunk's text, read from object storage. One storage\
           \ read per row — off by default."
@@ -10561,6 +10743,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -10578,22 +10776,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -10722,6 +10904,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -10739,22 +10937,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -10821,10 +11003,198 @@ paths:
       - Auth
       x-accepts:
       - application/json
+  /v1/auth/access-token/scopes:
+    get:
+      description: |
+        Every scope an access token can be created with — the values accepted in the `scope`
+        of `POST /v1/auth/access-token/`. Use it to build a scope picker rather than hard-coding
+        the list.
+
+        A scope entry is `DOMAIN:ACTION`, and every domain combines with every action:
+
+        - `domains` — each domain with the API path it covers, what it gives access to, and its
+          scope entries, ready to group in a UI;
+        - `actions` — each action with the HTTP methods it opens (`read` is `GET`, so running a
+          RAG query, `GET /v1/post/q`, needs `post:read`);
+        - `scopes` — the flat list of every valid entry.
+
+        The catalog is the same for every organization and every caller.
+      operationId: scopes
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "No credential, or an access token whose scope lacks `auth:read`."
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
+        "200":
+          content:
+            application/json:
+              example:
+                domains:
+                - name: doc
+                  path: /v1/doc
+                  description: "Upload, list, download, convert and delete documents."
+                  scopes:
+                  - doc:create
+                  - doc:read
+                  - doc:update
+                  - doc:delete
+                - name: post
+                  path: /v1/post
+                  description: "Run RAG queries and read answers and attachments.\
+                    \ A query is `GET /v1/post/q`, so it needs `post:read`."
+                  scopes:
+                  - post:create
+                  - post:read
+                  - post:update
+                  - post:delete
+                actions:
+                - name: create
+                  methods:
+                  - POST
+                - name: read
+                  methods:
+                  - GET
+                - name: update
+                  methods:
+                  - PUT
+                  - PATCH
+                - name: delete
+                  methods:
+                  - DELETE
+                scopes:
+                - doc:create
+                - doc:read
+                - doc:update
+                - doc:delete
+                - post:create
+                - post:read
+                - post:update
+                - post:delete
+              schema:
+                $ref: "#/components/schemas/AccessTokenScopesResponse"
+          description: The scope catalog.
+      security:
+      - JWT: []
+      summary: List the available scopes
+      tags:
+      - Auth
+      x-accepts:
+      - application/json
   /v1/auth/access-token/{token}:
     delete:
-      description: Permanently delete an access token. Any in-flight request using
-        this token will fail immediately after revocation.
+      description: "Permanently delete an access token, given its full value. Any\
+        \ request using this token fails immediately after revocation. An unknown\
+        \ value is acknowledged all the same. When you only have the listing, revoke\
+        \ by id instead. Only reachable with a JWT."
       operationId: revoke
       parameters:
       - description: access token to revoke.
@@ -10869,6 +11239,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
         "415":
           content:
             application/json:
@@ -10886,22 +11272,6 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Content type not accepted by the platform. See `GET /v1/doc/accept`
             for the list of supported types.
-        "404":
-          content:
-            application/json:
-              examples:
-                Not found error:
-                  description: Not found error
-                  summary: Generic 404 payload
-                  value:
-                    timestamp: 2026-04-23T04:06:51Z
-                    status: 404
-                    error: Resource not found
-                    message: Resource not exist or id is invalid
-                    path: /v1/corpus/id
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: The resource referenced by the request does not exist.
         "400":
           content:
             application/json:
@@ -10961,7 +11331,159 @@ paths:
           description: Token revoked.
       security:
       - JWT: []
-      summary: Revoke an access token
+      summary: Revoke an access token by value
+      tags:
+      - Auth
+      x-accepts:
+      - application/json
+  /v1/auth/access-token/id/{id}:
+    delete:
+      description: |
+        Permanently delete one of the organization's access tokens, identified by the `id` the
+        listing returns. Revocation is immediate: the next request carrying the token is refused.
+
+        An id that names no token of the caller's organization — unknown, already revoked, or
+        another organization's — is a 404.
+
+        Only reachable with a JWT.
+      operationId: revokeById
+      parameters:
+      - description: "Id of the access token to revoke, as listed."
+        example: 123e4567-e89b-12d3-a456-426614174000
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "No JWT, or the call was made with an access token."
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: No access token with this id in the caller's organization.
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              examples:
+                Conflicts error:
+                  description: Conflicts error
+                  summary: Generic 409 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 409
+                    error: conflicts on ressource
+                    message: state not match with request
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request conflicts with the current state of the resource.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
+        "200":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-07-07T10:30:00Z
+                message: Operation acknowledged
+              schema:
+                $ref: "#/components/schemas/AckResponse"
+          description: Token revoked.
+      security:
+      - JWT: []
+      summary: Revoke an access token by id
       tags:
       - Auth
       x-accepts:
@@ -11591,7 +12113,9 @@ components:
         - doc:read
       properties:
         ttl:
-          description: Token validity in seconds. Defaults to 3600 (1 hour).
+          description: "Token validity in seconds. Defaults to 3600 (1 hour); at least\
+            \ 10, and at most the platform ceiling (`app.access-token.max-ttl-seconds`,\
+            \ 86400 by default)."
           example: 3600
           format: int64
           minimum: 1
@@ -11609,9 +12133,9 @@ components:
           example: usr_abc123
           type: string
         scope:
-          description: "Optional list of permission scopes to associate with the token.\
-            \ Pattern is DOMAIN:ACTION, where DOMAIN must be one of the values [doc|corpus|session|post|config]\
-            \ and ACTION one of the values [create|read|update|delete]"
+          description: "Mandatory, non-empty list of permission scopes the token carries,\
+            \ each `DOMAIN:ACTION`. `GET /v1/auth/access-token/scopes` lists every\
+            \ valid entry."
           example:
           - corpus:read
           - doc:read
@@ -11619,6 +12143,8 @@ components:
             type: string
           type: array
           default: null
+      required:
+      - scope
     AccessTokenCreateResponse:
       example:
         token: token
@@ -13638,6 +14164,226 @@ components:
           example: 2026-04-23T04:06:51Z
           format: date-time
           type: string
+    AccessTokenScopeAction:
+      example:
+        name: read
+        methods:
+        - GET
+      properties:
+        name:
+          description: "Action name, the `ACTION` part of a scope entry."
+          example: read
+          type: string
+        methods:
+          description: HTTP methods the action opens on the domain's API.
+          example:
+          - GET
+          items:
+            type: string
+          type: array
+          default: null
+    AccessTokenScopeDomain:
+      example:
+        name: doc
+        path: /v1/doc
+        description: "Upload, list, download, convert and delete documents."
+        scopes:
+        - doc:create
+        - doc:read
+        - doc:update
+        - doc:delete
+      properties:
+        name:
+          description: "Domain name, the `DOMAIN` part of a scope entry."
+          example: doc
+          type: string
+        path:
+          description: Base path of the API the domain covers.
+          example: /v1/doc
+          type: string
+        description:
+          description: What the domain gives access to.
+          example: "Upload, list, download, convert and delete documents."
+          type: string
+        scopes:
+          description: "The scope entries of this domain, one per action."
+          example:
+          - doc:create
+          - doc:read
+          - doc:update
+          - doc:delete
+          items:
+            type: string
+          type: array
+          default: null
+    AccessTokenScopesResponse:
+      description: |-
+        Every scope an access token can be created with. A scope entry is `DOMAIN:ACTION`; any domain
+        combines with any action.
+      example:
+        domains:
+        - name: doc
+          path: /v1/doc
+          description: "Upload, list, download, convert and delete documents."
+          scopes:
+          - doc:create
+          - doc:read
+          - doc:update
+          - doc:delete
+        - name: doc
+          path: /v1/doc
+          description: "Upload, list, download, convert and delete documents."
+          scopes:
+          - doc:create
+          - doc:read
+          - doc:update
+          - doc:delete
+        actions:
+        - name: read
+          methods:
+          - GET
+        - name: read
+          methods:
+          - GET
+        scopes:
+        - config:create
+        - config:read
+        - config:update
+        - config:delete
+      properties:
+        domains:
+          description: "Domains a scope entry may name, each with the scopes it makes\
+            \ up."
+          items:
+            $ref: "#/components/schemas/AccessTokenScopeDomain"
+          type: array
+          default: null
+        actions:
+          description: "Actions a scope entry may ask for, each with the HTTP methods\
+            \ it opens."
+          items:
+            $ref: "#/components/schemas/AccessTokenScopeAction"
+          type: array
+          default: null
+        scopes:
+          description: "Every valid scope entry, as accepted in the `scope` of `POST\
+            \ /v1/auth/access-token/`."
+          example:
+          - config:create
+          - config:read
+          - config:update
+          - config:delete
+          items:
+            type: string
+          type: array
+          default: null
+    AccessTokenItem:
+      description: |-
+        One access token as a listing shows it: every stored attribute, except that the token value is
+        cut down to its first characters. The full value is only ever returned once, by the create call.
+      example:
+        id: 550e8400-e29b-41d4-a716-446655440000
+        token: er12GggT...
+        orgId: f47ac10b-58cc-4372-a567-0e02b2c3d479
+        createdAt: 2026-07-07T10:00:00Z
+        expiresAt: 2026-07-07T11:00:00Z
+        issuer: widget-frontend
+        email: user@example.com
+        userId: usr_abc123
+        scope:
+        - corpus:read
+        - doc:create
+      properties:
+        id:
+          description: "Id of the token. Pass it to `DELETE /v1/auth/access-token/id/{id}`\
+            \ to revoke the token."
+          example: 550e8400-e29b-41d4-a716-446655440000
+          format: uuid
+          type: string
+        token:
+          description: "First characters of the token value followed by `...` — enough\
+            \ to recognise a token, never enough to use it."
+          example: er12GggT...
+          type: string
+        orgId:
+          description: Organization the token belongs to.
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          format: uuid
+          type: string
+        createdAt:
+          description: "Creation timestamp (ISO-8601, UTC)."
+          example: 2026-07-07T10:00:00Z
+          format: date-time
+          type: string
+        expiresAt:
+          description: "Expiry timestamp (ISO-8601, UTC). An expired token stays listed\
+            \ until revoked, but no longer authenticates."
+          example: 2026-07-07T11:00:00Z
+          format: date-time
+          type: string
+        issuer:
+          description: "Label of the system that requested the token, as given at\
+            \ creation."
+          example: widget-frontend
+          type: string
+        email:
+          description: "Email of the end-user the token was issued for, as given at\
+            \ creation."
+          example: user@example.com
+          type: string
+        userId:
+          description: "User identifier the token was issued for, as given at creation."
+          example: usr_abc123
+          type: string
+        scope:
+          description: Permission scopes the token carries.
+          example:
+          - corpus:read
+          - doc:create
+          items:
+            type: string
+          type: array
+          default: null
+    AccessTokenListResponse:
+      description: Paginated list of the access tokens of the caller's organization.
+      example:
+        pageIndex: 0
+        items:
+        - id: 550e8400-e29b-41d4-a716-446655440000
+          token: er12GggT...
+          orgId: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          createdAt: 2026-07-07T10:00:00Z
+          expiresAt: 2026-07-07T11:00:00Z
+          issuer: widget-frontend
+          email: user@example.com
+          userId: usr_abc123
+          scope:
+          - corpus:read
+          - doc:create
+        - id: 550e8400-e29b-41d4-a716-446655440000
+          token: er12GggT...
+          orgId: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          createdAt: 2026-07-07T10:00:00Z
+          expiresAt: 2026-07-07T11:00:00Z
+          issuer: widget-frontend
+          email: user@example.com
+          userId: usr_abc123
+          scope:
+          - corpus:read
+          - doc:create
+      properties:
+        pageIndex:
+          description: Zero-based index of the returned page.
+          example: 0
+          format: int32
+          type: integer
+        items:
+          description: "Access tokens contained in this page, newest first, expired\
+            \ ones included."
+          items:
+            $ref: "#/components/schemas/AccessTokenItem"
+          type: array
+          default: null
     AgentListResponse:
       description: "Paginated list of the agents an organization can use: its own\
         \ custom agents plus the platform's core agents, core first."

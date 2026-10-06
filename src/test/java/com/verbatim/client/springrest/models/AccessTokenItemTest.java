@@ -11,44 +11,106 @@
  */
 
 
-package com.verbatim.client.springrest.api;
+package com.verbatim.client.springrest.models;
 
-import com.verbatim.client.springrest.models.Error;
-import com.verbatim.client.springrest.models.ModelListResponse;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.springframework.web.client.RestClientException;
-
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
- * API tests for ConfigurationApi
+ * Model tests for AccessTokenItem
  */
-@Disabled
-class ConfigurationApiTest {
+class AccessTokenItemTest {
+    private final AccessTokenItem model = new AccessTokenItem();
 
-    private final ConfigurationApi api = new ConfigurationApi();
-
-    
     /**
-     * List supported LLM models
-     *
-     * Return the LLM models the platform is configured to serve, each with the &#x60;id&#x60; to send and the display name, description and icon URL to present it with.  The list is the same for every caller and is not paginated: &#x60;models&#x60; holds the whole catalog, in the order it is meant to be offered, and &#x60;total&#x60; is how many that is. Preselect the first entry.  &#x60;items&#x60; repeats the same ids without the display fields, for clients written against the first version of this endpoint. It is deprecated — read &#x60;models[].id&#x60;. 
-     *
-     * @throws RestClientException
-     *          if the Api call fails
+     * Model tests for AccessTokenItem
      */
     @Test
-    void list7Test() {
-
-        ModelListResponse response = api.list7();
-
-        // TODO: test validations
+    void testAccessTokenItem() {
+        // TODO: test AccessTokenItem
     }
-    
+
+    /**
+     * Test the property 'id'
+     */
+    @Test
+    void idTest() {
+        // TODO: test id
+    }
+
+    /**
+     * Test the property 'token'
+     */
+    @Test
+    void tokenTest() {
+        // TODO: test token
+    }
+
+    /**
+     * Test the property 'orgId'
+     */
+    @Test
+    void orgIdTest() {
+        // TODO: test orgId
+    }
+
+    /**
+     * Test the property 'createdAt'
+     */
+    @Test
+    void createdAtTest() {
+        // TODO: test createdAt
+    }
+
+    /**
+     * Test the property 'expiresAt'
+     */
+    @Test
+    void expiresAtTest() {
+        // TODO: test expiresAt
+    }
+
+    /**
+     * Test the property 'issuer'
+     */
+    @Test
+    void issuerTest() {
+        // TODO: test issuer
+    }
+
+    /**
+     * Test the property 'email'
+     */
+    @Test
+    void emailTest() {
+        // TODO: test email
+    }
+
+    /**
+     * Test the property 'userId'
+     */
+    @Test
+    void userIdTest() {
+        // TODO: test userId
+    }
+
+    /**
+     * Test the property 'scope'
+     */
+    @Test
+    void scopeTest() {
+        // TODO: test scope
+    }
+
 }

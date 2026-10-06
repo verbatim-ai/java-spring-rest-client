@@ -56,7 +56,7 @@ public class AccessTokenCreateRequest {
   private String userId;
 
   public static final String JSON_PROPERTY_SCOPE = "scope";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private List<String> scope = new ArrayList<>();
 
   public AccessTokenCreateRequest() {
@@ -69,7 +69,7 @@ public class AccessTokenCreateRequest {
   }
 
   /**
-   * Token validity in seconds. Defaults to 3600 (1 hour).
+   * Token validity in seconds. Defaults to 3600 (1 hour); at least 10, and at most the platform ceiling (&#x60;app.access-token.max-ttl-seconds&#x60;, 86400 by default).
    * minimum: 1
    * @return ttl
    */
@@ -163,7 +163,7 @@ public class AccessTokenCreateRequest {
     this.userId = userId;
   }
 
-  public AccessTokenCreateRequest scope(@javax.annotation.Nullable List<String> scope) {
+  public AccessTokenCreateRequest scope(@javax.annotation.Nonnull List<String> scope) {
     
     this.scope = scope;
     return this;
@@ -178,21 +178,21 @@ public class AccessTokenCreateRequest {
   }
 
   /**
-   * Optional list of permission scopes to associate with the token. Pattern is DOMAIN:ACTION, where DOMAIN must be one of the values [doc|corpus|session|post|config] and ACTION one of the values [create|read|update|delete]
+   * Mandatory, non-empty list of permission scopes the token carries, each &#x60;DOMAIN:ACTION&#x60;. &#x60;GET /v1/auth/access-token/scopes&#x60; lists every valid entry.
    * @return scope
    */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_SCOPE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_SCOPE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
   public List<String> getScope() {
     return scope;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_SCOPE, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setScope(@javax.annotation.Nullable List<String> scope) {
+  @JsonProperty(value = JSON_PROPERTY_SCOPE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setScope(@javax.annotation.Nonnull List<String> scope) {
     this.scope = scope;
   }
 

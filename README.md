@@ -156,17 +156,20 @@ Class | Method | HTTP request | Description
 *AgentApi* | [**create4**](docs/AgentApi.md#create4) | **POST** /v1/agent/ | Create an agent
 *AgentApi* | [**delete5**](docs/AgentApi.md#delete5) | **DELETE** /v1/agent/{agentId} | Delete an agent
 *AgentApi* | [**get5**](docs/AgentApi.md#get5) | **GET** /v1/agent/{agentId} | Get an agent
-*AgentApi* | [**list3**](docs/AgentApi.md#list3) | **GET** /v1/agent/ | List agents
+*AgentApi* | [**list4**](docs/AgentApi.md#list4) | **GET** /v1/agent/ | List agents
 *AgentApi* | [**update5**](docs/AgentApi.md#update5) | **PATCH** /v1/agent/{agentId} | Update an agent
-*AuthApi* | [**create3**](docs/AuthApi.md#create3) | **POST** /v1/auth/access-token | Create an access token
-*AuthApi* | [**revoke**](docs/AuthApi.md#revoke) | **DELETE** /v1/auth/access-token/{token} | Revoke an access token
+*AuthApi* | [**create3**](docs/AuthApi.md#create3) | **POST** /v1/auth/access-token/ | Create an access token
+*AuthApi* | [**list3**](docs/AuthApi.md#list3) | **GET** /v1/auth/access-token/ | List access tokens
+*AuthApi* | [**revoke**](docs/AuthApi.md#revoke) | **DELETE** /v1/auth/access-token/{token} | Revoke an access token by value
+*AuthApi* | [**revokeById**](docs/AuthApi.md#revokeById) | **DELETE** /v1/auth/access-token/id/{id} | Revoke an access token by id
+*AuthApi* | [**scopes**](docs/AuthApi.md#scopes) | **GET** /v1/auth/access-token/scopes | List the available scopes
 *AuthApi* | [**whoami**](docs/AuthApi.md#whoami) | **GET** /v1/auth/whoami | Who am I
 *ChunkApi* | [**delete4**](docs/ChunkApi.md#delete4) | **DELETE** /v1/chunk/{chunkId} | Delete a chunk
 *ChunkApi* | [**get4**](docs/ChunkApi.md#get4) | **GET** /v1/chunk/{chunkId} | Get a chunk
-*ChunkApi* | [**list7**](docs/ChunkApi.md#list7) | **GET** /v1/chunk/ | List chunks
+*ChunkApi* | [**list8**](docs/ChunkApi.md#list8) | **GET** /v1/chunk/ | List chunks
 *ChunkApi* | [**search3**](docs/ChunkApi.md#search3) | **GET** /v1/chunk/q | Search chunks
 *ChunkApi* | [**update4**](docs/ChunkApi.md#update4) | **PATCH** /v1/chunk/{chunkId} | Update a chunk
-*ConfigurationApi* | [**list6**](docs/ConfigurationApi.md#list6) | **GET** /v1/config/model | List supported LLM models
+*ConfigurationApi* | [**list7**](docs/ConfigurationApi.md#list7) | **GET** /v1/config/model | List supported LLM models
 *CorpusApi* | [**create2**](docs/CorpusApi.md#create2) | **POST** /v1/corpus/ | Create a corpus
 *CorpusApi* | [**delete3**](docs/CorpusApi.md#delete3) | **DELETE** /v1/corpus/{corpusId} | Delete a corpus
 *CorpusApi* | [**get3**](docs/CorpusApi.md#get3) | **GET** /v1/corpus/{corpusId} | Get a corpus
@@ -178,7 +181,7 @@ Class | Method | HTTP request | Description
 *DocumentApi* | [**downloadUrl1**](docs/DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL
 *DocumentApi* | [**get2**](docs/DocumentApi.md#get2) | **GET** /v1/doc/{id} | Get a document
 *DocumentApi* | [**initUpload**](docs/DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload
-*DocumentApi* | [**list5**](docs/DocumentApi.md#list5) | **GET** /v1/doc/ | List documents
+*DocumentApi* | [**list6**](docs/DocumentApi.md#list6) | **GET** /v1/doc/ | List documents
 *DocumentApi* | [**listSupportedDocuments**](docs/DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types
 *DocumentApi* | [**previewUrls1**](docs/DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs
 *DocumentApi* | [**reinitUpload**](docs/DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload
@@ -190,7 +193,7 @@ Class | Method | HTTP request | Description
 *PostApi* | [**delete6**](docs/PostApi.md#delete6) | **DELETE** /v1/post/{postId} | Delete a post
 *PostApi* | [**downloadUrl**](docs/PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL
 *PostApi* | [**get6**](docs/PostApi.md#get6) | **GET** /v1/post/{postId} | Get a post
-*PostApi* | [**list4**](docs/PostApi.md#list4) | **GET** /v1/post/ | List posts
+*PostApi* | [**list5**](docs/PostApi.md#list5) | **GET** /v1/post/ | List posts
 *PostApi* | [**previewUrls**](docs/PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs
 *PostApi* | [**query**](docs/PostApi.md#query) | **GET** /v1/post/q | Send a query
 *ThreadApi* | [**callList**](docs/ThreadApi.md#callList) | **GET** /v1/session/ | List threads
@@ -214,6 +217,11 @@ Class | Method | HTTP request | Description
 
  - [AccessTokenCreateRequest](docs/AccessTokenCreateRequest.md)
  - [AccessTokenCreateResponse](docs/AccessTokenCreateResponse.md)
+ - [AccessTokenItem](docs/AccessTokenItem.md)
+ - [AccessTokenListResponse](docs/AccessTokenListResponse.md)
+ - [AccessTokenScopeAction](docs/AccessTokenScopeAction.md)
+ - [AccessTokenScopeDomain](docs/AccessTokenScopeDomain.md)
+ - [AccessTokenScopesResponse](docs/AccessTokenScopesResponse.md)
  - [AckResponse](docs/AckResponse.md)
  - [Agent](docs/Agent.md)
  - [AgentCreateRequest](docs/AgentCreateRequest.md)

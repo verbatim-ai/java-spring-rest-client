@@ -10,7 +10,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | [**downloadUrl1**](DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL |
 | [**get2**](DocumentApi.md#get2) | **GET** /v1/doc/{id} | Get a document |
 | [**initUpload**](DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload |
-| [**list5**](DocumentApi.md#list5) | **GET** /v1/doc/ | List documents |
+| [**list6**](DocumentApi.md#list6) | **GET** /v1/doc/ | List documents |
 | [**listSupportedDocuments**](DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types |
 | [**previewUrls1**](DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs |
 | [**reinitUpload**](DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload |
@@ -97,8 +97,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -183,8 +183,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -267,8 +267,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -351,8 +351,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -435,8 +435,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -519,17 +519,17 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Document created in AWAITING_UPLOAD status. PUT the file to &#x60;uploadUrl&#x60;. |  -  |
 
 
-## list5
+## list6
 
-> DocumentListResponse list5(corpusId, status, tags, pageSize, pageIndex)
+> DocumentListResponse list6(corpusId, status, tags, pageSize, pageIndex)
 
 List documents
 
@@ -568,10 +568,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page, 1-100.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            DocumentListResponse result = apiInstance.list5(corpusId, status, tags, pageSize, pageIndex);
+            DocumentListResponse result = apiInstance.list6(corpusId, status, tags, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DocumentApi#list5");
+            System.err.println("Exception when calling DocumentApi#list6");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -611,8 +611,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -691,8 +691,8 @@ This endpoint does not need any parameter.
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -777,8 +777,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -861,8 +861,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | The document&#39;s content type is no longer accepted — see &#x60;GET /v1/doc/accept&#x60;. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | The document&#39;s content type is no longer accepted — see &#x60;GET /v1/doc/accept&#x60;. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | Document is not in &#x60;READY&#x60; or &#x60;FAILED&#x60; status — nothing to replace, or an ingestion is in flight. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -975,8 +975,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | A filter or paging parameter is out of bounds, or the date window is empty. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -1059,8 +1059,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -1143,8 +1143,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -1229,8 +1229,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | &#x60;filename&#x60; is blank or longer than 256 characters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |

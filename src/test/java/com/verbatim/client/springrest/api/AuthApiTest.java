@@ -15,8 +15,11 @@ package com.verbatim.client.springrest.api;
 
 import com.verbatim.client.springrest.models.AccessTokenCreateRequest;
 import com.verbatim.client.springrest.models.AccessTokenCreateResponse;
+import com.verbatim.client.springrest.models.AccessTokenListResponse;
+import com.verbatim.client.springrest.models.AccessTokenScopesResponse;
 import com.verbatim.client.springrest.models.AckResponse;
 import com.verbatim.client.springrest.models.Error;
+import java.util.UUID;
 import com.verbatim.client.springrest.models.WhoAmI;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -41,7 +44,7 @@ class AuthApiTest {
     /**
      * Create an access token
      *
-     * Generate a new short-lived opaque access token for the caller&#39;s organization. The token can be used as the &#x60;X-Access-Token&#x60; header on &#x60;/v1/&#x60; API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit privileges over all the domains. To limit access, defined a list of scope, where each must be compliant with the regex (config|auth|session|doc|chunk|corpus|post|usage|agent):(create|read|update|delete)
+     * Mint a short-lived opaque access token for the caller&#39;s organization. Send it as the &#x60;X-Access-Token&#x60; header on &#x60;/v1/&#x60; API calls.  **The &#x60;token&#x60; value is only ever returned here.** Store it or hand it over now: the listing shows only its first characters, and no call returns it again.  - &#x60;scope&#x60; is mandatory and non-empty — a list of &#x60;DOMAIN:ACTION&#x60; entries such as   &#x60;corpus:read&#x60;. &#x60;GET /v1/auth/access-token/scopes&#x60; lists every valid entry. - &#x60;ttl&#x60; is in seconds: 3600 (1 hour) when omitted, at least 10, and no more than the   ceiling the platform sets (&#x60;app.access-token.max-ttl-seconds&#x60;, 86400 — 24 hours — by   default). A longer &#x60;ttl&#x60; is refused with a 400, not shortened. - &#x60;issuer&#x60;, &#x60;email&#x60; and &#x60;userId&#x60; are free labels stored with the token and shown in the   listing; &#x60;userId&#x60; and &#x60;email&#x60; are also what &#x60;GET /v1/auth/whoami&#x60; answers for it.  Only reachable with a JWT: an access token cannot mint another. 
      *
      * @throws RestClientException
      *          if the Api call fails
@@ -56,9 +59,27 @@ class AuthApiTest {
     }
     
     /**
-     * Revoke an access token
+     * List access tokens
      *
-     * Permanently delete an access token. Any in-flight request using this token will fail immediately after revocation.
+     * List the access tokens of the caller&#39;s organization, newest first, with every attribute stored for them — **except the token value**, which is cut down to its first characters followed by &#x60;...&#x60;. The full value is only returned by the create call.  Expired tokens stay listed (compare &#x60;expiresAt&#x60; with the current time) until they are revoked. Use an item&#39;s &#x60;id&#x60; with &#x60;DELETE /v1/auth/access-token/id/{id}&#x60; to revoke it.  Only reachable with a JWT. 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void list3Test() {
+        Integer pageSize = null;
+        Integer pageIndex = null;
+
+        AccessTokenListResponse response = api.list3(pageSize, pageIndex);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * Revoke an access token by value
+     *
+     * Permanently delete an access token, given its full value. Any request using this token fails immediately after revocation. An unknown value is acknowledged all the same. When you only have the listing, revoke by id instead. Only reachable with a JWT.
      *
      * @throws RestClientException
      *          if the Api call fails
@@ -68,6 +89,39 @@ class AuthApiTest {
         String token = null;
 
         AckResponse response = api.revoke(token);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * Revoke an access token by id
+     *
+     * Permanently delete one of the organization&#39;s access tokens, identified by the &#x60;id&#x60; the listing returns. Revocation is immediate: the next request carrying the token is refused.  An id that names no token of the caller&#39;s organization — unknown, already revoked, or another organization&#39;s — is a 404.  Only reachable with a JWT. 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void revokeByIdTest() {
+        UUID id = null;
+
+        AckResponse response = api.revokeById(id);
+
+        // TODO: test validations
+    }
+    
+    /**
+     * List the available scopes
+     *
+     * Every scope an access token can be created with — the values accepted in the &#x60;scope&#x60; of &#x60;POST /v1/auth/access-token/&#x60;. Use it to build a scope picker rather than hard-coding the list.  A scope entry is &#x60;DOMAIN:ACTION&#x60;, and every domain combines with every action:  - &#x60;domains&#x60; — each domain with the API path it covers, what it gives access to, and its   scope entries, ready to group in a UI; - &#x60;actions&#x60; — each action with the HTTP methods it opens (&#x60;read&#x60; is &#x60;GET&#x60;, so running a   RAG query, &#x60;GET /v1/post/q&#x60;, needs &#x60;post:read&#x60;); - &#x60;scopes&#x60; — the flat list of every valid entry.  The catalog is the same for every organization and every caller. 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void scopesTest() {
+
+        AccessTokenScopesResponse response = api.scopes();
 
         // TODO: test validations
     }

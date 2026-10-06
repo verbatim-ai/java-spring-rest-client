@@ -8,7 +8,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | [**delete6**](PostApi.md#delete6) | **DELETE** /v1/post/{postId} | Delete a post |
 | [**downloadUrl**](PostApi.md#downloadUrl) | **GET** /v1/post/attachment/{docId}/download-url | Get a presigned download URL |
 | [**get6**](PostApi.md#get6) | **GET** /v1/post/{postId} | Get a post |
-| [**list4**](PostApi.md#list4) | **GET** /v1/post/ | List posts |
+| [**list5**](PostApi.md#list5) | **GET** /v1/post/ | List posts |
 | [**previewUrls**](PostApi.md#previewUrls) | **GET** /v1/post/attachment/{docId}/preview-urls | Get presigned preview URLs |
 | [**query**](PostApi.md#query) | **GET** /v1/post/q | Send a query |
 
@@ -90,8 +90,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -174,8 +174,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -258,8 +258,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -342,17 +342,17 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Post found. |  -  |
 
 
-## list4
+## list5
 
-> PostListResponse list4(threadId, sessionId, pageSize, pageIndex, order)
+> PostListResponse list5(threadId, sessionId, pageSize, pageIndex, order)
 
 List posts
 
@@ -391,10 +391,10 @@ public class Example {
         Integer pageIndex = 0; // Integer | Zero-based page index.
         String order = "ASC"; // String | Direction to read the thread in: `DESC` newest first, `ASC` oldest first. Defaults to `DESC`.
         try {
-            PostListResponse result = apiInstance.list4(threadId, sessionId, pageSize, pageIndex, order);
+            PostListResponse result = apiInstance.list5(threadId, sessionId, pageSize, pageIndex, order);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling PostApi#list4");
+            System.err.println("Exception when calling PostApi#list5");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -434,8 +434,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | &#x60;pageSize&#x60; outside 1–100, a negative &#x60;pageIndex&#x60;, or an &#x60;order&#x60; other than &#x60;ASC&#x60; or &#x60;DESC&#x60;. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -520,8 +520,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | &#x60;pages&#x60; is missing, empty, carries more than 10 indices, or names a page outside the document. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -612,8 +612,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |

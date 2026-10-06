@@ -8,6 +8,11 @@ build.gradle
 build.sbt
 docs/AccessTokenCreateRequest.md
 docs/AccessTokenCreateResponse.md
+docs/AccessTokenItem.md
+docs/AccessTokenListResponse.md
+docs/AccessTokenScopeAction.md
+docs/AccessTokenScopeDomain.md
+docs/AccessTokenScopesResponse.md
 docs/AckResponse.md
 docs/Agent.md
 docs/AgentApi.md
@@ -94,6 +99,11 @@ src/main/java/com/verbatim/client/springrest/invoker/auth/HttpBasicAuth.java
 src/main/java/com/verbatim/client/springrest/invoker/auth/HttpBearerAuth.java
 src/main/java/com/verbatim/client/springrest/models/AccessTokenCreateRequest.java
 src/main/java/com/verbatim/client/springrest/models/AccessTokenCreateResponse.java
+src/main/java/com/verbatim/client/springrest/models/AccessTokenItem.java
+src/main/java/com/verbatim/client/springrest/models/AccessTokenListResponse.java
+src/main/java/com/verbatim/client/springrest/models/AccessTokenScopeAction.java
+src/main/java/com/verbatim/client/springrest/models/AccessTokenScopeDomain.java
+src/main/java/com/verbatim/client/springrest/models/AccessTokenScopesResponse.java
 src/main/java/com/verbatim/client/springrest/models/AckResponse.java
 src/main/java/com/verbatim/client/springrest/models/Agent.java
 src/main/java/com/verbatim/client/springrest/models/AgentCreateRequest.java
@@ -150,6 +160,11 @@ src/test/java/com/verbatim/client/springrest/api/ThreadApiTest.java
 src/test/java/com/verbatim/client/springrest/api/UsageApiTest.java
 src/test/java/com/verbatim/client/springrest/models/AccessTokenCreateRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/AccessTokenCreateResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/AccessTokenItemTest.java
+src/test/java/com/verbatim/client/springrest/models/AccessTokenListResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/AccessTokenScopeActionTest.java
+src/test/java/com/verbatim/client/springrest/models/AccessTokenScopeDomainTest.java
+src/test/java/com/verbatim/client/springrest/models/AccessTokenScopesResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/AckResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/AgentCreateRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/AgentListResponseTest.java

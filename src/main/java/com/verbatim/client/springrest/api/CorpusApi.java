@@ -50,8 +50,8 @@ public class CorpusApi extends BaseApi {
      * Create a new corpus inside an organization. The organization is taken from your token, so there is nothing to pass: a corpus needs only a name, and optionally a description and metadata.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -69,8 +69,8 @@ public class CorpusApi extends BaseApi {
      * Create a new corpus inside an organization. The organization is taken from your token, so there is nothing to pass: a corpus needs only a name, and optionally a description and metadata.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -112,8 +112,8 @@ public class CorpusApi extends BaseApi {
      * Delete a corpus.  **This is a soft delete, and it cascades** to every document owned by this corpus and to every chunk those documents were split into. All of it disappears from the API together and stops being retrievable, while nothing is destroyed underneath: archived files and chunk texts are kept. There is no endpoint that undoes it. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -131,8 +131,8 @@ public class CorpusApi extends BaseApi {
      * Delete a corpus.  **This is a soft delete, and it cascades** to every document owned by this corpus and to every chunk those documents were split into. All of it disappears from the API together and stops being retrievable, while nothing is destroyed underneath: archived files and chunk texts are kept. There is no endpoint that undoes it. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -175,8 +175,8 @@ public class CorpusApi extends BaseApi {
      * Fetch a corpus by its identifier.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -194,8 +194,8 @@ public class CorpusApi extends BaseApi {
      * Fetch a corpus by its identifier.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -238,8 +238,8 @@ public class CorpusApi extends BaseApi {
      * Paginate corpora belonging to an organization.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -258,8 +258,8 @@ public class CorpusApi extends BaseApi {
      * Paginate corpora belonging to an organization.
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -299,8 +299,8 @@ public class CorpusApi extends BaseApi {
      * Patch the name, description or metadata of an existing corpus. Only the fields present in the request body are updated; omitted fields keep their current value.  &#x60;metadata&#x60; **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  Nothing patchable here changes how the corpus behaves: retrieval and the models that answer belong to the agent named on each query, so no edit re-processes documents or affects queries already running. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -319,8 +319,8 @@ public class CorpusApi extends BaseApi {
      * Patch the name, description or metadata of an existing corpus. Only the fields present in the request body are updated; omitted fields keep their current value.  &#x60;metadata&#x60; **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  Nothing patchable here changes how the corpus behaves: retrieval and the models that answer belong to the agent named on each query, so no edit re-processes documents or affects queries already running. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.

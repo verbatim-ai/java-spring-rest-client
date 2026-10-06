@@ -43,8 +43,8 @@ public class ConfigurationApi extends BaseApi {
      * Return the LLM models the platform is configured to serve, each with the &#x60;id&#x60; to send and the display name, description and icon URL to present it with.  The list is the same for every caller and is not paginated: &#x60;models&#x60; holds the whole catalog, in the order it is meant to be offered, and &#x60;total&#x60; is how many that is. Preselect the first entry.  &#x60;items&#x60; repeats the same ids without the display fields, for clients written against the first version of this endpoint. It is deprecated — read &#x60;models[].id&#x60;. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -52,8 +52,8 @@ public class ConfigurationApi extends BaseApi {
      * @return ModelListResponse
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ModelListResponse list6() throws RestClientException {
-        return list6WithHttpInfo().getBody();
+    public ModelListResponse list7() throws RestClientException {
+        return list7WithHttpInfo().getBody();
     }
 
     /**
@@ -61,8 +61,8 @@ public class ConfigurationApi extends BaseApi {
      * Return the LLM models the platform is configured to serve, each with the &#x60;id&#x60; to send and the display name, description and icon URL to present it with.  The list is the same for every caller and is not paginated: &#x60;models&#x60; holds the whole catalog, in the order it is meant to be offered, and &#x60;total&#x60; is how many that is. Preselect the first entry.  &#x60;items&#x60; repeats the same ids without the display fields, for clients written against the first version of this endpoint. It is deprecated — read &#x60;models[].id&#x60;. 
      * <p><b>500</b> - Internal error. Check body to get more info
      * <p><b>403</b> - Not authorized. Access not granted for this request
-     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
      * <p><b>400</b> - The request is malformed or contains invalid parameters.
      * <p><b>409</b> - The request conflicts with the current state of the resource.
      * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
@@ -70,7 +70,7 @@ public class ConfigurationApi extends BaseApi {
      * @return ResponseEntity&lt;ModelListResponse&gt;
      * @throws RestClientException if an error occurs while attempting to invoke the API
      */
-    public ResponseEntity<ModelListResponse> list6WithHttpInfo() throws RestClientException {
+    public ResponseEntity<ModelListResponse> list7WithHttpInfo() throws RestClientException {
         Object localVarPostBody = null;
         
 

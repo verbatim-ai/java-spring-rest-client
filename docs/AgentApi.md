@@ -7,7 +7,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | [**create4**](AgentApi.md#create4) | **POST** /v1/agent/ | Create an agent |
 | [**delete5**](AgentApi.md#delete5) | **DELETE** /v1/agent/{agentId} | Delete an agent |
 | [**get5**](AgentApi.md#get5) | **GET** /v1/agent/{agentId} | Get an agent |
-| [**list3**](AgentApi.md#list3) | **GET** /v1/agent/ | List agents |
+| [**list4**](AgentApi.md#list4) | **GET** /v1/agent/ | List agents |
 | [**update5**](AgentApi.md#update5) | **PATCH** /v1/agent/{agentId} | Update an agent |
 
 
@@ -88,8 +88,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | Missing or over-long &#x60;name&#x60;, a non-positive &#x60;topK&#x60; / &#x60;rerankTopK&#x60; / &#x60;historySize&#x60;, a &#x60;temperature&#x60; outside 0–1, or a model name &#x60;GET /v1/config/model&#x60; does not advertise. |  -  |
 | **409** | This &#x60;name&#x60; is taken — by one of your agents, or by a platform agent. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -172,8 +172,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | No agent with this id is visible to your organization. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The agent is a core agent (&#x60;lock: true&#x60;). |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -256,17 +256,17 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | No agent with this id is visible to your organization. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Agent found. |  -  |
 
 
-## list3
+## list4
 
-> AgentListResponse list3(pageSize, pageIndex)
+> AgentListResponse list4(pageSize, pageIndex)
 
 List agents
 
@@ -302,10 +302,10 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            AgentListResponse result = apiInstance.list3(pageSize, pageIndex);
+            AgentListResponse result = apiInstance.list4(pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AgentApi#list3");
+            System.err.println("Exception when calling AgentApi#list4");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -342,8 +342,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The request is malformed or contains invalid parameters. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
@@ -428,8 +428,8 @@ public class Example {
 |-------------|-------------|------------------|
 | **500** | Internal error. Check body to get more info |  -  |
 | **403** | Not authorized. Access not granted for this request |  -  |
-| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **404** | No agent with this id is visible to your organization. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
 | **400** | The agent is a core agent (&#x60;lock: true&#x60;), &#x60;reset&#x60; names a field that has no platform default, or a value fails validation. |  -  |
 | **409** | The requested &#x60;name&#x60; is carried by another of your agents, or by a platform agent. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |

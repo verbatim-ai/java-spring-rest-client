@@ -119,14 +119,14 @@ class PostApiTest {
      *          if the Api call fails
      */
     @Test
-    void list4Test() {
+    void list5Test() {
         UUID threadId = null;
         UUID sessionId = null;
         Integer pageSize = null;
         Integer pageIndex = null;
         String order = null;
 
-        PostListResponse response = api.list4(threadId, sessionId, pageSize, pageIndex, order);
+        PostListResponse response = api.list5(threadId, sessionId, pageSize, pageIndex, order);
 
         // TODO: test validations
     }
