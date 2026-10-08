@@ -9349,6 +9349,152 @@ paths:
       - Document
       x-accepts:
       - application/json
+  /v1/doc/{id}/md:
+    get:
+      description: |
+        Return a time-limited presigned URL the client can use to GET the Markdown
+        conversion of the document directly from the storage backend (S3) — no content
+        flows through this server. It is the text ingestion extracted from the file, before
+        it was split into chunks: what to read when you want the whole document as text.
+
+        The URL needs no token: whoever holds it can read the file until `expiresAt`. Do
+        not log it or hand it further than needed. Ask again for a fresh one once it has
+        expired. `timestamp` is when it was issued.
+
+        The conversion is produced during ingestion. No existence check is made here, so
+        the URL answers `404` when fetched until ingestion has written it — it is there
+        once the document is `READY`. A document still `AWAITING_UPLOAD` has nothing to
+        convert and is answered `409`.
+
+        Scope: `doc:read`.
+      operationId: markdownUrl
+      parameters:
+      - description: ID of the document.
+        example: 123e4567-e89b-12d3-a456-426614174000
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content: {}
+          description: "Unknown document, or a document of another organization."
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "415":
+          content:
+            application/json:
+              examples:
+                Invalid content type error:
+                  description: Invalid content type error
+                  summary: Generic 415 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 415
+                    error: invalid content type
+                    message: application/json is not supported
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Content type not accepted by the platform. See `GET /v1/doc/accept`
+            for the list of supported types.
+        "400":
+          content:
+            application/json:
+              examples:
+                Bad request error:
+                  description: Bad request error
+                  summary: Generic 400 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 400
+                    error: Bad Request
+                    message: pages list must not be empty
+                    path: /v1/doc/id/preview
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request is malformed or contains invalid parameters.
+        "409":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-10-08T10:00:00Z
+                status: 409
+                error: Conflict
+                message: Document 550e8400-e29b-41d4-a716-446655440000 has not been
+                  uploaded yet
+                path: /v1/doc/550e8400-e29b-41d4-a716-446655440000/md
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The document has not been uploaded yet.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
+        "200":
+          content:
+            application/json:
+              example:
+                url: https://s3.fr-par.scw.cloud/bucket/documents/550e8400-e29b-41d4-a716-446655440001/md/550e8400-e29b-41d4-a716-446655440000?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=900&X-Amz-Signature=...
+                timestamp: 2026-10-08T10:00:00Z
+                expiresAt: 2026-10-08T10:15:00Z
+              schema:
+                $ref: "#/components/schemas/DocumentMarkdownUrl"
+          description: Presigned URL issued.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: Get a presigned URL to the Markdown conversion
+      tags:
+      - Document
+      x-accepts:
+      - application/json
   /v1/doc/{id}/download-url:
     get:
       description: |
@@ -13944,6 +14090,36 @@ components:
           example: 2026-04-23T04:06:51Z
           format: date-time
           type: string
+    DocumentMarkdownUrl:
+      description: "Presigned URL granting direct client GET access to the Markdown\
+        \ conversion of a document. The content is served by the storage backend (S3),\
+        \ not by this server."
+      example:
+        url: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/md/<doc>?X-Amz-Algorithm=...
+        timestamp: 2026-10-08T10:00:00Z
+        expiresAt: 2026-10-08T10:15:00Z
+      properties:
+        url:
+          description: "Presigned URL to GET the Markdown conversion (`text/markdown`,\
+            \ UTF-8). Time-limited: anyone holding it can read the file until `expiresAt`,\
+            \ without a token."
+          example: https://s3.fr-par.scw.cloud/bucket/documents/<corpus>/md/<doc>?X-Amz-Algorithm=...
+          type: string
+        timestamp:
+          description: "When `url` was issued (ISO-8601, UTC)."
+          example: 2026-10-08T10:00:00Z
+          format: date-time
+          type: string
+        expiresAt:
+          description: "Wall-clock expiration of `url` (ISO-8601, UTC). After this,\
+            \ a fresh request is required."
+          example: 2026-10-08T10:15:00Z
+          format: date-time
+          type: string
+      required:
+      - expiresAt
+      - timestamp
+      - url
     DocumentSearchResponse:
       description: "Page of documents matching a search, with the total number of\
         \ matches."

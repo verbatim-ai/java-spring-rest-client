@@ -20,6 +20,7 @@ import com.verbatim.client.springrest.models.DocumentDownloadUrl;
 import com.verbatim.client.springrest.models.DocumentInit;
 import com.verbatim.client.springrest.models.DocumentInitRequest;
 import com.verbatim.client.springrest.models.DocumentListResponse;
+import com.verbatim.client.springrest.models.DocumentMarkdownUrl;
 import com.verbatim.client.springrest.models.DocumentPreviewUrls;
 import com.verbatim.client.springrest.models.DocumentSearchResponse;
 import com.verbatim.client.springrest.models.DocumentStatus;
@@ -202,6 +203,23 @@ class DocumentApiTest {
     void listSupportedDocumentsTest() {
 
         String response = api.listSupportedDocuments();
+
+        // TODO: test validations
+    }
+    
+    /**
+     * Get a presigned URL to the Markdown conversion
+     *
+     * Return a time-limited presigned URL the client can use to GET the Markdown conversion of the document directly from the storage backend (S3) — no content flows through this server. It is the text ingestion extracted from the file, before it was split into chunks: what to read when you want the whole document as text.  The URL needs no token: whoever holds it can read the file until &#x60;expiresAt&#x60;. Do not log it or hand it further than needed. Ask again for a fresh one once it has expired. &#x60;timestamp&#x60; is when it was issued.  The conversion is produced during ingestion. No existence check is made here, so the URL answers &#x60;404&#x60; when fetched until ingestion has written it — it is there once the document is &#x60;READY&#x60;. A document still &#x60;AWAITING_UPLOAD&#x60; has nothing to convert and is answered &#x60;409&#x60;.  Scope: &#x60;doc:read&#x60;. 
+     *
+     * @throws RestClientException
+     *          if the Api call fails
+     */
+    @Test
+    void markdownUrlTest() {
+        UUID id = null;
+
+        DocumentMarkdownUrl response = api.markdownUrl(id);
 
         // TODO: test validations
     }

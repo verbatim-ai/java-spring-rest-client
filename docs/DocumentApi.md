@@ -13,6 +13,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | [**initUpload**](DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload |
 | [**list6**](DocumentApi.md#list6) | **GET** /v1/doc/ | List documents |
 | [**listSupportedDocuments**](DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types |
+| [**markdownUrl**](DocumentApi.md#markdownUrl) | **GET** /v1/doc/{id}/md | Get a presigned URL to the Markdown conversion |
 | [**previewUrls1**](DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs |
 | [**reinitUpload**](DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload |
 | [**search2**](DocumentApi.md#search2) | **GET** /v1/doc/q | Search documents |
@@ -782,6 +783,90 @@ This endpoint does not need any parameter.
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | List of accepted MIME types. |  -  |
+
+
+## markdownUrl
+
+> DocumentMarkdownUrl markdownUrl(id)
+
+Get a presigned URL to the Markdown conversion
+
+Return a time-limited presigned URL the client can use to GET the Markdown conversion of the document directly from the storage backend (S3) — no content flows through this server. It is the text ingestion extracted from the file, before it was split into chunks: what to read when you want the whole document as text.  The URL needs no token: whoever holds it can read the file until &#x60;expiresAt&#x60;. Do not log it or hand it further than needed. Ask again for a fresh one once it has expired. &#x60;timestamp&#x60; is when it was issued.  The conversion is produced during ingestion. No existence check is made here, so the URL answers &#x60;404&#x60; when fetched until ingestion has written it — it is there once the document is &#x60;READY&#x60;. A document still &#x60;AWAITING_UPLOAD&#x60; has nothing to convert and is answered &#x60;409&#x60;.  Scope: &#x60;doc:read&#x60;. 
+
+### Example
+
+```java
+// Import classes:
+import com.verbatim.client.springrest.invoker.ApiClient;
+import com.verbatim.client.springrest.invoker.ApiException;
+import com.verbatim.client.springrest.invoker.Configuration;
+import com.verbatim.client.springrest.invoker.auth.*;
+import com.verbatim.client.springrest.invoker.models.*;
+import com.verbatim.client.springrest.api.DocumentApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
+        
+        // Configure HTTP bearer authorization: JWT
+        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
+        JWT.setBearerToken("BEARER TOKEN");
+
+        // Configure API key authorization: AccessToken
+        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
+        AccessToken.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //AccessToken.setApiKeyPrefix("Token");
+
+        DocumentApi apiInstance = new DocumentApi(defaultClient);
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"); // UUID | ID of the document.
+        try {
+            DocumentMarkdownUrl result = apiInstance.markdownUrl(id);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling DocumentApi#markdownUrl");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **id** | **UUID**| ID of the document. | |
+
+### Return type
+
+[**DocumentMarkdownUrl**](DocumentMarkdownUrl.md)
+
+### Authorization
+
+[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **500** | Internal error. Check body to get more info |  -  |
+| **403** | Unknown document, or a document of another organization. |  -  |
+| **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
+| **400** | The request is malformed or contains invalid parameters. |  -  |
+| **409** | The document has not been uploaded yet. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
+| **200** | Presigned URL issued. |  -  |
 
 
 ## previewUrls1

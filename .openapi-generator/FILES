@@ -41,6 +41,7 @@ docs/DocumentDownloadUrl.md
 docs/DocumentInit.md
 docs/DocumentInitRequest.md
 docs/DocumentListResponse.md
+docs/DocumentMarkdownUrl.md
 docs/DocumentPreviewUrl.md
 docs/DocumentPreviewUrls.md
 docs/DocumentSearchResponse.md
@@ -127,6 +128,7 @@ src/main/java/com/verbatim/client/springrest/models/DocumentDownloadUrl.java
 src/main/java/com/verbatim/client/springrest/models/DocumentInit.java
 src/main/java/com/verbatim/client/springrest/models/DocumentInitRequest.java
 src/main/java/com/verbatim/client/springrest/models/DocumentListResponse.java
+src/main/java/com/verbatim/client/springrest/models/DocumentMarkdownUrl.java
 src/main/java/com/verbatim/client/springrest/models/DocumentPreviewUrl.java
 src/main/java/com/verbatim/client/springrest/models/DocumentPreviewUrls.java
 src/main/java/com/verbatim/client/springrest/models/DocumentSearchResponse.java
@@ -188,6 +190,7 @@ src/test/java/com/verbatim/client/springrest/models/DocumentDownloadUrlTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentInitRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentInitTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentListResponseTest.java
+src/test/java/com/verbatim/client/springrest/models/DocumentMarkdownUrlTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentPreviewUrlTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentPreviewUrlsTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentSearchResponseTest.java

@@ -10,6 +10,7 @@ import com.verbatim.client.springrest.models.DocumentDownloadUrl;
 import com.verbatim.client.springrest.models.DocumentInit;
 import com.verbatim.client.springrest.models.DocumentInitRequest;
 import com.verbatim.client.springrest.models.DocumentListResponse;
+import com.verbatim.client.springrest.models.DocumentMarkdownUrl;
 import com.verbatim.client.springrest.models.DocumentPreviewUrls;
 import com.verbatim.client.springrest.models.DocumentSearchResponse;
 import com.verbatim.client.springrest.models.DocumentStatus;
@@ -622,6 +623,69 @@ public class DocumentApi extends BaseApi {
 
         ParameterizedTypeReference<String> localReturnType = new ParameterizedTypeReference<String>() {};
         return apiClient.invokeAPI("/v1/doc/accept", HttpMethod.GET, Collections.<String, Object>emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
+    }
+    /**
+     * Get a presigned URL to the Markdown conversion
+     * Return a time-limited presigned URL the client can use to GET the Markdown conversion of the document directly from the storage backend (S3) — no content flows through this server. It is the text ingestion extracted from the file, before it was split into chunks: what to read when you want the whole document as text.  The URL needs no token: whoever holds it can read the file until &#x60;expiresAt&#x60;. Do not log it or hand it further than needed. Ask again for a fresh one once it has expired. &#x60;timestamp&#x60; is when it was issued.  The conversion is produced during ingestion. No existence check is made here, so the URL answers &#x60;404&#x60; when fetched until ingestion has written it — it is there once the document is &#x60;READY&#x60;. A document still &#x60;AWAITING_UPLOAD&#x60; has nothing to convert and is answered &#x60;409&#x60;.  Scope: &#x60;doc:read&#x60;. 
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Unknown document, or a document of another organization.
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The document has not been uploaded yet.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
+     * <p><b>200</b> - Presigned URL issued.
+     * @param id ID of the document. (required)
+     * @return DocumentMarkdownUrl
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public DocumentMarkdownUrl markdownUrl(UUID id) throws RestClientException {
+        return markdownUrlWithHttpInfo(id).getBody();
+    }
+
+    /**
+     * Get a presigned URL to the Markdown conversion
+     * Return a time-limited presigned URL the client can use to GET the Markdown conversion of the document directly from the storage backend (S3) — no content flows through this server. It is the text ingestion extracted from the file, before it was split into chunks: what to read when you want the whole document as text.  The URL needs no token: whoever holds it can read the file until &#x60;expiresAt&#x60;. Do not log it or hand it further than needed. Ask again for a fresh one once it has expired. &#x60;timestamp&#x60; is when it was issued.  The conversion is produced during ingestion. No existence check is made here, so the URL answers &#x60;404&#x60; when fetched until ingestion has written it — it is there once the document is &#x60;READY&#x60;. A document still &#x60;AWAITING_UPLOAD&#x60; has nothing to convert and is answered &#x60;409&#x60;.  Scope: &#x60;doc:read&#x60;. 
+     * <p><b>500</b> - Internal error. Check body to get more info
+     * <p><b>403</b> - Unknown document, or a document of another organization.
+     * <p><b>404</b> - The resource referenced by the request does not exist.
+     * <p><b>415</b> - Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types.
+     * <p><b>400</b> - The request is malformed or contains invalid parameters.
+     * <p><b>409</b> - The document has not been uploaded yet.
+     * <p><b>413</b> - The request body exceeds the size accepted by the endpoint.
+     * <p><b>200</b> - Presigned URL issued.
+     * @param id ID of the document. (required)
+     * @return ResponseEntity&lt;DocumentMarkdownUrl&gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity<DocumentMarkdownUrl> markdownUrlWithHttpInfo(UUID id) throws RestClientException {
+        Object localVarPostBody = null;
+        
+        // verify the required parameter 'id' is set
+        if (id == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'id' when calling markdownUrl");
+        }
+        
+        // create path and map variables
+        final Map<String, Object> uriVariables = new HashMap<String, Object>();
+        uriVariables.put("id", id);
+
+        final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<String, String>();
+        final HttpHeaders localVarHeaderParams = new HttpHeaders();
+        final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<String, String>();
+        final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<String, Object>();
+
+        final String[] localVarAccepts = { 
+            "application/json"
+         };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = {  };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+
+        String[] localVarAuthNames = new String[] { "JWT", "AccessToken" };
+
+        ParameterizedTypeReference<DocumentMarkdownUrl> localReturnType = new ParameterizedTypeReference<DocumentMarkdownUrl>() {};
+        return apiClient.invokeAPI("/v1/doc/{id}/md", HttpMethod.GET, uriVariables, localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);
     }
     /**
      * Get presigned preview URLs

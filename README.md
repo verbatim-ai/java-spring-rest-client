@@ -184,6 +184,7 @@ Class | Method | HTTP request | Description
 *DocumentApi* | [**initUpload**](docs/DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload
 *DocumentApi* | [**list6**](docs/DocumentApi.md#list6) | **GET** /v1/doc/ | List documents
 *DocumentApi* | [**listSupportedDocuments**](docs/DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types
+*DocumentApi* | [**markdownUrl**](docs/DocumentApi.md#markdownUrl) | **GET** /v1/doc/{id}/md | Get a presigned URL to the Markdown conversion
 *DocumentApi* | [**previewUrls1**](docs/DocumentApi.md#previewUrls1) | **GET** /v1/doc/{id}/preview-urls | Get presigned preview URLs
 *DocumentApi* | [**reinitUpload**](docs/DocumentApi.md#reinitUpload) | **PUT** /v1/doc/{id}/init | Re-initialize a document for a new upload
 *DocumentApi* | [**search2**](docs/DocumentApi.md#search2) | **GET** /v1/doc/q | Search documents
@@ -245,6 +246,7 @@ Class | Method | HTTP request | Description
  - [DocumentInit](docs/DocumentInit.md)
  - [DocumentInitRequest](docs/DocumentInitRequest.md)
  - [DocumentListResponse](docs/DocumentListResponse.md)
+ - [DocumentMarkdownUrl](docs/DocumentMarkdownUrl.md)
  - [DocumentPreviewUrl](docs/DocumentPreviewUrl.md)
  - [DocumentPreviewUrls](docs/DocumentPreviewUrls.md)
  - [DocumentSearchResponse](docs/DocumentSearchResponse.md)
