@@ -56,22 +56,6 @@ class AccessTokenCreateRequestTest {
     }
 
     /**
-     * Test the property 'email'
-     */
-    @Test
-    void emailTest() {
-        // TODO: test email
-    }
-
-    /**
-     * Test the property 'userId'
-     */
-    @Test
-    void userIdTest() {
-        // TODO: test userId
-    }
-
-    /**
      * Test the property 'scope'
      */
     @Test

@@ -2582,8 +2582,10 @@ paths:
         - `ttl` is in seconds: 3600 (1 hour) when omitted, at least 10, and no more than the
           ceiling the platform sets (`app.access-token.max-ttl-seconds`, 86400 — 24 hours — by
           default). A longer `ttl` is refused with a 400, not shortened.
-        - `issuer`, `email` and `userId` are free labels stored with the token and shown in the
-          listing; `userId` and `email` are also what `GET /v1/auth/whoami` answers for it.
+        - `issuer` is a free label stored with the token and shown in the listing.
+        - the token's `userId` and `email` are not inputs: they are the caller's own, and
+          what `GET /v1/auth/whoami` answers for the token. A token minted by a root user
+          is a root token.
 
         Only reachable with a JWT: an access token cannot mint another.
       operationId: create_3
@@ -2602,7 +2604,6 @@ paths:
                 value:
                   ttl: 3600
                   issuer: widget-frontend
-                  email: user@example.com
                   scope:
                   - corpus:read
                   - doc:create
@@ -12407,8 +12408,6 @@ components:
       example:
         ttl: 3600
         issuer: widget-frontend
-        email: user@example.com
-        userId: usr_abc123
         scope:
         - corpus:read
         - doc:read
@@ -12424,14 +12423,6 @@ components:
         issuer:
           description: Optional label identifying the system that requested the token.
           example: widget-frontend
-          type: string
-        email:
-          description: Optional email of the end-user the token is issued for.
-          example: user@example.com
-          type: string
-        userId:
-          description: Optional user identifier.
-          example: usr_abc123
           type: string
         scope:
           description: "Mandatory, non-empty list of permission scopes the token carries,\

@@ -33,8 +33,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @JsonPropertyOrder({
   AccessTokenCreateRequest.JSON_PROPERTY_TTL,
   AccessTokenCreateRequest.JSON_PROPERTY_ISSUER,
-  AccessTokenCreateRequest.JSON_PROPERTY_EMAIL,
-  AccessTokenCreateRequest.JSON_PROPERTY_USER_ID,
   AccessTokenCreateRequest.JSON_PROPERTY_SCOPE
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.25.0")
@@ -46,14 +44,6 @@ public class AccessTokenCreateRequest {
   public static final String JSON_PROPERTY_ISSUER = "issuer";
   @javax.annotation.Nullable
   private String issuer;
-
-  public static final String JSON_PROPERTY_EMAIL = "email";
-  @javax.annotation.Nullable
-  private String email;
-
-  public static final String JSON_PROPERTY_USER_ID = "userId";
-  @javax.annotation.Nullable
-  private String userId;
 
   public static final String JSON_PROPERTY_SCOPE = "scope";
   @javax.annotation.Nonnull
@@ -113,56 +103,6 @@ public class AccessTokenCreateRequest {
     this.issuer = issuer;
   }
 
-  public AccessTokenCreateRequest email(@javax.annotation.Nullable String email) {
-    
-    this.email = email;
-    return this;
-  }
-
-  /**
-   * Optional email of the end-user the token is issued for.
-   * @return email
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_EMAIL, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getEmail() {
-    return email;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_EMAIL, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEmail(@javax.annotation.Nullable String email) {
-    this.email = email;
-  }
-
-  public AccessTokenCreateRequest userId(@javax.annotation.Nullable String userId) {
-    
-    this.userId = userId;
-    return this;
-  }
-
-  /**
-   * Optional user identifier.
-   * @return userId
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(value = JSON_PROPERTY_USER_ID, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getUserId() {
-    return userId;
-  }
-
-
-  @JsonProperty(value = JSON_PROPERTY_USER_ID, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUserId(@javax.annotation.Nullable String userId) {
-    this.userId = userId;
-  }
-
   public AccessTokenCreateRequest scope(@javax.annotation.Nonnull List<String> scope) {
     
     this.scope = scope;
@@ -208,14 +148,12 @@ public class AccessTokenCreateRequest {
     AccessTokenCreateRequest accessTokenCreateRequest = (AccessTokenCreateRequest) o;
     return Objects.equals(this.ttl, accessTokenCreateRequest.ttl) &&
         Objects.equals(this.issuer, accessTokenCreateRequest.issuer) &&
-        Objects.equals(this.email, accessTokenCreateRequest.email) &&
-        Objects.equals(this.userId, accessTokenCreateRequest.userId) &&
         Objects.equals(this.scope, accessTokenCreateRequest.scope);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ttl, issuer, email, userId, scope);
+    return Objects.hash(ttl, issuer, scope);
   }
 
   @Override
@@ -224,8 +162,6 @@ public class AccessTokenCreateRequest {
     sb.append("class AccessTokenCreateRequest {\n");
     sb.append("    ttl: ").append(toIndentedString(ttl)).append("\n");
     sb.append("    issuer: ").append(toIndentedString(issuer)).append("\n");
-    sb.append("    email: ").append(toIndentedString(email)).append("\n");
-    sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
     sb.append("}");
     return sb.toString();
