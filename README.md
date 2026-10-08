@@ -6,8 +6,6 @@ Verbatim AI — GenAI Backend API
 
 - Generator version: 7.25.0
 
-
-
 ## Concepts
 API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains:
 - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM.
@@ -26,6 +24,9 @@ Two authentication methods are accepted on endpoints:
 
 ## API status
 Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.
+
+## Stay tuned
+Watch updates and breaking changes from our [CHANGELOG](https://verbatim-ai.gitbook.io/docs/integration/changelog)
 
 ## Conventions
 - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`).
