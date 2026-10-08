@@ -61,7 +61,7 @@ class AuthApiTest {
     /**
      * List access tokens
      *
-     * List the access tokens of the caller&#39;s organization, newest first, with every attribute stored for them — **except the token value**, which is cut down to its first characters followed by &#x60;...&#x60;. The full value is only returned by the create call.  Expired tokens stay listed (compare &#x60;expiresAt&#x60; with the current time) until they are revoked. Use an item&#39;s &#x60;id&#x60; with &#x60;DELETE /v1/auth/access-token/id/{id}&#x60; to revoke it.  Only reachable with a JWT. 
+     * List the access tokens of the caller&#39;s organization, newest first, with every attribute stored for them — **except the token value**, which is cut down to its first characters followed by &#x60;...&#x60;. The full value is only returned by the create call.  Expired tokens stay listed (compare &#x60;expiresAt&#x60; with the current time) until they are revoked. Use an item&#39;s &#x60;id&#x60; with &#x60;DELETE /v1/auth/access-token/id/{id}&#x60; to revoke it.  Tokens minted by a platform administrator, impersonation tokens included, are not listed.  Only reachable with a JWT. 
      *
      * @throws RestClientException
      *          if the Api call fails
