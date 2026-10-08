@@ -9,6 +9,7 @@ All URIs are relative to *https://api.verbatim-ai.com*
 | [**delete2**](DocumentApi.md#delete2) | **DELETE** /v1/doc/{id} | Delete a document |
 | [**downloadUrl1**](DocumentApi.md#downloadUrl1) | **GET** /v1/doc/{id}/download-url | Get a presigned download URL |
 | [**get2**](DocumentApi.md#get2) | **GET** /v1/doc/{id} | Get a document |
+| [**importUrl**](DocumentApi.md#importUrl) | **POST** /v1/doc/url | Import a web page |
 | [**initUpload**](DocumentApi.md#initUpload) | **POST** /v1/doc/init | Initialize a direct-to-storage upload |
 | [**list6**](DocumentApi.md#list6) | **GET** /v1/doc/ | List documents |
 | [**listSupportedDocuments**](DocumentApi.md#listSupportedDocuments) | **GET** /v1/doc/accept | List accepted content types |
@@ -443,6 +444,90 @@ public class Example {
 | **200** | Document found. |  -  |
 
 
+## importUrl
+
+> Document importUrl(documentUrlRequest)
+
+Import a web page
+
+Print a web page to PDF and add it to a corpus — the &#x60;init&#x60; → PUT → &#x60;commit&#x60; flow in one call, with the server producing the file. The page is loaded in a headless Chromium, as a browser would show it: scripts run, so pages rendered client-side import too.  **The document is named by the page.** &#x60;filename&#x60; is the page&#39;s &#x60;&lt;title&gt;&#x60; with a &#x60;.pdf&#x60; extension (its address when the page has none), &#x60;lang&#x60; comes from its &#x60;&lt;html lang&gt;&#x60; (English when it declares none), &#x60;provider&#x60; is &#x60;web&#x60;, and &#x60;metadata.url&#x60; keeps the URL it was imported from.  **The response is the committed document**, already &#x60;PENDING&#x60;: ingestion runs asynchronously, exactly as after &#x60;commit&#x60; — poll &#x60;GET /v1/doc/{id}/status&#x60;. The call itself is synchronous up to that point and takes as long as the page takes to load and print, usually a few seconds.  **The URL must be &#x60;https&#x60;**, and credentials do not go in it: send them in &#x60;headers&#x60;.  **The page is checked before it is printed**: one &#x60;GET&#x60;, redirects followed (at most 20), must end on an &#x60;https&#x60; URL answering HTTP &#x60;200&#x60; with HTML. Anything else is refused without printing — a dead link or an error status is a &#x60;400&#x60;, a URL answering something other than HTML (a PDF, an image, JSON) is a &#x60;415&#x60;.  **&#x60;headers&#x60; reach the page&#39;s own origin only** — same scheme, host and port as &#x60;url&#x60;. Chromium does not send them to the stylesheets, scripts and images the page loads from elsewhere, nor to another origin a redirect leads to. They are used for this call and never stored.  A page that passes the check but still fails to print is a &#x60;400&#x60; saying why. A PDF above the per-document size limit is a &#x60;409&#x60;.  Scope: &#x60;doc:create&#x60;. 
+
+### Example
+
+```java
+// Import classes:
+import com.verbatim.client.springrest.invoker.ApiClient;
+import com.verbatim.client.springrest.invoker.ApiException;
+import com.verbatim.client.springrest.invoker.Configuration;
+import com.verbatim.client.springrest.invoker.auth.*;
+import com.verbatim.client.springrest.invoker.models.*;
+import com.verbatim.client.springrest.api.DocumentApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://api.verbatim-ai.com");
+        
+        // Configure HTTP bearer authorization: JWT
+        HttpBearerAuth JWT = (HttpBearerAuth) defaultClient.getAuthentication("JWT");
+        JWT.setBearerToken("BEARER TOKEN");
+
+        // Configure API key authorization: AccessToken
+        ApiKeyAuth AccessToken = (ApiKeyAuth) defaultClient.getAuthentication("AccessToken");
+        AccessToken.setApiKey("YOUR API KEY");
+        // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //AccessToken.setApiKeyPrefix("Token");
+
+        DocumentApi apiInstance = new DocumentApi(defaultClient);
+        DocumentUrlRequest documentUrlRequest = new DocumentUrlRequest(); // DocumentUrlRequest | 
+        try {
+            Document result = apiInstance.importUrl(documentUrlRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling DocumentApi#importUrl");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **documentUrlRequest** | [**DocumentUrlRequest**](DocumentUrlRequest.md)|  | |
+
+### Return type
+
+[**Document**](Document.md)
+
+### Authorization
+
+[JWT](../README.md#JWT), [AccessToken](../README.md#AccessToken)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **500** | Internal error. Check body to get more info |  -  |
+| **403** | Not authorized. Access not granted for this request |  -  |
+| **404** | The resource referenced by the request does not exist. |  -  |
+| **415** | The URL answers something other than HTML. |  -  |
+| **400** | Invalid request — &#x60;url&#x60; not &#x60;https&#x60;, &#x60;scale&#x60; out of range, an invalid header — or a page that could not be used: unresolvable host, unreachable, too slow, redirected more than 20 times or ending off &#x60;https&#x60;, answering anything but &#x60;200&#x60;, or failing to print. |  -  |
+| **409** | The printed PDF is above the per-document size limit. |  -  |
+| **413** | The request body exceeds the size accepted by the endpoint. |  -  |
+| **202** | Page printed and committed; ingestion queued. |  -  |
+
+
 ## initUpload
 
 > DocumentInit initUpload(documentInitRequest)
@@ -871,11 +956,11 @@ public class Example {
 
 ## search2
 
-> DocumentSearchResponse search2(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex)
+> DocumentSearchResponse search2(corpusId, q, tags, tagsMatch, meta, metaMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex)
 
 Search documents
 
-Find documents in a corpus by filename, tags, lifecycle status, content type, language, provider or ingestion date, sorted the way you need them.  Every filter is optional and they **narrow together**: a request carrying none of them returns the whole corpus, one carrying several returns only the documents matching all of them. For a plain corpus listing, &#x60;GET /v1/doc/&#x60; is the simpler endpoint — this one is for finding a document you cannot scroll to.  ### Filename — &#x60;q&#x60;  Case-insensitive, and **anchored at the start** of the filename: &#x60;q&#x3D;annual&#x60; finds &#x60;Annual-Report-2025.pdf&#x60;, &#x60;q&#x3D;report&#x60; does not. Put a &#x60;*&#x60; anywhere to match elsewhere — &#x60;q&#x3D;*report&#x60; searches any position, &#x60;q&#x3D;*report*&#x60; a substring, &#x60;q&#x3D;2025-*.pdf&#x60; a name that starts with &#x60;2025-&#x60; and ends in &#x60;.pdf&#x60;.  The default is anchored because that is the shape the index can serve: an anchored pattern is a range scan, a leading &#x60;*&#x60; is a filter over the corpus. Both are correct, the first is cheaper — prefer it when your client knows how the filename begins.  &#x60;%&#x60; and &#x60;_&#x60; carry no special meaning here: they match themselves.  ### Tags — &#x60;tags&#x60;, &#x60;tagsMatch&#x60;  Repeat the parameter for several tags (&#x60;tags&#x3D;legal&amp;tags&#x3D;2026&#x60;). By default (&#x60;tagsMatch&#x3D;ANY&#x60;) a document matches when it carries **at least one** of them, which is what &#x60;GET /v1/doc/?tags&#x3D;…&#x60; does; &#x60;tagsMatch&#x3D;ALL&#x60; requires **every** one of them, extra tags on the document being fine.  ### Status — &#x60;status&#x60;  Repeatable as well, and any of the listed states matches: &#x60;status&#x3D;PENDING&amp;status&#x3D;FAILED&#x60; returns everything that is not ingested yet or needs attention.  ### Content type — &#x60;contentType&#x60;  Repeatable too, and any of the listed types matches: &#x60;contentType&#x3D;application/pdf&amp;contentType&#x3D;text/plain&#x60;. Values are taken as they come — nothing is checked against &#x60;GET /v1/doc/accept&#x60;, so a type the platform does not ingest is not an error, it simply matches no document.  ### Size — &#x60;minSize&#x60;, &#x60;maxSize&#x60;  A range on the stored size in bytes, **inclusive at both ends** and each bound independent: &#x60;minSize&#x3D;1048576&#x60; alone is \&quot;at least 1 MB\&quot;, &#x60;maxSize&#x60; alone \&quot;at most\&quot;, and &#x60;minSize&#x3D;maxSize&#x3D;N&#x60; the documents of exactly that many bytes. &#x60;minSize&#x60; above &#x60;maxSize&#x60; is refused with &#x60;400&#x60; rather than answering an empty page.  A document only has a size once its upload is committed, so setting either bound also excludes everything still &#x60;AWAITING_UPLOAD&#x60; — the same documents &#x60;sort&#x3D;SIZE&#x60; pushes to the end of the result.  ### Dates — &#x60;createdAfter&#x60;, &#x60;createdBefore&#x60;  A half-open window on the ingestion date: &#x60;createdAfter&#x60; is inclusive, &#x60;createdBefore&#x60; exclusive, so consecutive windows tile the timeline without returning a document twice. Supplying &#x60;createdAfter&#x60; at or after &#x60;createdBefore&#x60; is refused with &#x60;400&#x60; rather than answering an empty page.  ### Ordering and paging  &#x60;sort&#x60; defaults to &#x60;CREATED_AT&#x60; and &#x60;order&#x60; to &#x60;DESC&#x60; — newest first. The ordering is closed by the document id, so walking &#x60;pageIndex&#x60; never shows the same document twice nor skips one, even when many documents share a sort key. Documents whose &#x60;size&#x60; is not known yet sort last whatever the direction.  &#x60;total&#x60; counts every match across all pages, not just the ones returned here.  ### Examples  * &#x60;?corpusId&#x3D;…&amp;q&#x3D;annual-report&#x60; — every document whose name starts with it * &#x60;?corpusId&#x3D;…&amp;q&#x3D;*report*&#x60; — anywhere in the name, at the cost of a scan * &#x60;?corpusId&#x3D;…&amp;q&#x3D;2025-*.pdf&#x60; — starts with &#x60;2025-&#x60;, ends in &#x60;.pdf&#x60; * &#x60;?corpusId&#x3D;…&amp;status&#x3D;FAILED&amp;status&#x3D;PENDING&amp;sort&#x3D;UPDATED_AT&amp;order&#x3D;ASC&#x60; — the   ingestion backlog, longest-waiting first * &#x60;?corpusId&#x3D;…&amp;tags&#x3D;legal&amp;tags&#x3D;2026&amp;tagsMatch&#x3D;ALL&#x60; — documents carrying both tags * &#x60;?corpusId&#x3D;…&amp;contentType&#x3D;application/pdf&amp;createdAfter&#x3D;2026-07-01T00:00:00Z&amp;createdBefore&#x3D;2026-10-01T00:00:00Z&amp;sort&#x3D;SIZE&amp;order&#x3D;DESC&#x60;   — last quarter&#39;s PDFs, biggest first * &#x60;?corpusId&#x3D;…&amp;contentType&#x3D;application/pdf&amp;contentType&#x3D;text/plain&amp;minSize&#x3D;1048576&#x60;   — PDFs and plain text over 1 MB * &#x60;?corpusId&#x3D;…&amp;maxSize&#x3D;0&#x60; — documents that were uploaded empty 
+Find documents in a corpus by filename, tags, metadata, lifecycle status, content type, language, provider or ingestion date, sorted the way you need them.  Every filter is optional and they **narrow together**: a request carrying none of them returns the whole corpus, one carrying several returns only the documents matching all of them. For a plain corpus listing, &#x60;GET /v1/doc/&#x60; is the simpler endpoint — this one is for finding a document you cannot scroll to.  ### Filename — &#x60;q&#x60;  Case-insensitive, and **anchored at the start** of the filename: &#x60;q&#x3D;annual&#x60; finds &#x60;Annual-Report-2025.pdf&#x60;, &#x60;q&#x3D;report&#x60; does not. Put a &#x60;*&#x60; anywhere to match elsewhere — &#x60;q&#x3D;*report&#x60; searches any position, &#x60;q&#x3D;*report*&#x60; a substring, &#x60;q&#x3D;2025-*.pdf&#x60; a name that starts with &#x60;2025-&#x60; and ends in &#x60;.pdf&#x60;.  The default is anchored because that is the shape the index can serve: an anchored pattern is a range scan, a leading &#x60;*&#x60; is a filter over the corpus. Both are correct, the first is cheaper — prefer it when your client knows how the filename begins.  &#x60;%&#x60; and &#x60;_&#x60; carry no special meaning here: they match themselves.  ### Tags — &#x60;tags&#x60;, &#x60;tagsMatch&#x60;  Repeat the parameter for several tags (&#x60;tags&#x3D;legal&amp;tags&#x3D;2026&#x60;). By default (&#x60;tagsMatch&#x3D;ANY&#x60;) a document matches when it carries **at least one** of them, which is what &#x60;GET /v1/doc/?tags&#x3D;…&#x60; does; &#x60;tagsMatch&#x3D;ALL&#x60; requires **every** one of them, extra tags on the document being fine.  ### Metadata — &#x60;meta&#x60;, &#x60;metaMatch&#x60;  Each &#x60;meta&#x60; is one &#x60;key:value&#x60; condition on the document&#39;s &#x60;metadata&#x60;, split at the **first** &#x60;:&#x60; — so a value may contain colons (&#x60;meta&#x3D;source:https://…&#x60;) but a key may not. Repeat it for several conditions; by default (&#x60;metaMatch&#x3D;ALL&#x60;) a document must satisfy **every** one of them, with &#x60;metaMatch&#x3D;ANY&#x60; **at least one**.  Keys are top-level and exact (case-sensitive). Values compare as text, exactly: &#x60;meta&#x3D;year:2026&#x60; matches &#x60;\&quot;year\&quot;: \&quot;2026\&quot;&#x60; and &#x60;\&quot;year\&quot;: 2026&#x60; alike, and &#x60;meta&#x3D;archived:true&#x60; a boolean &#x60;true&#x60;. A document without the key never matches its condition. At most 16 conditions, keys up to 128 characters, values up to 1024.  ### Status — &#x60;status&#x60;  Repeatable as well, and any of the listed states matches: &#x60;status&#x3D;PENDING&amp;status&#x3D;FAILED&#x60; returns everything that is not ingested yet or needs attention.  ### Content type — &#x60;contentType&#x60;  Repeatable too, and any of the listed types matches: &#x60;contentType&#x3D;application/pdf&amp;contentType&#x3D;text/plain&#x60;. Values are taken as they come — nothing is checked against &#x60;GET /v1/doc/accept&#x60;, so a type the platform does not ingest is not an error, it simply matches no document.  ### Size — &#x60;minSize&#x60;, &#x60;maxSize&#x60;  A range on the stored size in bytes, **inclusive at both ends** and each bound independent: &#x60;minSize&#x3D;1048576&#x60; alone is \&quot;at least 1 MB\&quot;, &#x60;maxSize&#x60; alone \&quot;at most\&quot;, and &#x60;minSize&#x3D;maxSize&#x3D;N&#x60; the documents of exactly that many bytes. &#x60;minSize&#x60; above &#x60;maxSize&#x60; is refused with &#x60;400&#x60; rather than answering an empty page.  A document only has a size once its upload is committed, so setting either bound also excludes everything still &#x60;AWAITING_UPLOAD&#x60; — the same documents &#x60;sort&#x3D;SIZE&#x60; pushes to the end of the result.  ### Dates — &#x60;createdAfter&#x60;, &#x60;createdBefore&#x60;  A half-open window on the ingestion date: &#x60;createdAfter&#x60; is inclusive, &#x60;createdBefore&#x60; exclusive, so consecutive windows tile the timeline without returning a document twice. Supplying &#x60;createdAfter&#x60; at or after &#x60;createdBefore&#x60; is refused with &#x60;400&#x60; rather than answering an empty page.  ### Ordering and paging  &#x60;sort&#x60; defaults to &#x60;CREATED_AT&#x60; and &#x60;order&#x60; to &#x60;DESC&#x60; — newest first. The ordering is closed by the document id, so walking &#x60;pageIndex&#x60; never shows the same document twice nor skips one, even when many documents share a sort key. Documents whose &#x60;size&#x60; is not known yet sort last whatever the direction.  &#x60;total&#x60; counts every match across all pages, not just the ones returned here.  ### Examples  * &#x60;?corpusId&#x3D;…&amp;q&#x3D;annual-report&#x60; — every document whose name starts with it * &#x60;?corpusId&#x3D;…&amp;q&#x3D;*report*&#x60; — anywhere in the name, at the cost of a scan * &#x60;?corpusId&#x3D;…&amp;q&#x3D;2025-*.pdf&#x60; — starts with &#x60;2025-&#x60;, ends in &#x60;.pdf&#x60; * &#x60;?corpusId&#x3D;…&amp;status&#x3D;FAILED&amp;status&#x3D;PENDING&amp;sort&#x3D;UPDATED_AT&amp;order&#x3D;ASC&#x60; — the   ingestion backlog, longest-waiting first * &#x60;?corpusId&#x3D;…&amp;tags&#x3D;legal&amp;tags&#x3D;2026&amp;tagsMatch&#x3D;ALL&#x60; — documents carrying both tags * &#x60;?corpusId&#x3D;…&amp;meta&#x3D;team:legal&amp;meta&#x3D;year:2026&#x60; — metadata &#x60;team&#x60; is &#x60;legal&#x60; **and**   &#x60;year&#x60; is &#x60;2026&#x60; * &#x60;?corpusId&#x3D;…&amp;meta&#x3D;team:legal&amp;meta&#x3D;team:hr&amp;metaMatch&#x3D;ANY&#x60; — either team * &#x60;?corpusId&#x3D;…&amp;contentType&#x3D;application/pdf&amp;createdAfter&#x3D;2026-07-01T00:00:00Z&amp;createdBefore&#x3D;2026-10-01T00:00:00Z&amp;sort&#x3D;SIZE&amp;order&#x3D;DESC&#x60;   — last quarter&#39;s PDFs, biggest first * &#x60;?corpusId&#x3D;…&amp;contentType&#x3D;application/pdf&amp;contentType&#x3D;text/plain&amp;minSize&#x3D;1048576&#x60;   — PDFs and plain text over 1 MB * &#x60;?corpusId&#x3D;…&amp;maxSize&#x3D;0&#x60; — documents that were uploaded empty 
 
 ### Example
 
@@ -908,6 +993,8 @@ public class Example {
         String q = "annual-report"; // String | Filename pattern, case-insensitive and anchored at the start of the name: `annual` matches `Annual-Report-2025.pdf`, `report` does not. Add `*` anywhere to match elsewhere (`*report*`), at the cost of a scan over the corpus. `%` and `_` match themselves. Blank or omitted, filenames are not filtered.
         List<String> tags = Arrays.asList(); // List<String> | Tag filter. Repeat for multiple values: `tags=legal&tags=2026`. When omitted, tags are ignored.
         String tagsMatch = "ANY"; // String | How `tags` combine: `ANY` keeps documents carrying at least one of them, `ALL` only those carrying every one. Ignored without `tags`.
+        List<String> meta = Arrays.asList(); // List<String> | Metadata condition `key:value`, split at the first `:`; the value compares as text, so `year:2026` matches a string or a number. Repeat for several: `meta=team:legal&meta=year:2026`. When omitted, metadata is not filtered.
+        String metaMatch = "ALL"; // String | How `meta` conditions combine: `ALL` (default) keeps documents satisfying every one, `ANY` those satisfying at least one. Ignored without `meta`.
         List<String> status = Arrays.asList(); // List<String> | Lifecycle filter. Repeat for several: `status=PENDING&status=FAILED` matches either. When omitted, documents of all statuses are returned.
         List<String> contentType = Arrays.asList(); // List<String> | MIME type filter. Repeat for several: `contentType=application/pdf&contentType=text/plain` matches either. Values are not checked against `GET /v1/doc/accept` — an unsupported one simply matches nothing. When omitted, content types are not filtered.
         String lang = "fr"; // String | Exact ISO-639 language code of the document.
@@ -921,7 +1008,7 @@ public class Example {
         Integer pageSize = 25; // Integer | Number of items per page, 1-100.
         Integer pageIndex = 0; // Integer | Zero-based page index.
         try {
-            DocumentSearchResponse result = apiInstance.search2(corpusId, q, tags, tagsMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
+            DocumentSearchResponse result = apiInstance.search2(corpusId, q, tags, tagsMatch, meta, metaMatch, status, contentType, lang, provider, createdAfter, createdBefore, minSize, maxSize, sort, order, pageSize, pageIndex);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DocumentApi#search2");
@@ -943,6 +1030,8 @@ public class Example {
 | **q** | **String**| Filename pattern, case-insensitive and anchored at the start of the name: &#x60;annual&#x60; matches &#x60;Annual-Report-2025.pdf&#x60;, &#x60;report&#x60; does not. Add &#x60;*&#x60; anywhere to match elsewhere (&#x60;*report*&#x60;), at the cost of a scan over the corpus. &#x60;%&#x60; and &#x60;_&#x60; match themselves. Blank or omitted, filenames are not filtered. | [optional] |
 | **tags** | [**List&lt;String&gt;**](String.md)| Tag filter. Repeat for multiple values: &#x60;tags&#x3D;legal&amp;tags&#x3D;2026&#x60;. When omitted, tags are ignored. | [optional] |
 | **tagsMatch** | **String**| How &#x60;tags&#x60; combine: &#x60;ANY&#x60; keeps documents carrying at least one of them, &#x60;ALL&#x60; only those carrying every one. Ignored without &#x60;tags&#x60;. | [optional] [enum: ANY, ALL] |
+| **meta** | [**List&lt;String&gt;**](String.md)| Metadata condition &#x60;key:value&#x60;, split at the first &#x60;:&#x60;; the value compares as text, so &#x60;year:2026&#x60; matches a string or a number. Repeat for several: &#x60;meta&#x3D;team:legal&amp;meta&#x3D;year:2026&#x60;. When omitted, metadata is not filtered. | [optional] |
+| **metaMatch** | **String**| How &#x60;meta&#x60; conditions combine: &#x60;ALL&#x60; (default) keeps documents satisfying every one, &#x60;ANY&#x60; those satisfying at least one. Ignored without &#x60;meta&#x60;. | [optional] [enum: ALL, ANY] |
 | **status** | [**List&lt;String&gt;**](String.md)| Lifecycle filter. Repeat for several: &#x60;status&#x3D;PENDING&amp;status&#x3D;FAILED&#x60; matches either. When omitted, documents of all statuses are returned. | [optional] [enum: AWAITING_UPLOAD, PENDING, PROCESSING, READY, FAILED] |
 | **contentType** | [**List&lt;String&gt;**](String.md)| MIME type filter. Repeat for several: &#x60;contentType&#x3D;application/pdf&amp;contentType&#x3D;text/plain&#x60; matches either. Values are not checked against &#x60;GET /v1/doc/accept&#x60; — an unsupported one simply matches nothing. When omitted, content types are not filtered. | [optional] |
 | **lang** | **String**| Exact ISO-639 language code of the document. | [optional] |
@@ -977,7 +1066,7 @@ public class Example {
 | **403** | Not authorized. Access not granted for this request |  -  |
 | **404** | The resource referenced by the request does not exist. |  -  |
 | **415** | Content type not accepted by the platform. See &#x60;GET /v1/doc/accept&#x60; for the list of supported types. |  -  |
-| **400** | A filter or paging parameter is out of bounds, or the date window is empty. |  -  |
+| **400** | A filter or paging parameter is out of bounds or malformed, or the date window is empty. |  -  |
 | **409** | The request conflicts with the current state of the resource. |  -  |
 | **413** | The request body exceeds the size accepted by the endpoint. |  -  |
 | **200** | Page of matching documents. |  -  |

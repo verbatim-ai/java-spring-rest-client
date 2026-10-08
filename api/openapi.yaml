@@ -60,6 +60,9 @@ tags:
     The one exception is `POST /v1/doc/convert`, which belongs to no corpus: it takes a file in
     the request body, converts it to Markdown and returns the result, storing nothing.
 
+    `POST /v1/doc/url` skips the transfer altogether: it takes the URL of a web page, prints the
+    page to PDF on the server side and commits it into a corpus in one call.
+
     Ingestion — conversion to Markdown, summarization, chunking, embedding — is **asynchronous**,
     and `status` is how you follow it:
 
@@ -1355,6 +1358,208 @@ paths:
       summary: Commit a previously initialized upload
       tags:
       - Document
+      x-accepts:
+      - application/json
+  /v1/doc/url:
+    post:
+      description: |
+        Print a web page to PDF and add it to a corpus — the `init` → PUT → `commit` flow
+        in one call, with the server producing the file. The page is loaded in a headless
+        Chromium, as a browser would show it: scripts run, so pages rendered client-side
+        import too.
+
+        **The document is named by the page.** `filename` is the page's
+        `<title>` with a `.pdf` extension (its address when the page has none), `lang` comes
+        from its `<html lang>` (English when it declares none), `provider` is `web`, and
+        `metadata.url` keeps the URL it was imported from.
+
+        **The response is the committed document**, already `PENDING`: ingestion runs
+        asynchronously, exactly as after `commit` — poll `GET /v1/doc/{id}/status`. The
+        call itself is synchronous up to that point and takes as long as the page takes
+        to load and print, usually a few seconds.
+
+        **The URL must be `https`**, and credentials do not go in it: send them in
+        `headers`.
+
+        **The page is checked before it is printed**: one `GET`, redirects followed (at
+        most 20), must end on an `https` URL answering HTTP `200` with HTML. Anything else is
+        refused without printing — a dead link or an error status is a `400`, a URL
+        answering something other than HTML (a PDF, an image, JSON) is a `415`.
+
+        **`headers` reach the page's own origin only** — same scheme, host and port as
+        `url`. Chromium does not send them to the stylesheets, scripts and images the
+        page loads from elsewhere, nor to another origin a redirect leads to. They are
+        used for this call and never stored.
+
+        A page that passes the check but still fails to print is a `400` saying why. A
+        PDF above the per-document size limit is a `409`.
+
+        Scope: `doc:create`.
+      operationId: importUrl
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Public page:
+                description: Public page
+                summary: Required fields only
+                value:
+                  corpusId: 550e8400-e29b-41d4-a716-446655440001
+                  url: https://www.verbatim-ai.com/blog/rag-in-production
+              Page behind a login:
+                description: |
+                  `Authorization` goes to `intranet.example.com` only. `scale`
+                  below 1 fits wide layouts — dashboards, tables — on fewer pages.
+                summary: "Bearer token sent to the page's origin, page scaled down"
+                value:
+                  corpusId: 550e8400-e29b-41d4-a716-446655440001
+                  url: https://intranet.example.com/wiki/onboarding
+                  scale: 0.8
+                  headers:
+                    Authorization: Bearer eyJhbGciOiJSUzI1NiJ9...
+              Session cookie:
+                description: Session cookie
+                summary: A page that authenticates with a cookie
+                value:
+                  corpusId: 550e8400-e29b-41d4-a716-446655440001
+                  url: https://support.example.com/kb/article/1042
+                  headers:
+                    Cookie: session=8f2c1e0a; locale=fr
+            schema:
+              $ref: "#/components/schemas/DocumentUrlRequest"
+        required: true
+      responses:
+        "500":
+          content:
+            application/json:
+              examples:
+                Internal error:
+                  description: Internal error
+                  summary: Generic 500 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 500
+                    error: Internal Server Error
+                    message: corpus not found
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Internal error. Check body to get more info
+        "403":
+          content:
+            application/json:
+              examples:
+                Forbidden error:
+                  description: Forbidden error
+                  summary: Generic 403 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 403
+                    error: Access forbidden
+                    message: Access not granted for this resource
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Not authorized. Access not granted for this request
+        "404":
+          content:
+            application/json:
+              examples:
+                Not found error:
+                  description: Not found error
+                  summary: Generic 404 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 404
+                    error: Resource not found
+                    message: Resource not exist or id is invalid
+                    path: /v1/corpus/id
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The resource referenced by the request does not exist.
+        "415":
+          content:
+            application/json:
+              example:
+                timestamp: 2026-10-07T09:12:44Z
+                status: 415
+                error: Unsupported Media Type
+                message: "Unsupported content type: application/pdf (the page is not\
+                  \ HTML: https://www.verbatim-ai.com/files/report.pdf)"
+                path: /v1/doc/url
+          description: The URL answers something other than HTML.
+        "400":
+          content:
+            application/json:
+              examples:
+                Page not found:
+                  description: Page not found
+                  value:
+                    timestamp: 2026-10-07T09:12:44Z
+                    status: 400
+                    error: Bad Request
+                    message: "the page answered HTTP 404: https://www.verbatim-ai.com/blog/missing"
+                    path: /v1/doc/url
+                Unknown host:
+                  description: Unknown host
+                  value:
+                    timestamp: 2026-10-07T09:12:44Z
+                    status: 400
+                    error: Bad Request
+                    message: "url host cannot be resolved: www.verbatim-ai.cmo"
+                    path: /v1/doc/url
+          description: |-
+            Invalid request — `url` not `https`, `scale` out of range, an invalid header — or a
+            page that could not be used: unresolvable host, unreachable, too slow, redirected
+            more than 20 times or ending off `https`, answering anything but `200`, or failing to print.
+        "409":
+          content: {}
+          description: The printed PDF is above the per-document size limit.
+        "413":
+          content:
+            application/json:
+              examples:
+                Payload too large error:
+                  description: Payload too large error
+                  summary: Generic 413 payload
+                  value:
+                    timestamp: 2026-04-23T04:06:51Z
+                    status: 413
+                    error: Content Too Large
+                    message: document exceeds the 26214400 bytes conversion limit
+                    path: /v1/doc/convert
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: The request body exceeds the size accepted by the endpoint.
+        "202":
+          content:
+            application/json:
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                corpusId: 550e8400-e29b-41d4-a716-446655440001
+                userId: 550e8400-e29b-41d4-a716-446655440099
+                filename: "RAG in production: what we learned.pdf"
+                contentType: application/pdf
+                status: PENDING
+                provider: web
+                lang: en
+                metadata:
+                  url: https://www.verbatim-ai.com/blog/rag-in-production
+                docCreate: 2026-10-07T09:12:44Z
+                docUpdate: 2026-10-07T09:12:44Z
+                createdAt: 2026-10-07T09:12:44Z
+                size: 184320
+                nbPages: 0
+              schema:
+                $ref: "#/components/schemas/Document"
+          description: Page printed and committed; ingestion queued.
+      security:
+      - JWT: []
+      - AccessToken: []
+      summary: Import a web page
+      tags:
+      - Document
+      x-content-type: application/json
       x-accepts:
       - application/json
   /v1/doc/init:
@@ -9296,8 +9501,8 @@ paths:
   /v1/doc/q:
     get:
       description: |
-        Find documents in a corpus by filename, tags, lifecycle status, content type,
-        language, provider or ingestion date, sorted the way you need them.
+        Find documents in a corpus by filename, tags, metadata, lifecycle status, content
+        type, language, provider or ingestion date, sorted the way you need them.
 
         Every filter is optional and they **narrow together**: a request carrying none of
         them returns the whole corpus, one carrying several returns only the documents
@@ -9324,6 +9529,19 @@ paths:
         (`tagsMatch=ANY`) a document matches when it carries **at least one** of them,
         which is what `GET /v1/doc/?tags=…` does; `tagsMatch=ALL` requires **every** one
         of them, extra tags on the document being fine.
+
+        ### Metadata — `meta`, `metaMatch`
+
+        Each `meta` is one `key:value` condition on the document's `metadata`, split at
+        the **first** `:` — so a value may contain colons (`meta=source:https://…`) but a
+        key may not. Repeat it for several conditions; by default (`metaMatch=ALL`) a
+        document must satisfy **every** one of them, with `metaMatch=ANY` **at least
+        one**.
+
+        Keys are top-level and exact (case-sensitive). Values compare as text, exactly:
+        `meta=year:2026` matches `"year": "2026"` and `"year": 2026` alike, and
+        `meta=archived:true` a boolean `true`. A document without the key never matches
+        its condition. At most 16 conditions, keys up to 128 characters, values up to 1024.
 
         ### Status — `status`
 
@@ -9374,6 +9592,9 @@ paths:
         * `?corpusId=…&status=FAILED&status=PENDING&sort=UPDATED_AT&order=ASC` — the
           ingestion backlog, longest-waiting first
         * `?corpusId=…&tags=legal&tags=2026&tagsMatch=ALL` — documents carrying both tags
+        * `?corpusId=…&meta=team:legal&meta=year:2026` — metadata `team` is `legal` **and**
+          `year` is `2026`
+        * `?corpusId=…&meta=team:legal&meta=team:hr&metaMatch=ANY` — either team
         * `?corpusId=…&contentType=application/pdf&createdAfter=2026-07-01T00:00:00Z&createdBefore=2026-10-01T00:00:00Z&sort=SIZE&order=DESC`
           — last quarter's PDFs, biggest first
         * `?corpusId=…&contentType=application/pdf&contentType=text/plain&minSize=1048576`
@@ -9428,6 +9649,35 @@ paths:
           enum:
           - ANY
           - ALL
+          type: string
+        style: form
+      - description: "Metadata condition `key:value`, split at the first `:`; the\
+          \ value compares as text, so `year:2026` matches a string or a number. Repeat\
+          \ for several: `meta=team:legal&meta=year:2026`. When omitted, metadata\
+          \ is not filtered."
+        example: team:legal
+        explode: true
+        in: query
+        name: meta
+        required: false
+        schema:
+          items:
+            type: string
+          type: array
+          default: null
+        style: form
+      - description: "How `meta` conditions combine: `ALL` (default) keeps documents\
+          \ satisfying every one, `ANY` those satisfying at least one. Ignored without\
+          \ `meta`."
+        example: ALL
+        explode: true
+        in: query
+        name: metaMatch
+        required: false
+        schema:
+          enum:
+          - ALL
+          - ANY
           type: string
         style: form
       - description: "Lifecycle filter. Repeat for several: `status=PENDING&status=FAILED`\
@@ -9677,6 +9927,15 @@ paths:
                     error: Bad Request
                     message: minSize must not exceed maxSize (got 2000 and 1000)
                     path: /v1/doc/q
+                Malformed metadata condition:
+                  description: Malformed metadata condition
+                  summary: '`meta` without a `:`'
+                  value:
+                    timestamp: 2026-05-21T10:00:00Z
+                    status: 400
+                    error: Bad Request
+                    message: meta must be key:value (got "team")
+                    path: /v1/doc/q
                 Too many tags:
                   description: Too many tags
                   summary: More than 32 tags supplied
@@ -9688,8 +9947,8 @@ paths:
                     path: /v1/doc/q
               schema:
                 $ref: "#/components/schemas/Error"
-          description: "A filter or paging parameter is out of bounds, or the date\
-            \ window is empty."
+          description: "A filter or paging parameter is out of bounds or malformed,\
+            \ or the date window is empty."
         "409":
           content:
             application/json:
@@ -11826,6 +12085,48 @@ components:
       - createdAt
       - id
       - updatedAt
+    DocumentUrlRequest:
+      description: Body of POST /v1/doc/url. Names a web page to print to PDF and
+        ingest into a corpus.
+      example:
+        corpusId: 550e8400-e29b-41d4-a716-446655440001
+        url: https://www.verbatim-ai.com/blog/rag-in-production
+        scale: 0.8
+        headers:
+          Authorization: Bearer eyJhbGciOiJSUzI1NiJ9...
+      properties:
+        corpusId:
+          description: ID of the corpus the document will be ingested into.
+          example: 550e8400-e29b-41d4-a716-446655440001
+          format: uuid
+          type: string
+        url:
+          description: "Absolute `https` URL of an HTML page, at most 2048 characters.\
+            \ It may not carry credentials (`user:password@`) — send those in `headers`.\
+            \ Stored in the document's `metadata.url`."
+          example: https://www.verbatim-ai.com/blog/rag-in-production
+          type: string
+        scale:
+          description: "Rendering scale of the page, from `0.1` to `2`. Below 1 fits\
+            \ more of the page on each PDF page. Defaults to `1`."
+          example: 0.8
+          format: double
+          maximum: 2
+          minimum: 0.1
+          type: number
+        headers:
+          additionalProperties:
+            type: string
+          description: "HTTP headers sent when loading the page — typically `Authorization`\
+            \ or `Cookie` for a page behind a login. Sent only to the page's own origin\
+            \ (scheme, host and port of `url`), never to the third-party assets it\
+            \ loads; never stored. At most 20."
+          example:
+            Authorization: Bearer eyJhbGciOiJSUzI1NiJ9...
+          type: object
+      required:
+      - corpusId
+      - url
     DocumentInitRequest:
       description: Body of POST /v1/doc/init. Declares a document and requests a presigned
         PUT URL for direct-to-storage upload.

@@ -46,6 +46,7 @@ docs/DocumentPreviewUrls.md
 docs/DocumentSearchResponse.md
 docs/DocumentStatus.md
 docs/DocumentUpdateRequest.md
+docs/DocumentUrlRequest.md
 docs/Error.md
 docs/Model.md
 docs/ModelListResponse.md
@@ -131,6 +132,7 @@ src/main/java/com/verbatim/client/springrest/models/DocumentPreviewUrls.java
 src/main/java/com/verbatim/client/springrest/models/DocumentSearchResponse.java
 src/main/java/com/verbatim/client/springrest/models/DocumentStatus.java
 src/main/java/com/verbatim/client/springrest/models/DocumentUpdateRequest.java
+src/main/java/com/verbatim/client/springrest/models/DocumentUrlRequest.java
 src/main/java/com/verbatim/client/springrest/models/Error.java
 src/main/java/com/verbatim/client/springrest/models/Model.java
 src/main/java/com/verbatim/client/springrest/models/ModelListResponse.java
@@ -192,6 +194,7 @@ src/test/java/com/verbatim/client/springrest/models/DocumentSearchResponseTest.j
 src/test/java/com/verbatim/client/springrest/models/DocumentStatusTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentTest.java
 src/test/java/com/verbatim/client/springrest/models/DocumentUpdateRequestTest.java
+src/test/java/com/verbatim/client/springrest/models/DocumentUrlRequestTest.java
 src/test/java/com/verbatim/client/springrest/models/ErrorTest.java
 src/test/java/com/verbatim/client/springrest/models/ModelListResponseTest.java
 src/test/java/com/verbatim/client/springrest/models/ModelTest.java
